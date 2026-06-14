@@ -4,7 +4,8 @@
 Next Caltrain
 
 ## Subtitle (30 chars max)
-Live countdown to the next train
+Next Caltrain shows a live countdown to your next train with
+automatic weekday, weekend, and holiday schedule detection.
 
 ## Promotional text (170 chars max, can be updated anytime)
 Know when the next Caltrain leaves based on your default stations.
@@ -17,7 +18,7 @@ No more digging through timetables or squinting at tiny rows of numbers.
 
 LIVE COUNTDOWN
 See a big, clear countdown to the next train, updating every second.
-At a glance, know if you need to run or if have time to grab a coffee.
+At a glance, know if you need to run or have time to grab a coffee.
 
 KNOWS THE SCHEDULE, SO YOU DON'T HAVE TO
 Caltrain runs different schedules on weekdays, weekends, and holidays.
