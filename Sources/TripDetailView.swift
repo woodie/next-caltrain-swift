@@ -7,13 +7,6 @@ private struct StationNameWidthKey: PreferenceKey {
     }
 }
 
-private struct RowWidthKey: PreferenceKey {
-    static var defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-        value = max(value, nextValue())
-    }
-}
-
 enum StopRole {
     case past, origin, destination, transfer, future
 }
@@ -94,11 +87,6 @@ struct StopRow: View {
         }
         .fixedSize(horizontal: true, vertical: false)
         .frame(minHeight: 28)
-        .background(
-            GeometryReader { geo in
-                Color.clear.preference(key: RowWidthKey.self, value: geo.size.width)
-            }
-        )
     }
 }
 
@@ -119,7 +107,6 @@ struct TripDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var nameColumnWidth: CGFloat = 0
-    @State private var rowWidth: CGFloat = 0
 
     private var stops: [TripStop] {
         var result: [TripStop] = []
@@ -199,7 +186,6 @@ struct TripDetailView: View {
                     }
                 }
                 .onPreferenceChange(StationNameWidthKey.self) { nameColumnWidth = $0 }
-                .onPreferenceChange(RowWidthKey.self) { rowWidth = $0 }
                 .frame(maxWidth: .infinity, alignment: .center)
             }
             .padding(.top, 8)
