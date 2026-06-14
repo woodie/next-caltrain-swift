@@ -11,7 +11,7 @@ struct TripListView: View {
     @State private var timeColumnWidth: CGFloat = 0
     @State private var headerHeight: CGFloat = 0
     private let rowHeight: CGFloat = 44
-    private let listTopPad: CGFloat = 14
+    private let listTopPad: CGFloat = 0
 
     var windowScene: UIWindowScene? {
         UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
@@ -216,9 +216,9 @@ struct TripListView: View {
                 .foregroundColor(statusColor)
                 .opacity((isSelectedDeparting || viewModel.trips.isEmpty) ? (blinkOn ? 1 : 0) : 1)
                 .animation(.easeInOut(duration: 0.5), value: blinkOn)
-                .padding(.top, 4)
                 .lineLimit(1)
                 .fixedSize(horizontal: true, vertical: false)
+                .frame(height: rowHeight)
                 .onTapGesture { viewModel.cycleSchedule() }
         }
         .background(
