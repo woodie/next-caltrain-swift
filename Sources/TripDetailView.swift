@@ -7,6 +7,13 @@ private struct StationNameWidthKey: PreferenceKey {
     }
 }
 
+private struct RowWidthKey: PreferenceKey {
+    static var defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
+        value = max(value, nextValue())
+    }
+}
+
 enum StopRole {
     case past, origin, destination, transfer, future
 }
@@ -21,7 +28,6 @@ struct StopRow: View {
 
     private let dotSize: CGFloat = 14
 
-    // Line and dot color — past=calPast (blue), future=green, matches legacy PWA
     var trackColor: Color {
         switch role {
         case .past: return .calPast
@@ -29,7 +35,6 @@ struct StopRow: View {
         }
     }
 
-    // Dot color — origin/destination/transfer are app-text colored (.target in legacy)
     var dotColor: Color {
         switch role {
         case .origin, .destination, .transfer: return .appText
@@ -37,20 +42,20 @@ struct StopRow: View {
         }
     }
 
-    // Time and station name color — always appText now
     var textColor: Color { .appText }
 
     var body: some View {
         HStack(spacing: 12) {
-            // station-time
+            // Time — natural width, never wraps
             Text(GoodTimes.fullTime(time))
                 .foregroundColor(textColor)
                 .font(.system(size: AppStyle.fontTrain, weight: .regular))
-                .frame(width: 75, alignment: .trailing)
+                .fixedSize(horizontal: true, vertical: false)
+                .frame(minWidth: 70, alignment: .trailing)
 
-            // station-spacer: vertical line + dot
+            // Vertical line + dot
             GeometryReader { geo in
-                let dotY = AppStyle.fontTrain / 2 + 4 // tune this single constant
+                let dotY = AppStyle.fontTrain / 2 + 4
                 ZStack(alignment: .top) {
                     if !isLast {
                         Rectangle()
@@ -67,7 +72,7 @@ struct StopRow: View {
             .frame(width: dotSize)
             .frame(maxHeight: .infinity)
 
-            // station-name
+            // Station name — fixed to max width across all rows for consistent alignment
             VStack(alignment: .leading, spacing: 2) {
                 Text(station)
                     .foregroundColor(textColor)
@@ -87,9 +92,13 @@ struct StopRow: View {
             )
             .frame(width: nameColumnWidth > 0 ? nameColumnWidth : nil, alignment: .leading)
         }
+        .fixedSize(horizontal: true, vertical: false)
         .frame(minHeight: 28)
-        .frame(maxWidth: .infinity, alignment: .center)
-        .offset(x: -2) // shifted right 20pt from -22
+        .background(
+            GeometryReader { geo in
+                Color.clear.preference(key: RowWidthKey.self, value: geo.size.width)
+            }
+        )
     }
 }
 
@@ -110,6 +119,7 @@ struct TripDetailView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var nameColumnWidth: CGFloat = 0
+    @State private var rowWidth: CGFloat = 0
 
     private var stops: [TripStop] {
         var result: [TripStop] = []
@@ -151,7 +161,6 @@ struct TripDetailView: View {
                 } else {
                     role = .future
                 }
-                // TODO: Possible transfer label: SJC → #405 Limited
                 result.append(TripStop(time: t, station: sta, role: role, transferLabel: nil))
             }
         }
@@ -189,9 +198,9 @@ struct TripDetailView: View {
                         )
                     }
                 }
-                .onPreferenceChange(StationNameWidthKey.self) { width in
-                    nameColumnWidth = width
-                }
+                .onPreferenceChange(StationNameWidthKey.self) { nameColumnWidth = $0 }
+                .onPreferenceChange(RowWidthKey.self) { rowWidth = $0 }
+                .frame(maxWidth: .infinity, alignment: .center)
             }
             .padding(.top, 8)
         }
