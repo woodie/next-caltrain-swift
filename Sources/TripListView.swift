@@ -141,7 +141,7 @@ struct TripListView: View {
                         schedule: viewModel.schedule,
                         origin: viewModel.origin,
                         destination: viewModel.destination,
-                        scheduleType: viewModel.scheduleType,
+                        scheduleType: trip.isFuture ? viewModel.tomorrowScheduleType : viewModel.scheduleType,
                         goodTimes: viewModel.goodTimes
                     )
                 },
