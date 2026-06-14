@@ -46,7 +46,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                 context("with a special date matching today") {
                     let specialDates: [String: Int] = [
                         "2026-07-04": ScheduleType.weekend.rawValue,
-                        "2026-12-25": ScheduleType.modified.rawValue,
+                        "2026-12-25": ScheduleType.holiday.rawValue,
                     ]
 
                     context("when the special date maps to .weekend") {
@@ -63,14 +63,14 @@ final class CaltrainScheduleSpec: QuickSpec {
                         }
                     }
 
-                    context("when the special date maps to .modified") {
-                        it("returns .modified regardless of dotw") {
+                    context("when the special date maps to .holiday") {
+                        it("returns .holiday regardless of dotw") {
                             let result = CaltrainSchedule.optionIndex(
                                 date: "2026-12-25",
                                 dotw: 5, // would normally be .weekday
                                 specialDates: specialDates
                             )
-                            expect(result).to(equal(.modified))
+                            expect(result).to(equal(.holiday))
                         }
                     }
 

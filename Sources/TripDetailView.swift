@@ -135,7 +135,7 @@ struct TripDetailView: View {
             switch scheduleType {
             case .weekday:  source = direction == "North" ? schedule.northWeekday  : schedule.southWeekday
             case .weekend:  source = direction == "North" ? schedule.northWeekend  : schedule.southWeekend
-            case .modified: source = direction == "North" ? schedule.northModified : schedule.southModified
+            case .holiday: source = direction == "North" ? schedule.northHoliday : schedule.southHoliday
             }
             guard let times = source[String(leg.trainId)] else { continue }
 

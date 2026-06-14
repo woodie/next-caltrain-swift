@@ -34,9 +34,6 @@ struct CaltrainService {
         let departIsSC = CaltrainService.southCountyStations.contains(depart)
         let arriveIsSC = CaltrainService.southCountyStations.contains(arrive)
 
-        // A transfer is only needed when crossing the South County / electric
-        // boundary, i.e. exactly one endpoint is in South County. SC-to-SC
-        // trips (and electric-to-electric trips) are direct.
         let needsTransfer = scheduleType == .weekday && (departIsSC != arriveIsSC)
 
         if needsTransfer {
@@ -84,9 +81,6 @@ struct CaltrainService {
               let destIdx = stops.firstIndex(of: destination) else { return [] }
 
         if direction == "North" {
-            // Northbound: SC train from origin → San Jose Diridon,
-            // then electric train from San Jose Diridon → destination.
-            // For each SC train, find the first electric that departs after SC arrives.
             var scTrains: [(trainId: Int, departOrigin: Int, arriveTransfer: Int)] = []
             for (trainKey, times) in source {
                 guard let trainId = Int(trainKey),
@@ -121,9 +115,6 @@ struct CaltrainService {
             return trips
 
         } else {
-            // Southbound: electric train from origin → San Jose Diridon,
-            // then SC train from San Jose Diridon → destination.
-            // For each SC train, find the last electric that arrives before SC departs.
             var scTrains: [(trainId: Int, departTransfer: Int, arriveDestination: Int)] = []
             for (trainKey, times) in source {
                 guard let trainId = Int(trainKey),
@@ -150,7 +141,6 @@ struct CaltrainService {
 
             var trips: [Trip] = []
             for sc in scTrains {
-                // Last electric that arrives at SJ before SC departs
                 guard let el = elTrains.last(where: { $0.arriveTransfer <= sc.departTransfer }) else { continue }
                 let leg1 = Leg(trainId: el.trainId, station: origin, depart: el.departOrigin)
                 let leg2 = Leg(trainId: sc.trainId, station: transfer, depart: sc.departTransfer)
@@ -187,7 +177,7 @@ struct CaltrainService {
         switch scheduleType {
         case .weekday:  return direction == "North" ? schedule.northWeekday  : schedule.southWeekday
         case .weekend:  return direction == "North" ? schedule.northWeekend  : schedule.southWeekend
-        case .modified: return direction == "North" ? schedule.northModified : schedule.southModified
+        case .holiday:  return direction == "North" ? schedule.northHoliday  : schedule.southHoliday
         }
     }
 }

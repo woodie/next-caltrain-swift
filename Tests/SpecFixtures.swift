@@ -32,7 +32,7 @@ import Foundation
 ///     let schedule = SpecFixtures.schedule {
 ///         $0.weekday(electric: .normal, diesel: .normal)
 ///         $0.weekend(electric: .normal, diesel: .none)
-///         $0.modified(electric: .normal, diesel: .none)
+///         $0.holiday(electric: .normal, diesel: .none)
 ///     }
 ///
 /// Each leg (electric/diesel) for each schedule type can be `.normal`
@@ -109,7 +109,7 @@ enum SpecFixtures {
         }
 
         mutating func modified(electric: Service = .none, diesel: Service = .none) {
-            set(.modified, electric: electric, diesel: diesel)
+            set(.holiday, electric: electric, diesel: diesel)
         }
 
         private mutating func set(_ type: ScheduleType, electric: Service, diesel: Service) {
@@ -179,10 +179,10 @@ enum SpecFixtures {
                 southStops: stops,
                 northWeekday: north[.weekday] ?? [:],
                 northWeekend: north[.weekend] ?? [:],
-                northModified: north[.modified] ?? [:],
+                northHoliday: north[.holiday] ?? [:],
                 southWeekday: south[.weekday] ?? [:],
                 southWeekend: south[.weekend] ?? [:],
-                southModified: south[.modified] ?? [:],
+                southHoliday: south[.holiday] ?? [:],
                 scheduleDate: nil
             )
         }
