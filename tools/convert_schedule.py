@@ -22,8 +22,8 @@ CSV_FILES = [
     "weekday_south.csv",
     "weekend_north.csv",
     "weekend_south.csv",
-    "modified_north.csv",
-    "modified_south.csv",
+    "holiday_north.csv",
+    "holiday_south.csv",
 ]
 
 def load_special_dates(data_dir):
@@ -91,8 +91,8 @@ def main():
     south_stations, weekday_south = read_csv(data_dir / "weekday_south.csv")
     _, weekend_north = read_csv(data_dir / "weekend_north.csv")
     _, weekend_south = read_csv(data_dir / "weekend_south.csv")
-    _, modified_north = read_csv(data_dir / "modified_north.csv")
-    _, modified_south = read_csv(data_dir / "modified_south.csv")
+    _, holiday_north = read_csv(data_dir / "holiday_north.csv")
+    _, holiday_south = read_csv(data_dir / "holiday_south.csv")
 
     schedule_date = latest_mtime_ms(data_dir)
 
@@ -102,10 +102,10 @@ def main():
         "southStops": south_stations,
         "northWeekday":  {str(k): v for k, v in weekday_north.items()},
         "northWeekend":  {str(k): v for k, v in weekend_north.items()},
-        "northModified": {str(k): v for k, v in modified_north.items()},
+        "northHoliday":  {str(k): v for k, v in holiday_north.items()},
         "southWeekday":  {str(k): v for k, v in weekday_south.items()},
         "southWeekend":  {str(k): v for k, v in weekend_south.items()},
-        "southModified": {str(k): v for k, v in modified_south.items()},
+        "southHoliday":  {str(k): v for k, v in holiday_south.items()},
         "scheduleDate": schedule_date,
     }
 
@@ -120,3 +120,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
