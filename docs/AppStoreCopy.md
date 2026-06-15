@@ -4,8 +4,7 @@
 Next Caltrain
 
 ## Subtitle (30 chars max)
-Next Caltrain shows a live countdown to your next train with
-automatic weekday, weekend, and holiday schedule detection.
+Live countdown to next train
 
 ## Promotional text (170 chars max, can be updated anytime)
 Know when the next Caltrain leaves based on your default stations.
