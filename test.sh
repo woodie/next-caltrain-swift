@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+# If the simulator isn't running yet: open -a Simulator
+
 xcodegen generate
 
 if command -v xcbeautify &> /dev/null; then
