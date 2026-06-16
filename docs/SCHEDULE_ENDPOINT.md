@@ -37,17 +37,29 @@ success/failure.
   Run this in its own terminal, leave it running, Ctrl-C when done. Use
   `http://127.0.0.1:8123/schedule.json` as `remoteURL` for case 5.
 
-All three are set via the same edit point in `Sources/CaltrainSchedule.swift`:
+All three are set via `SCHEDULE_URL` in `local.env` (gitignored — this is the
+per-developer test override; don't confuse it with the committed
+`schedule-endpoint.env`, which holds the real production URL. `run.sh` sources
+both, `local.env` taking precedence, and passes the result to the simulator as
+`SIMCTL_CHILD_SCHEDULE_URL` — see `docs/CLAUDE.md`):
 
-```swift
-private static let remoteURL = URL(string: "<ENDPOINT HERE>")!
+```
+SCHEDULE_URL=<ENDPOINT HERE>
 ```
 
-**Always revert to the real endpoint when you're done testing.**
+Switching endpoints is just an edit to `local.env` + `./run.sh` — no rebuild needed,
+since it's read at runtime via `ProcessInfo`. `./build.sh` only needs to run once per
+session (or after actual source changes).
+
+**Always leave `SCHEDULE_URL` commented out (or absent) when you're done testing.**
 
 ## Cache helper commands
 
-Delete cache (forces "no cache" state):
+By default `./run.sh` preserves app data across runs (just forces a cold
+relaunch via `simctl terminate`) — use `./run.sh --fresh` (or `-f`) for a full
+wipe (uninstall) when you need to guarantee no cache at all.
+
+Delete cache only (forces "no cache" state without touching other app data):
 ```
 find ~/Library/Developer/CoreSimulator/Devices -path "*Containers/Data/Application/*/Documents/schedule.json" -delete
 ```
@@ -63,66 +75,85 @@ above, overwrite it with garbage:
 echo '{not valid json' > <path-from-above>
 ```
 
+Reset the "fetched today" flag (cache stays, but the next launch races a
+fresh fetch instead of taking the instant cache-only path) — needed before
+cases 4 and 5, since a prior successful/attempted fetch in the same session
+otherwise marks today as already-fetched:
+```
+xcrun simctl terminate booted com.netpress.NextCaltrain 2>/dev/null
+xcrun simctl spawn booted defaults delete com.netpress.NextCaltrain lastFetchTime
+```
+(Swap `booted` for a specific UDID if you're targeting a non-booted device.)
+
 ## Suggested test order
 
 Doing them in this order lets each step set up the next with minimal
 endpoint-switching:
 
+Only the first step needs `./build.sh`. After that, switching cases is just
+an edit to `local.env` + `./run.sh` — the value is read at runtime via
+`ProcessInfo`, no rebuild needed.
+
 1. **Case 1 (no cache, fetch fails)**
-   - Delete cache.
-   - `remoteURL` = port-9 instant-failure endpoint (simplest; hanging
-     endpoint would also work but takes longer).
-   - `./build.sh && ./run.sh`
+   - Set `SCHEDULE_URL=http://127.0.0.1:9/schedule.json` in `local.env`
+     (simplest; hanging endpoint would also work but takes longer).
+   - `./build.sh && ./run.sh --fresh` (`--fresh` guarantees no cache).
    - **Expect**: loading screen stays up permanently, "Unable to load
      schedule". No transition to Home.
 
 2. **Case 2 (no cache, real endpoint, success)**
-   - Delete cache.
-   - `remoteURL` = real endpoint.
-   - `./build.sh && ./run.sh`
+   - Comment out `SCHEDULE_URL` in `local.env` (falls back to the real
+     endpoint).
+   - `./run.sh --fresh`
    - **Expect**: brief loading screen → Home with fresh data. This also
-     populates the cache for the next steps.
+     populates the cache (and marks today as fetched) for the next steps.
 
 3. **Case 3 (valid cache, real endpoint, success)**
-   - Cache now exists from step 1. `remoteURL` still real.
-   - `./build.sh && ./run.sh`
-   - **Expect**: near-instant Home (cache hit), background refresh
-     succeeds silently.
+   - Cache now exists from step 2. `SCHEDULE_URL` still commented out (real
+     endpoint). Plain `./run.sh` this time (no `--fresh` — we want to keep
+     the cache).
+   - **Expect**: near-instant Home (cache hit). Since step 2 already marked
+     today as fetched, this takes the cache-only path with no network call
+     at all — which is also a valid way to observe that path.
 
 4. **Case 4 (valid cache, instant failure)**
-   - Cache still present. Switch `remoteURL` to the port-9 instant-failure
-     endpoint.
-   - `./build.sh && ./run.sh`
+   - Cache still present. Run the "reset fetched-today flag" command above
+     (otherwise the cache-only path from step 3 wins again and the fetch
+     never happens).
+   - Set `SCHEDULE_URL=http://127.0.0.1:9/schedule.json` in `local.env`.
+   - `./run.sh`
    - **Expect**: "Loading schedule data" flashes briefly, then Home using
      cached data (fetch fails fast, well under 10s).
 
 5. **Case 5 (valid cache, fetch hangs >10s)**
    - Start the hanging Python server in a separate terminal.
-   - Cache still present. Switch `remoteURL` to the hanging endpoint
-     (`http://127.0.0.1:8123/schedule.json`).
-   - `./build.sh && ./run.sh`
+   - Cache still present. Run the "reset fetched-today flag" command again
+     (step 4's attempt may have marked today as fetched too).
+   - Set `SCHEDULE_URL=http://127.0.0.1:8123/schedule.json` in `local.env`.
+   - `./run.sh`
    - **Expect**: "Loading schedule data" for ~10 seconds, then Home using
      cached data. Time it — should be close to 10s, not instant and not 30s.
    - Stop the Python server (Ctrl-C) when done.
 
 6. **Case 6 (corrupted cache)**
-   - Run with the real endpoint once to repopulate a valid cache (same as
-     step 1), then corrupt it using the "Corrupt the cache" command above.
-   - Switch `remoteURL` to the port-9 instant-failure endpoint (to isolate
+   - Comment out `SCHEDULE_URL` (real endpoint) and `./run.sh --fresh` once
+     to repopulate a valid cache, then corrupt it using the "Corrupt the
+     cache" command above.
+   - Set `SCHEDULE_URL=http://127.0.0.1:9/schedule.json` again (to isolate
      cache-validity handling from network success masking it).
-   - `./build.sh && ./run.sh`
+   - `./run.sh` (no `--fresh` — that would also wipe the corrupted cache
+     file we just planted).
    - **Expect**: behaves like case 1 — `loadCached()` rejects the invalid
      JSON, falls through to the no-cache path, fetch fails, "Unable to load
      schedule" stays up.
 
 7. **Final cleanup**
-   - Set `remoteURL` back to the real endpoint:
-     ```swift
-     private static let remoteURL = URL(string: "https://next-caltrain-pwa.appspot.com/schedule.json")!
-     ```
-   - Delete cache (it may contain garbage from step 6) and run once more to
+   - Comment out (or delete) `SCHEDULE_URL` in `local.env`. It's gitignored,
+     so there's nothing to check into git either way — just leave it unset
+     so the next run uses the real endpoint.
+   - `./run.sh --fresh` once more (clears any garbage cache from step 6) to
      confirm everything's back to normal (case 2 → case 3 on next launch).
-   - `git diff Sources/CaltrainSchedule.swift` should show no changes before
-     committing other work.
+   - `git status` should show no changes to tracked files from this testing
+     session.
 EOF
 

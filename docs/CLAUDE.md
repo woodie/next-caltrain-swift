@@ -17,7 +17,11 @@ with its file tools — no download/move step. After changes:
 files are added/removed) + `xcodebuild ... | grep "error:"` (build, only
 errors printed) + `xcrun simctl uninstall` (clean reinstall).
 
-`./run.sh` installs and launches the app in the simulator.
+`./run.sh` installs and launches the app in the simulator. By default it
+preserves existing app data (cache, UserDefaults) across runs, forcing only a
+cold relaunch (`simctl terminate` + `install` + `launch`) — pass `--fresh`/`-f`
+for a full wipe (`simctl uninstall` first, same as `./build.sh` already does).
+See `docs/SCHEDULE_ENDPOINT.md` for when each matters.
 
 After running, the user shares a simulator screenshot for visual feedback and
 iteration. Claude commits directly with git when a change is complete — commits go on
@@ -68,6 +72,18 @@ Runs `xcodegen generate` then `xcodebuild test` against the `NextCaltrain` schem
   ../next-caltrain-pwa/webapp/schedule.json`, commit, then `npm run deploy`
   from `next-caltrain-pwa` (gcloud App Engine). Served at
   `https://next-caltrain-pwa.appspot.com/schedule.json`.
+- **Endpoint resolution**: `Schedule.remoteURL` reads `ProcessInfo.processInfo.environment["SCHEDULE_URL"]`,
+  which `run.sh` sets with this precedence (highest first):
+  1. `local.env` (gitignored) — per-developer override, e.g. the instant-fail/hang-server
+     test scenarios in `docs/SCHEDULE_ENDPOINT.md`. Never committed.
+  2. `schedule-endpoint.env` (committed, repo root) — the real production URL. If the
+     schedule data ever moves to a new home, edit and commit this file directly, no
+     source edit needed.
+  3. The literal in `CaltrainSchedule.swift` — last-resort safety net for launches that
+     bypass `run.sh` (e.g. running directly from Xcode).
+  Switching endpoints via either `.env` file is just an edit + `./run.sh`, no rebuild.
+  (Kotlin sibling uses the equivalent `scheduleUrl=` layering across `local.properties` /
+  `schedule-endpoint.properties`.)
 - At launch, `Schedule.fetchFromNetwork()` fetches the published copy and
   caches it to `Documents/schedule.json` for next launch.
   `Schedule.loadCached()` prefers the cache, validates with `Schedule.isValid`

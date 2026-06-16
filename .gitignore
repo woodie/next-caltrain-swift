@@ -33,6 +33,9 @@ playground.xcworkspace
 
 .DS_Store
 
+# Local schedule-endpoint override (see docs/CLAUDE.md "Schedule data pipeline")
+local.env
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However

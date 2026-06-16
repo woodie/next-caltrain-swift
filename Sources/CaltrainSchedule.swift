@@ -22,7 +22,15 @@ struct Schedule: Codable {
     let southWeekend: [String: [Int?]]
     let southHoliday: [String: [Int?]]
     let scheduleDate: Int?  // epoch ms; matches PWA's scheduleDate (stop_times.txt mtime)
-    private static let remoteURL = URL(string: "https://next-caltrain-pwa.appspot.com/schedule.json")!
+    // Reads SCHEDULE_URL, which run.sh sets from (highest priority first):
+    // local.env (gitignored, per-developer test override) > schedule-endpoint.env
+    // (committed, real production URL — edit + commit that file to relocate it).
+    // The literal below is a last-resort safety net for launches that bypass
+    // run.sh (e.g. running directly from Xcode). See docs/CLAUDE.md.
+    private static let remoteURL = URL(
+        string: ProcessInfo.processInfo.environment["SCHEDULE_URL"]
+            ?? "https://next-caltrain-pwa.appspot.com/schedule.json"
+    )!
     private static var cachedFileURL: URL {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return dir.appendingPathComponent("schedule.json")
