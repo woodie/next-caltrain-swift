@@ -1,6 +1,6 @@
 # Working with Claude on Next Caltrain (iOS)
 
-This repo (`next-caltrain-ios`) is a SwiftUI port of `next-caltrain-pwa` (a JS/PWA
+This repo (`next-caltrain-swift`) is a SwiftUI port of `next-caltrain-pwa` (a JS/PWA
 Caltrain schedule app). The `next-caltrain-pwa` repo also hosts a published
 `schedule.json` that this app fetches at runtime.
 

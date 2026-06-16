@@ -120,7 +120,7 @@ published schedule does **not** require an App Store release.
 
 2. **Convert to JSON**:
    ```bash
-   cd next-caltrain-ios
+   cd next-caltrain-swift
    python3 tools/convert_schedule.py ../next-caltrain-pwa/data ../next-caltrain-pwa/webapp/schedule.json
    ```
 
