@@ -65,7 +65,7 @@ doesn't change.
 
 ## Build & archive
 
-This repo's `build.sh`/`simulate.sh` are simulator-only (debug builds). App
+This repo's `build.sh`/`run.sh` are simulator-only (debug builds). App
 Store submission requires:
 
 1. An Apple Developer account enrolled in the App Store Connect program.

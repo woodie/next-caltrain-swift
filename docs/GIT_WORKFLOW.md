@@ -35,7 +35,7 @@ Pattern: `{type}/{issue-number}-{short-description}`
    git checkout -b bugfix/7-no-text-wrap
    ```
 
-2. **Make changes** — edit files, run `./build.sh && ./simulate.sh` to
+2. **Make changes** — edit files, run `./build.sh && ./run.sh` to
    test interactively, take screenshots for feedback.
 
 3. **Run tests** before committing:
@@ -94,7 +94,7 @@ After merging a hotfix, **re-release to the App Store** (see below).
 
 2. **Simulator**:
    ```bash
-   ./build.sh && ./simulate.sh
+   ./build.sh && ./run.sh
    ```
 
 3. **Edge cases** — if the change touches schedule logic, routing, or time
@@ -106,7 +106,7 @@ After merging a hotfix, **re-release to the App Store** (see below).
 
 4. **Logs**:
    ```bash
-   ./simulate.sh --log
+   ./run.sh --log
    ```
 
 ## Schedule updates (publish new `schedule.json`)
@@ -186,7 +186,7 @@ Before releasing:
 
 - [ ] `./test.sh` passes.
 - [ ] `swiftlint` has no errors.
-- [ ] `./build.sh && ./simulate.sh` works.
+- [ ] `./build.sh && ./run.sh` works.
 - [ ] Tested on a real device (not just simulator).
 - [ ] Schedule loads correctly (check About view).
 - [ ] Countdown updates every second; weekday/weekend detection correct.

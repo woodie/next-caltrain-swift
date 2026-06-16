@@ -69,18 +69,18 @@ before `./build.sh` if you've added or removed files.
 ## Simulator build (debug, app target only)
 
 ```
-./build.sh && ./simulate.sh
+./build.sh && ./run.sh
 ```
 
 `build.sh` wraps `xcodegen` + `xcodebuild ... | grep "error:"` + a clean
-simulator reinstall. `simulate.sh` installs and launches the app.
+simulator reinstall. `run.sh` installs and launches the app.
 
 ## Viewing logs
 
 To stream debug logs from the running simulator app:
 
 ```
-./simulate.sh --log
+./run.sh --log
 ```
 
 This captures `os_log` output filtered by tag. To add debug logs in Swift:
@@ -91,7 +91,7 @@ os_log("[MyTag] value=%.1f", log: OSLog(subsystem: "com.netpress.NextCaltrain", 
 ```
 
 The bracketed tag (e.g. `[MyTag]`) must also be added to the predicate in
-`simulate.sh` — look for the `composedMessage CONTAINS` line and add:
+`run.sh` — look for the `composedMessage CONTAINS` line and add:
 
 ```
 OR composedMessage CONTAINS "[MyTag]"
@@ -108,5 +108,5 @@ use `os_log` with a subsystem for logs you want to see in the terminal.
 | Regenerate Xcode project | `xcodegen generate` |
 | Run unit tests | `./test.sh` |
 | Lint | `swiftlint` |
-| Build + run in simulator | `./build.sh && ./simulate.sh` |
-| View debug logs | `./simulate.sh --log` |
+| Build + run in simulator | `./build.sh && ./run.sh` |
+| View debug logs | `./run.sh --log` |

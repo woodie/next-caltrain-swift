@@ -72,27 +72,27 @@ endpoint-switching:
    - Delete cache.
    - `remoteURL` = port-9 instant-failure endpoint (simplest; hanging
      endpoint would also work but takes longer).
-   - `./build.sh && ./simulate.sh`
+   - `./build.sh && ./run.sh`
    - **Expect**: loading screen stays up permanently, "Unable to load
      schedule". No transition to Home.
 
 2. **Case 2 (no cache, real endpoint, success)**
    - Delete cache.
    - `remoteURL` = real endpoint.
-   - `./build.sh && ./simulate.sh`
+   - `./build.sh && ./run.sh`
    - **Expect**: brief loading screen → Home with fresh data. This also
      populates the cache for the next steps.
 
 3. **Case 3 (valid cache, real endpoint, success)**
    - Cache now exists from step 1. `remoteURL` still real.
-   - `./build.sh && ./simulate.sh`
+   - `./build.sh && ./run.sh`
    - **Expect**: near-instant Home (cache hit), background refresh
      succeeds silently.
 
 4. **Case 4 (valid cache, instant failure)**
    - Cache still present. Switch `remoteURL` to the port-9 instant-failure
      endpoint.
-   - `./build.sh && ./simulate.sh`
+   - `./build.sh && ./run.sh`
    - **Expect**: "Loading schedule data" flashes briefly, then Home using
      cached data (fetch fails fast, well under 10s).
 
@@ -100,7 +100,7 @@ endpoint-switching:
    - Start the hanging Python server in a separate terminal.
    - Cache still present. Switch `remoteURL` to the hanging endpoint
      (`http://127.0.0.1:8123/schedule.json`).
-   - `./build.sh && ./simulate.sh`
+   - `./build.sh && ./run.sh`
    - **Expect**: "Loading schedule data" for ~10 seconds, then Home using
      cached data. Time it — should be close to 10s, not instant and not 30s.
    - Stop the Python server (Ctrl-C) when done.
@@ -110,7 +110,7 @@ endpoint-switching:
      step 1), then corrupt it using the "Corrupt the cache" command above.
    - Switch `remoteURL` to the port-9 instant-failure endpoint (to isolate
      cache-validity handling from network success masking it).
-   - `./build.sh && ./simulate.sh`
+   - `./build.sh && ./run.sh`
    - **Expect**: behaves like case 1 — `loadCached()` rejects the invalid
      JSON, falls through to the no-cache path, fetch fails, "Unable to load
      schedule" stays up.

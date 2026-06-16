@@ -10,14 +10,14 @@ Claude has direct read/write access to this repo's working copy and edits files 
 with its file tools — no download/move step. After changes:
 
 ```
-./build.sh && ./simulate.sh
+./build.sh && ./run.sh
 ```
 
 `./build.sh` wraps `xcodegen` (regenerates the Xcode project — needed when
 files are added/removed) + `xcodebuild ... | grep "error:"` (build, only
 errors printed) + `xcrun simctl uninstall` (clean reinstall).
 
-`./simulate.sh` installs and launches the app in the simulator.
+`./run.sh` installs and launches the app in the simulator.
 
 After running, the user shares a simulator screenshot for visual feedback and
 iteration. Claude commits directly with git when a change is complete — commits go on

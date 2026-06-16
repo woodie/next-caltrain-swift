@@ -116,7 +116,7 @@ correctly with the device.
 
 Swift `print()` goes to stdout and is **not** captured by `xcrun simctl spawn log stream`.
 Use `os_log` with a subsystem for logs that need to appear in both Xcode and
-the `--log` flag of `simulate.sh`:
+the `--log` flag of `run.sh`:
 
 ```swift
 import os.log
@@ -127,9 +127,9 @@ os_log("[TripList] windowHeight=%.1f rowCount=%d",
        wh, rc)
 ```
 
-The `simulate.sh --log` predicate filters on `composedMessage CONTAINS "[Tag]"`,
+The `run.sh --log` predicate filters on `composedMessage CONTAINS "[Tag]"`,
 so the bracketed tag in the format string is what makes it visible. Add new
-tags to the predicate in `simulate.sh` when adding new log sites.
+tags to the predicate in `run.sh` when adding new log sites.
 
 ---
 
@@ -148,5 +148,5 @@ tags to the predicate in `simulate.sh` when adding new log sites.
   for row count — ZStack layout feedback compresses it as rows render.
 - **Don't** use `UIScreen.main.bounds.height` for orientation-aware height —
   it doesn't rotate on iOS 16+. Use `window.bounds.height` instead.
-- **Don't** use `print()` for logs you want to see via `simulate.sh --log` —
+- **Don't** use `print()` for logs you want to see via `run.sh --log` —
   use `os_log` with a subsystem instead.
