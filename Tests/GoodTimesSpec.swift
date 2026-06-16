@@ -188,6 +188,35 @@ final class GoodTimesSpec: QuickSpec {
                     }
                 }
             }
+
+            describe(".scheduleDateFor(_:)") {
+                // Used by the once-per-day schedule fetch cap to decide whether a
+                // stored "last fetched at" timestamp still counts as "today" under
+                // the same "day starts at 2am" rule GoodTimes() itself uses. Both
+                // timestamps in each test are built from the same Calendar so the
+                // comparison holds regardless of the device's default timezone.
+
+                it("returns the same schedule-day for two instants on the same calendar day, both after 2am") {
+                    let cal = Calendar.current
+                    let morning = cal.date(from: DateComponents(year: 2026, month: 6, day: 15, hour: 10))!
+                    let night = cal.date(from: DateComponents(year: 2026, month: 6, day: 15, hour: 23))!
+                    expect(GoodTimes.scheduleDateFor(morning)).to(equal(GoodTimes.scheduleDateFor(night)))
+                }
+
+                it("treats 1am as still belonging to the previous schedule-day") {
+                    let cal = Calendar.current
+                    let lateNight = cal.date(from: DateComponents(year: 2026, month: 6, day: 15, hour: 23))!
+                    let earlyMorning = cal.date(from: DateComponents(year: 2026, month: 6, day: 16, hour: 1))!
+                    expect(GoodTimes.scheduleDateFor(earlyMorning)).to(equal(GoodTimes.scheduleDateFor(lateNight)))
+                }
+
+                it("rolls over to the next schedule-day right at the 2am boundary") {
+                    let cal = Calendar.current
+                    let beforeBoundary = cal.date(from: DateComponents(year: 2026, month: 6, day: 16, hour: 1, minute: 59))!
+                    let afterBoundary = cal.date(from: DateComponents(year: 2026, month: 6, day: 16, hour: 2, minute: 1))!
+                    expect(GoodTimes.scheduleDateFor(afterBoundary)).toNot(equal(GoodTimes.scheduleDateFor(beforeBoundary)))
+                }
+            }
         }
     }
 }

@@ -27,7 +27,9 @@ struct Schedule: Codable {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return dir.appendingPathComponent("schedule.json")
     }
-    private static let lastFetchKey = "lastFetchTime"
+    // Not private so unit tests (@testable import) can read/write the same key
+    // directly instead of hardcoding the string.
+    static let lastFetchKey = "lastFetchTime"
     /// Loads a valid cached schedule from disk, if one exists.
     static func loadCached() -> Schedule? {
         guard let cached = try? Data(contentsOf: cachedFileURL),
