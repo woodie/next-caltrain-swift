@@ -6,15 +6,12 @@ Caltrain schedule app). The `next-caltrain-pwa` repo also hosts a published
 
 ## Edit cycle
 
-Claude edits files via its file tools, then provides a download link. The
-workflow per change is:
+Claude has direct read/write access to this repo's working copy and edits files in place
+with its file tools — no download/move step. After changes:
 
-1. Download the file(s) to `~/Downloads/`.
-2. Run the copy-paste command Claude provides, which typically does:
-   ```
-   mv ~/Downloads/<Files> Sources/   # or tools/, assets/, etc.
-   ./build.sh && ./simulate.sh
-   ```
+```
+./build.sh && ./simulate.sh
+```
 
 `./build.sh` wraps `xcodegen` (regenerates the Xcode project — needed when
 files are added/removed) + `xcodebuild ... | grep "error:"` (build, only
@@ -23,7 +20,18 @@ errors printed) + `xcrun simctl uninstall` (clean reinstall).
 `./simulate.sh` installs and launches the app in the simulator.
 
 After running, the user shares a simulator screenshot for visual feedback and
-iteration.
+iteration. Claude commits directly with git when a change is complete — commits go on
+`main` and are left unpushed unless asked to push.
+
+## Run tests
+
+```bash
+./test.sh
+```
+
+Runs `xcodegen generate` then `xcodebuild test` against the `NextCaltrain` scheme
+(Quick/Nimble specs in `Tests/`: `GoodTimesSpec`, `CaltrainScheduleSpec`,
+`CaltrainServiceSpec`, `TripViewModelSpec`, `ScheduleSpec`).
 
 ## Conventions
 
@@ -60,13 +68,14 @@ iteration.
   ../next-caltrain-pwa/webapp/schedule.json`, commit, then `npm run deploy`
   from `next-caltrain-pwa` (gcloud App Engine). Served at
   `https://next-caltrain-pwa.appspot.com/schedule.json`.
-- At launch, `Schedule.refreshFromNetwork()` fetches the published copy and
+- At launch, `Schedule.fetchFromNetwork()` fetches the published copy and
   caches it to `Documents/schedule.json` for next launch.
-  `Schedule.load()` prefers the cache, validates with `Schedule.isValid`
+  `Schedule.loadCached()` prefers the cache, validates with `Schedule.isValid`
   (stop lists non-empty, schedule table arrays match stop-list lengths).
-- `CaltrainSchedule.swift` currently has temporary `[Schedule]` debug print
-  statements from testing the fetch/cache path — harmless, can be removed
-  whenever convenient.
+- `Schedule.fetchedToday()` / `markFetched()` cap network fetches to once per
+  schedule-day (2am boundary, see `GoodTimes.scheduleDateFor` and "Startup /
+  loading flow" below) — `lastFetchTime` in `UserDefaults`, key exposed as
+  `Schedule.lastFetchKey` for tests.
 
 ## Startup / loading flow
 
@@ -74,12 +83,16 @@ iteration.
   data: <date>" section is replaced with "Loading schedule data" (or
   "Unable to load schedule" on permanent failure), and the back button is
   hidden.
-- `ContentView` owns the loading state machine (see `loadSchedule()`):
+- `ContentView` owns the loading state machine (see `loadSchedule()`), now a 3-case
+  decision keyed on cache presence *and* whether we already fetched today:
+  - **Cache exists and `Schedule.fetchedToday()` is true**: use the cache directly, no
+    network call at all — avoids a redundant fetch every time the app is reopened the
+    same day.
   - **No valid cache**: block on `Schedule.fetchFromNetwork()`. On success,
     transition to `HomeView`. On failure, show "Unable to load schedule"
     permanently — no retry loop, no transition.
-  - **Valid cache exists**: race `fetchFromNetwork()` against a 10s timeout
-    (`firstOf` helper). Whichever resolves first wins; on timeout or
+  - **Cache exists but not fetched today**: race `fetchFromNetwork()` against a 10s
+    timeout (`firstOf` helper). Whichever resolves first wins; on timeout or
     failure, fall back to the cached schedule and transition to `HomeView`.
 - `TripViewModel` no longer loads schedule data itself — it takes a
   `Schedule` via `init(schedule:)`, injected by `ContentView` once loading
@@ -101,23 +114,6 @@ iteration.
   is the reference — compare its `direction()`/`select()`/`times()`/`merge()`
   against the Swift `CaltrainService.swift` equivalents when something
   doesn't match.
-
-## Workflow reminders
-
-- After every file edit, always provide the copy-paste command:
-  ```
-  mv ~/Downloads/<Files> Sources/   # or tools/, assets/, etc.
-  ./build.sh && ./simulate.sh
-  ```
-  Don't omit this even if it was given recently — always include it with each
-  set of changed files.
-
-- When Claude needs the contents of a file it doesn't have, ask for it via:
-  ```
-  cat Sources/<filename> | pbcopy
-  ```
-  (one file per command, or one command listing multiple filenames if the
-  user is sending several files at once).
 
 ## Lessons from layout debugging
 
