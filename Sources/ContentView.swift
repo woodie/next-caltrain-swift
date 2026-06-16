@@ -21,9 +21,17 @@ struct ContentView: View {
 
     private func loadSchedule() async {
         if let cached = Schedule.loadCached() {
-            // Case 2: have cache. Try to refresh, but cap the wait at 10s —
-            // whichever finishes first (success/failure/timeout) falls back
-            // to the cached data and proceeds to Home.
+            // Case 2a: have cache, already fetched today (2am boundary) —
+            // skip the network call entirely, no need to ask again.
+            if Schedule.fetchedToday() {
+                schedule = cached
+                return
+            }
+            // Case 2b: have cache, haven't fetched today yet. Try to refresh,
+            // but cap the wait at 10s — whichever finishes first
+            // (success/failure/timeout) falls back to the cached data and
+            // proceeds to Home. On failure we keep the stale schedule and
+            // simply try again next time loadSchedule() runs.
             let result = await firstOf(
                 { try await Schedule.fetchFromNetwork() },
                 timeout: 10

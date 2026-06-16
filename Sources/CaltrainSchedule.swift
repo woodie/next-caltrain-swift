@@ -27,6 +27,7 @@ struct Schedule: Codable {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return dir.appendingPathComponent("schedule.json")
     }
+    private static let lastFetchKey = "lastFetchTime"
     /// Loads a valid cached schedule from disk, if one exists.
     static func loadCached() -> Schedule? {
         guard let cached = try? Data(contentsOf: cachedFileURL),
@@ -35,6 +36,18 @@ struct Schedule: Codable {
             return nil
         }
         return schedule
+    }
+    /// True if the last successful network fetch landed on today's schedule-day
+    /// (2am boundary, see GoodTimes.scheduleDateFor). Used to skip redundant
+    /// network calls once we already have today's data.
+    static func fetchedToday() -> Bool {
+        guard let last = UserDefaults.standard.object(forKey: lastFetchKey) as? Date else {
+            return false
+        }
+        return GoodTimes.scheduleDateFor(last) == GoodTimes.scheduleDateFor(Date())
+    }
+    private static func markFetched() {
+        UserDefaults.standard.set(Date(), forKey: lastFetchKey)
     }
     /// Basic structural validation: stop lists are non-empty, and every schedule
     /// table's train arrays match the length of their direction's stop list.
@@ -70,6 +83,7 @@ struct Schedule: Codable {
             throw URLError(.cannotParseResponse)
         }
         try? data.write(to: cachedFileURL, options: .atomic)
+        markFetched()
         return schedule
     }
 }

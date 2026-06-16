@@ -68,6 +68,17 @@ struct GoodTimes {
 
     // MARK: - Static formatting
 
+    /// Returns the yyyy-MM-dd schedule-day string for an arbitrary instant, using
+    /// the same "day starts at 2am" rule as init(): subtract 2 hours before formatting.
+    /// Lets us compare "today" against a stored last-fetch timestamp for the
+    /// once-per-day schedule fetch policy.
+    static func scheduleDateFor(_ date: Date) -> String {
+        let run = date.addingTimeInterval(-2 * 3600)
+        let fmt = DateFormatter()
+        fmt.dateFormat = "yyyy-MM-dd"
+        return fmt.string(from: run)
+    }
+
     static func partTime(_ minutes: Int) -> (String, String) {
         var hrs = (minutes / 60) % 24
         let min = minutes % 60
