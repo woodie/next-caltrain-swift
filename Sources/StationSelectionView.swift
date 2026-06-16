@@ -100,63 +100,83 @@ struct StationSelectionView: View {
             .background(Color.appBackground)
     }
 
+    // List (UITableView-backed) enforces its own minimum row height even with
+    // defaultMinListRowHeight zeroed out, so rows stay taller than the content
+    // actually needs. ScrollView + VStack has no such floor, giving rows that
+    // are exactly insets + text height (LazyVStack was tried first but takes a
+    // generous/unbounded height proposal from ScrollView that ignores content
+    // size — not an issue here since the station list is short, ~30 rows max).
     @ViewBuilder
-    private func morningList(columnWidth: Binding<CGFloat>) -> some View {
+    private func stationListBody(
+        stations: [String],
+        selected: String,
+        columnWidth: Binding<CGFloat>,
+        onSelect: @escaping (String) -> Void
+    ) -> some View {
         ScrollViewReader { proxy in
-            List(stations, id: \.self) { station in
-                stationRow(station, selected: morningStation, columnWidth: columnWidth.wrappedValue)
-                    .listRowBackground(Color.appBackground)
-                    .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
-                    .id(station)
-                    .onTapGesture {
-                        setMorningStation(station)
+            ScrollView {
+                // LazyVStack takes an unbounded/generous height proposal from
+                // ScrollView and can hand each row more vertical space than its
+                // content needs — likely why shrinking stationRow's Text never
+                // changed row pitch. With at most ~30 stations, laziness isn't
+                // needed; plain VStack sizes each row to its actual content.
+                VStack(spacing: 0) {
+                    ForEach(Array(stations.enumerated()), id: \.element) { index, station in
+                        if index > 0 {
+                            Divider().background(Color.calSwapped.opacity(0.4))
+                        }
+                        stationRow(station, selected: selected, columnWidth: columnWidth.wrappedValue)
+                            .padding(EdgeInsets(top: 7, leading: 14, bottom: 7, trailing: 16))
+                            .background(Color.appBackground)
+                            .id(station)
+                            .onTapGesture {
+                                onSelect(station)
+                            }
                     }
+                }
+                .onPreferenceChange(RowWidthKey.self) { width in
+                    columnWidth.wrappedValue = width
+                }
             }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
             .background(Color.appBackground)
-            .onPreferenceChange(RowWidthKey.self) { width in
-                columnWidth.wrappedValue = width
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                sectionHeader("Morning Station")
-            }
             .onAppear {
-                proxy.scrollTo(morningStation, anchor: .center)
+                // With List, scrollTo on appear "just worked." Plain VStack needs
+                // the initial layout pass to finish first, or this fires before the
+                // scroll view knows each row's offset and silently no-ops, leaving
+                // the list at the top instead of centered on the selected station.
+                DispatchQueue.main.async {
+                    proxy.scrollTo(selected, anchor: .center)
+                }
             }
-            .onChange(of: morningStation) { newStation in
+            .onChange(of: selected) { newStation in
                 withAnimation { proxy.scrollTo(newStation, anchor: .center) }
             }
         }
     }
 
     @ViewBuilder
+    private func morningList(columnWidth: Binding<CGFloat>) -> some View {
+        stationListBody(
+            stations: stations,
+            selected: morningStation,
+            columnWidth: columnWidth,
+            onSelect: setMorningStation
+        )
+        .safeAreaInset(edge: .top, spacing: 0) {
+            sectionHeader("Morning Station")
+        }
+    }
+
+    @ViewBuilder
     private func eveningList(columnWidth: Binding<CGFloat>) -> some View {
-        ScrollViewReader { proxy in
-            List(stations, id: \.self) { station in
-                stationRow(station, selected: eveningStation, columnWidth: columnWidth.wrappedValue)
-                    .listRowBackground(Color.appBackground)
-                    .listRowInsets(EdgeInsets(top: 2, leading: 14, bottom: 2, trailing: 16))
-                    .id(station)
-                    .onTapGesture {
-                        setEveningStation(station)
-                    }
-            }
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .background(Color.appBackground)
-            .onPreferenceChange(RowWidthKey.self) { width in
-                columnWidth.wrappedValue = width
-            }
-            .safeAreaInset(edge: .top, spacing: 0) {
-                sectionHeader("Evening Station")
-            }
-            .onAppear {
-                proxy.scrollTo(eveningStation, anchor: .center)
-            }
-            .onChange(of: eveningStation) { newStation in
-                withAnimation { proxy.scrollTo(newStation, anchor: .center) }
-            }
+        stationListBody(
+            stations: stations,
+            selected: eveningStation,
+            columnWidth: columnWidth,
+            onSelect: setEveningStation
+        )
+        .safeAreaInset(edge: .top, spacing: 0) {
+            sectionHeader("Evening Station")
         }
     }
 

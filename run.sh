@@ -33,7 +33,12 @@ else
 fi
 
 xcrun simctl uninstall "$TARGET" com.netpress.NextCaltrain
-xcrun simctl install "$TARGET" ~/Library/Developer/Xcode/DerivedData/NextCaltrain-*/Build/Products/Debug-iphonesimulator/NextCaltrain.app
+# A bare glob here isn't guaranteed to pick the build .sh just produced — if more
+# than one NextCaltrain-* DerivedData folder exists (easy to end up with, since
+# xcodegen regenerates the project), glob expansion has no notion of "newest" and
+# can silently install a stale .app. `ls -t` picks the most recently built one.
+APP_PATH=$(ls -dt ~/Library/Developer/Xcode/DerivedData/NextCaltrain-*/Build/Products/Debug-iphonesimulator/NextCaltrain.app 2>/dev/null | head -1)
+xcrun simctl install "$TARGET" "$APP_PATH"
 xcrun simctl launch "$TARGET" com.netpress.NextCaltrain
 
 if [ "$LOG" = true ]; then
