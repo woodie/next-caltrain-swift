@@ -22,9 +22,10 @@ targets:
       - path: assets/schedule.json
         buildPhase: resources
     settings:
-      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-      DEVELOPMENT_TEAM: 754T277KBJ
-      TARGETED_DEVICE_FAMILY: "1"
+      base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        DEVELOPMENT_TEAM: 754T277KBJ
+        TARGETED_DEVICE_FAMILY: "1"
     info:
       path: NextCaltrain/Info.plist
       properties:
