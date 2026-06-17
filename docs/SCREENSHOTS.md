@@ -2,23 +2,15 @@
 
 Notes on capturing and sizing screenshots for the App Store listing.
 
-## iPhone vs. iPad — check this first
+## iPhone-only (decided)
 
-This app's `TARGETED_DEVICE_FAMILY` is `"1,2"` (project.pbxproj) — it's built as a
-**universal app supporting both iPhone and iPad**. Apple requires screenshots for
-every device family a build supports, so as-is, **iPad screenshots are mandatory**,
-not optional, before this can be submitted.
-
-The layout work documented in `docs/CLAUDE.md` ("Lessons from layout debugging") is
-all iPhone-specific (status bar/notch, toolbar sizing) — there's no evidence the UI
-has been verified on an iPad screen size/aspect ratio. Before taking screenshots,
-decide:
-- **Restrict to iPhone-only**: set `TARGETED_DEVICE_FAMILY = "1"` in the Xcode
-  project (all 4 occurrences in `project.pbxproj`, or via `project.yml` +
-  `xcodegen generate` if a device-family setting is added there instead) and
-  resubmit as iPhone-only. No iPad screenshots needed.
-- **Keep iPad support**: verify the layout actually looks right on an iPad
-  simulator first, then capture iPad screenshots too (see sizes below).
+This app ships **iPhone-only**. `project.yml` now sets
+`TARGETED_DEVICE_FAMILY: "1"` on the `NextCaltrain` target — run `./build.sh`
+(wraps `xcodegen generate`) and confirm all 4 occurrences in
+`project.pbxproj` read `"1"`, not `"1,2"`, before archiving. No iPad
+screenshots or iPad layout testing needed; the layout work in `docs/CLAUDE.md`
+("Lessons from layout debugging") is iPhone-specific and was never verified
+on iPad, so this also sidesteps that risk.
 
 ## Technical requirements (2026)
 
@@ -27,16 +19,19 @@ that family — you don't need a separate set per individual model.
 
 - **iPhone**: canonical size **1320 x 2868** (6.9", e.g. iPhone 16 Pro Max),
   covers all smaller iPhones down to SE automatically.
-- **iPad** (only if keeping iPad support): canonical size **2064 x 2752**
-  (13" iPad Pro), covers other iPad sizes automatically.
 - Format: sRGB PNG or JPEG, no transparency.
 - Apple's minimum is 1 screenshot per device family, but App Store Connect's
   upload UI effectively wants at least 3 — plan for 3–7 per family.
 
 Our captures (via `snap.sh`, see below) come out at the simulator's native
 resolution for whichever device you boot — pick an iPhone 16 Pro Max simulator
-(and, if applicable, a 13" iPad Pro simulator) to land exactly on the canonical
-sizes above with no scaling.
+to land exactly on the canonical size above with no scaling.
+
+**Current `pics/*.png` are not upload-ready**: they're 1206x2622 (iPhone 16
+Pro, not Pro Max) and RGBA (alpha channel present) — wrong size and Apple
+rejects transparency. Recapture on an iPhone 16 Pro Max simulator, then strip
+alpha (e.g. `sips` flatten, or re-save without the alpha channel) before
+upload. See `docs/RELEASE.md` for where this fits in the release checklist.
 
 ## Capturing a screenshot
 
