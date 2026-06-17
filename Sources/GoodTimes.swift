@@ -57,6 +57,7 @@ struct GoodTimes {
     }
 
     private static func logOnce(_ gt: GoodTimes) {
+        #if DEBUG
         guard !didLog else { return }
         didLog = true
         let (t, mer) = GoodTimes.partTime(gt.minutes)
@@ -64,6 +65,7 @@ struct GoodTimes {
               "dotw=\(gt.dotw) date=\(gt.date) tomorrowDotw=\(gt.tomorrowDotw) tomorrowDate=\(gt.tomorrowDate) " +
               "debugOverrideMinutes=\(String(describing: debugOverrideMinutes)) " +
               "debugOverrideDotw=\(String(describing: debugOverrideDotw))")
+        #endif
     }
 
     // MARK: - Static formatting
