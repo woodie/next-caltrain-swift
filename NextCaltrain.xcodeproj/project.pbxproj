@@ -11,7 +11,6 @@
 		09C6D3A2F7ADF7C3C3D9FCC6 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 60040C66E560D368A057B5DF /* Quick */; };
 		118E7B03D9B9F799C88527F1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620056B53323F19CCA107D9E /* ContentView.swift */; };
 		2C6735388AD096CD58E02B82 /* SpecFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59CE174C68911276482173C0 /* SpecFixtures.swift */; };
-		3338A51958DAE9392ECB9D99 /* NextCaltrainWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F4DAAA3B651EB5C38AC2DFB /* NextCaltrainWatchApp.swift */; };
 		5C5AE1A5DEC8D34856C3C298 /* CaltrainScheduleSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E621237438700618E1F3D3 /* CaltrainScheduleSpec.swift */; };
 		5C5C9C2CC00C51B7147D4EF6 /* TripRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1392AC7394F4E821C14D15 /* TripRow.swift */; };
 		5DB330494608AF4A74C2A45A /* TripDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 113A6C3F729D755E18221167 /* TripDetailView.swift */; };
@@ -48,12 +47,10 @@
 		171CFA1BF43465247CF33974 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1D4B717D56B9049760047D32 /* NextCaltrainTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = NextCaltrainTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		207F7AEDB53721B1D75F05B2 /* TripViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripViewModel.swift; sourceTree = "<group>"; };
-		2F4DAAA3B651EB5C38AC2DFB /* NextCaltrainWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextCaltrainWatchApp.swift; sourceTree = "<group>"; };
 		42408915F7FBD71231646650 /* GoodTimesSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodTimesSpec.swift; sourceTree = "<group>"; };
 		4E911FDC405B95A5F919E6FB /* StationSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationSelectionView.swift; sourceTree = "<group>"; };
 		51E621237438700618E1F3D3 /* CaltrainScheduleSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaltrainScheduleSpec.swift; sourceTree = "<group>"; };
 		51F21841F39E953A017B9354 /* AppStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStyle.swift; sourceTree = "<group>"; };
-		536D351B151A418C1B51A75B /* NextCaltrainWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NextCaltrainWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		59CE174C68911276482173C0 /* SpecFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecFixtures.swift; sourceTree = "<group>"; };
 		620056B53323F19CCA107D9E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		75DA780AD372DFB2B8681C6D /* NextCaltrain.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NextCaltrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -102,7 +99,6 @@
 			children = (
 				75DA780AD372DFB2B8681C6D /* NextCaltrain.app */,
 				1D4B717D56B9049760047D32 /* NextCaltrainTests.xctest */,
-				536D351B151A418C1B51A75B /* NextCaltrainWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -134,17 +130,8 @@
 				96A25AE360CB831DFB606BCD /* assets */,
 				52AF0BC61DA78B35C6D4CDF7 /* Sources */,
 				29A118ACDE4F750C6E7EAD13 /* Tests */,
-				80CDB3CE428832E593B21239 /* WatchSources */,
 				2C5BC2D8670FE1A11EA27651 /* Products */,
 			);
-			sourceTree = "<group>";
-		};
-		80CDB3CE428832E593B21239 /* WatchSources */ = {
-			isa = PBXGroup;
-			children = (
-				2F4DAAA3B651EB5C38AC2DFB /* NextCaltrainWatchApp.swift */,
-			);
-			path = WatchSources;
 			sourceTree = "<group>";
 		};
 		96A25AE360CB831DFB606BCD /* assets */ = {
@@ -158,23 +145,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		19C202D7C96F16DB6918EE3E /* NextCaltrainWatch */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2DAD796881A059E026CA11D7 /* Build configuration list for PBXNativeTarget "NextCaltrainWatch" */;
-			buildPhases = (
-				F34D91669EC85473BD1688E9 /* Sources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = NextCaltrainWatch;
-			packageProductDependencies = (
-			);
-			productName = NextCaltrainWatch;
-			productReference = 536D351B151A418C1B51A75B /* NextCaltrainWatch.app */;
-			productType = "com.apple.product-type.application";
-		};
 		8BEA3C1D901CC69E9BB2C329 /* NextCaltrainTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 7A744B7C0B374DAADC32AF67 /* Build configuration list for PBXNativeTarget "NextCaltrainTests" */;
@@ -248,7 +218,6 @@
 			targets = (
 				A2F8037E04D76AC97DA1542C /* NextCaltrain */,
 				8BEA3C1D901CC69E9BB2C329 /* NextCaltrainTests */,
-				19C202D7C96F16DB6918EE3E /* NextCaltrainWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -296,14 +265,6 @@
 				7F78A615FE8372F472227F22 /* ScheduleSpec.swift in Sources */,
 				2C6735388AD096CD58E02B82 /* SpecFixtures.swift in Sources */,
 				BB15CE4657EF930BB4216E22 /* TripViewModelSpec.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F34D91669EC85473BD1688E9 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				3338A51958DAE9392ECB9D99 /* NextCaltrainWatchApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -374,22 +335,10 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
-			};
-			name = Debug;
-		};
-		07D9A0D97FBE8CEB7B056A55 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = NextCaltrainWatch/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = com.netpress.NextCaltrainWatch;
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = 4;
 			};
 			name = Debug;
 		};
@@ -476,10 +425,10 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
 		};
@@ -497,18 +446,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.netpress.NextCaltrain;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		A04E43340B75D30B05C33E1D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = NextCaltrainWatch/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = com.netpress.NextCaltrainWatch;
-				SDKROOT = watchos;
-				SKIP_INSTALL = YES;
-				TARGETED_DEVICE_FAMILY = 4;
 			};
 			name = Release;
 		};
@@ -532,15 +469,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2DAD796881A059E026CA11D7 /* Build configuration list for PBXNativeTarget "NextCaltrainWatch" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				07D9A0D97FBE8CEB7B056A55 /* Debug */,
-				A04E43340B75D30B05C33E1D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		3CB49CDE66442AB3B8D5F6A8 /* Build configuration list for PBXProject "NextCaltrain" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
