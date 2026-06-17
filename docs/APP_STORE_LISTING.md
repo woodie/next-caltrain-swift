@@ -45,3 +45,15 @@ Secondary: Utilities (or Navigation)
 
 ## Age rating
 4+ (no objectionable content, no data collection)
+
+## Privacy policy URL
+https://next-caltrain-pwa.appspot.com/privacy.html
+
+## Notes (not submitted — internal reference)
+- App Privacy ("nutrition label," filled out live in App Store Connect,
+  separate from this doc): answer "Data Not Collected" — no account, no
+  analytics, no ads, no third-party tracking. Station picks and the
+  cached schedule are stored locally via `UserDefaults` and never leave
+  the device, so they don't need to be declared as collected.
+- Export compliance: standard HTTPS only — answer "No" to using
+  proprietary/non-exempt encryption.
