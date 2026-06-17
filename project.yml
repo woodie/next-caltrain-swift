@@ -3,7 +3,6 @@ options:
   bundleIdPrefix: com.netpress
   deploymentTarget:
     iOS: "17.0"
-    watchOS: "10.0"
 packages:
   Quick:
     url: https://github.com/Quick/Quick.git
@@ -41,15 +40,6 @@ targets:
       - package: Nimble
     settings:
       GENERATE_INFOPLIST_FILE: true
-  NextCaltrainWatch:
-    type: application
-    platform: watchOS
-    sources:
-      - WatchSources
-    info:
-      path: NextCaltrainWatch/Info.plist
-      properties:
-        CFBundleDisplayName: Next Caltrain
 schemes:
   NextCaltrain:
     build:
