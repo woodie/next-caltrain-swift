@@ -1,4 +1,4 @@
-# CLAUDE_ADDITIONS.md — layout section replacement
+# COWORK ADDITIONS — layout section replacement
 
 Replace the existing "Layout-jump lesson" and "Lessons from layout
 debugging" sections with the following. Other sections (Testing, Light/dark

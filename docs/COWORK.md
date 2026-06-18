@@ -1,4 +1,4 @@
-# Working with Claude on Next Caltrain (iOS)
+# Working with Next Caltrain (iOS)
 
 This repo (`next-caltrain-swift`) is a SwiftUI port of `next-caltrain-pwa` (a JS/PWA
 Caltrain schedule app). The `next-caltrain-pwa` repo also hosts a published
@@ -6,7 +6,7 @@ Caltrain schedule app). The `next-caltrain-pwa` repo also hosts a published
 
 ## Edit cycle
 
-Claude has direct read/write access to this repo's working copy and edits files in place
+Cowork has direct read/write access to this repo's working copy and edits files in place
 with its file tools — no download/move step. After changes:
 
 ```
@@ -24,7 +24,7 @@ for a full wipe (`simctl uninstall` first, same as `./build.sh` already does).
 See `docs/SCHEDULE_ENDPOINT.md` for when each matters.
 
 After running, the user shares a simulator screenshot for visual feedback and
-iteration. Claude commits directly with git when a change is complete — commits go on
+iteration. Cowork commits directly with git when a change is complete — commits go on
 `main` and are left unpushed unless asked to push.
 
 ## Run tests
