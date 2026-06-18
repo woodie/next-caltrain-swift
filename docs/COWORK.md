@@ -67,11 +67,14 @@ Runs `xcodegen generate` then `xcodebuild test` against the `NextCaltrain` schem
   bundle. On first launch with no cache and a failed/slow fetch, the app
   shows a loading state (see "Startup / loading flow" below) until the
   network fetch succeeds.
-- **Published copy**: `../next-caltrain-pwa/webapp/schedule.json` — regenerate
-  with `python3 tools/convert_schedule.py ../next-caltrain-pwa/data
-  ../next-caltrain-pwa/webapp/schedule.json`, commit, then `npm run deploy`
-  from `next-caltrain-pwa` (gcloud App Engine). Served at
-  `https://next-caltrain-pwa.appspot.com/schedule.json`.
+- **Published copy**: `../next-caltrain-pwa/feed/schedule.json` — regenerated
+  by `update_json.py` in `next-caltrain-pwa` (the CSV→JSON conversion moved
+  there; see "Update (2026-06-18)" note in `docs/GIT_WORKFLOW.md`), then
+  `npm run deploy` (gcloud App Engine). Served at
+  `https://next-caltrain-pwa.appspot.com/feed/schedule.json`. (A separate,
+  hand-frozen `next-caltrain-pwa/webapp/schedule.json` is served at the
+  legacy `/schedule.json` URL solely for the iOS 1.0 App Store review build
+  — see that repo's `docs/PUBLISHING.md` "Schedule JSON URLs" section.)
 - **Endpoint resolution**: `Schedule.remoteURL` reads `ProcessInfo.processInfo.environment["SCHEDULE_URL"]`,
   which `run.sh` sets with this precedence (highest first):
   1. `local.env` (gitignored) — per-developer override, e.g. the instant-fail/hang-server

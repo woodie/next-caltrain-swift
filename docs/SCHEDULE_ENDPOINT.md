@@ -21,7 +21,7 @@ success/failure.
 
 ## Tools needed
 
-- **Real endpoint**: `https://next-caltrain-pwa.appspot.com/schedule.json`
+- **Real endpoint**: `https://next-caltrain-pwa.appspot.com/feed/schedule.json`
   (the normal `remoteURL`)
 - **Instant-failure endpoint**: `http://127.0.0.1:9/schedule.json` (nothing
   listens on port 9 → connection refused immediately)

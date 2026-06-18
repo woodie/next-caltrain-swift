@@ -114,37 +114,25 @@ After merging a hotfix, **re-release to the App Store** (see below).
 The app fetches `schedule.json` from the network at startup, so updating the
 published schedule does **not** require an App Store release.
 
+**Update (2026-06-18):** the CSV → JSON converter that used to live here as
+`tools/convert_schedule.py` moved to `next-caltrain-pwa` (as `update_json.py`)
+along with the rest of the schedule pipeline, since that repo owns the
+source CSVs (see `next-caltrain-pwa/docs/COWORK.md` "Schedule data
+pipeline"). Run schedule updates from there, not from this repo.
+
 ### Workflow
 
-1. **Update the source CSVs** in `../next-caltrain-pwa/data/`.
-
-2. **Convert to JSON**:
-   ```bash
-   cd next-caltrain-swift
-   python3 tools/convert_schedule.py ../next-caltrain-pwa/data ../next-caltrain-pwa/webapp/schedule.json
-   ```
-
-3. **Validate** — the converter prints errors if anything is malformed.
-
-4. **Spot-check** with `jq`:
-   ```bash
-   jq '.northStops | length' ../next-caltrain-pwa/webapp/schedule.json
-   jq '.northWeekday | to_entries | map(.value | length) | unique' ../next-caltrain-pwa/webapp/schedule.json
-   ```
-   Both values must match (30 stops, all schedule tables have 30 rows).
-
-5. **Commit and deploy**:
-   ```bash
-   cd ../next-caltrain-pwa
-   git add webapp/schedule.json
-   git commit -m "Update schedule: new modified schedule for Thanksgiving 2026"
-   git push
-   npm run deploy
-   ```
+Follow `next-caltrain-pwa/docs/PUBLISHING.md` — it's the single canonical
+runbook for generating, validating, and publishing a schedule update. Don't
+duplicate those steps or specific commands here; if the procedure changes,
+update it there so this repo and `next-caltrain-kotlin` stay in sync
+automatically.
 
 ### Common mistakes to avoid
 
-- Forgetting `convert_schedule.py` — never edit the JSON by hand.
+- Editing `feed/schedule.json` by hand instead of via `update_json.py`.
+  (`webapp/schedule.json` is a separate, deliberately hand-frozen file for
+  the iOS 1.0 App Store review build — editing that one by hand is correct.)
 - Bad `12:XX` times (noon vs. midnight) — see `docs/MODIFIED_SCHEDULE_PARSING.md`.
 - Missing the all-empty Broadway row in modified schedules.
 - Forgetting `npm run deploy` after pushing.
