@@ -140,7 +140,7 @@ class TripViewModel: ObservableObject {
     }
 
     func setOffset(_ newOffset: Int) {
-        userSelected = true
+        userSelected = (newOffset != nextIndex)
         offset = newOffset
     }
 
