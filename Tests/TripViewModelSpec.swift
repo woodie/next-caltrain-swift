@@ -193,6 +193,47 @@ final class TripViewModelSpec: QuickSpec {
           expect(detailScheduleType).to(equal(.weekend))
         }
       }
+
+      context("manual selection via setOffset") {
+        // Regression coverage for the reset-button-stuck-on bug: dragging
+        // away from the next train sets hasManualSelection, but dragging
+        // back to that same next-train offset should clear it again —
+        // otherwise the reset button stays visible even though the
+        // current selection is exactly the auto-picked "next train".
+        var viewModel: TripViewModel!
+
+        beforeEach {
+          GoodTimes.debugOverrideDotw = 1  // Monday
+          GoodTimes.debugOverrideMinutes = 100
+          let schedule = SpecFixtures.schedule {
+            $0.weekday(electric: .normal, diesel: .normal)
+            $0.weekend(electric: .normal, diesel: .normal)
+          }
+          viewModel = TripViewModel(schedule: schedule)
+          viewModel.origin = SpecFixtures.sanFrancisco
+          viewModel.destination = SpecFixtures.sanJoseDiridon
+          viewModel.refresh()
+        }
+
+        it("flags manual selection when dragging to an offset other than nextIndex") {
+          viewModel.setOffset(viewModel.nextIndex + 1)
+          expect(viewModel.hasManualSelection).to(beTrue())
+        }
+
+        it("clears manual selection when dragging back to the next train") {
+          viewModel.setOffset(viewModel.nextIndex + 1)
+          expect(viewModel.hasManualSelection).to(beTrue())
+
+          viewModel.setOffset(viewModel.nextIndex)
+          expect(viewModel.hasManualSelection).to(beFalse())
+        }
+
+        it("resetToNext() also clears manual selection") {
+          viewModel.setOffset(viewModel.nextIndex + 1)
+          viewModel.resetToNext()
+          expect(viewModel.hasManualSelection).to(beFalse())
+        }
+      }
     }
   }
 }
