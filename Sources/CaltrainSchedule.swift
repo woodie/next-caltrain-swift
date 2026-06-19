@@ -29,7 +29,7 @@ struct Schedule: Codable {
     // run.sh (e.g. running directly from Xcode). See docs/CLAUDE.md.
     private static let remoteURL = URL(
         string: ProcessInfo.processInfo.environment["SCHEDULE_URL"]
-            ?? "https://next-caltrain-pwa.appspot.com/schedule.json"
+            ?? "https://next-caltrain-pwa.appspot.com/feed/schedule.json"
     )!
     private static var cachedFileURL: URL {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
