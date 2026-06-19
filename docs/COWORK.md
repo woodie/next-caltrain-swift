@@ -27,6 +27,15 @@ After running, the user shares a simulator screenshot for visual feedback and
 iteration. Cowork commits directly with git when a change is complete — commits go on
 `main` and are left unpushed unless asked to push.
 
+**Bugfixes and features tied to a GitHub issue go on a branch, not straight to
+`main`.** Create `bugfix/<issue>-<slug>` or `feature/<issue>-<slug>`, make the fix
+there, and stop — do not commit (even to the branch) until the user has discussed
+the fix and confirmed it actually works (ran `./test.sh`, tried it in the
+simulator). Committing before that confirmation is exactly what we're avoiding;
+the user pushes, reviews, and merges into `main` themselves once satisfied.
+Direct-to-`main` commits are still fine for changes that don't need that
+back-and-forth (docs, copy, config).
+
 ## Run tests
 
 ```bash
