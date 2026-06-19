@@ -69,6 +69,12 @@ before `./build.sh` if you've added or removed files.
 ## Simulator build (debug, app target only)
 
 ```
+./sim.sh
+```
+
+`sim.sh` launches the iOS simulator then just leave it running.
+
+```
 ./build.sh && ./run.sh
 ```
 
