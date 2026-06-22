@@ -147,7 +147,7 @@ def main() -> None:
             # deeper) and don't touch last_path -- the next pass/skip test's
             # tree is still computed from the last *known-good* path.
             depth = max(len(last_path) - 1, 0)
-            print(INDENT * depth + glyph_token + " " + rest, flush=True)
+            print(INDENT * (depth + 1) + glyph_token + " " + rest, flush=True)
             continue
 
         if bare_glyph not in (PASS, SKIP):
@@ -170,11 +170,11 @@ def main() -> None:
             shared += 1
 
         for depth in range(shared, len(path) - 1):
-            print(INDENT * depth + path[depth], flush=True)
+            print(INDENT * (depth + 1) + path[depth], flush=True)
 
         leaf_depth = len(path) - 1
         print(
-            INDENT * leaf_depth + glyph_token + " " + path[-1] + " (" + time_token + " seconds)",
+            INDENT * (leaf_depth + 1) + glyph_token + " " + path[-1] + " (" + time_token + " seconds)",
             flush=True,
         )
         last_path = path

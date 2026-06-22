@@ -114,6 +114,13 @@ This separates each suite's announcement (`'All tests'`,
 `'NextCaltrainTests.xctest'`, each real spec, and the `passed`/`failed`
 rollup at the end) from whatever preceded it, including from each other.
 
+The whole tree is indented one extra level beyond what the dedupe-and-render
+logic computes, so the top-level `describe()` nests visually under its
+`Test Suite '...' started` banner instead of sitting flush with it. The
+passthrough lines (the banners themselves, the `Executed N tests...`
+summary) are untouched, so they stay at column 0 as the visual anchor the
+tree hangs off of.
+
 This produces the same kind of indented tree as the Kotlin sibling (see its
 `docs/COWORK.md` "Test output formatting"), modulo the bare-prose-comma
 caveat above.
