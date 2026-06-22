@@ -25,18 +25,29 @@ fi
 # reliably prints full per-test names, so it's preferred here even though its
 # rendering isn't a true nested tree either. xcpretty is just a fallback in
 # case xcbeautify isn't installed.
+#
+# Quick flattens every describe()/context()/it() into one comma-joined string
+# per test, so xcbeautify's (and xcpretty's) per-test line repeats the full
+# chain every time. tools/test_formatter.py turns that flat stream back
+# into an indented tree by deduping each line's shared prefix against the
+# previous one — see the script's docstring for the full rationale, including
+# why failing-test lines are deliberately left un-deduped.
+FORMAT_TREE="$(dirname "$0")/tools/test_formatter.py"
+
 if command -v xcbeautify &> /dev/null; then
   xcodebuild test \
     -scheme NextCaltrain \
     -destination "$DESTINATION" \
     -enableCodeCoverage NO \
-    | xcbeautify
+    | xcbeautify \
+    | "$FORMAT_TREE"
 elif command -v xcpretty &> /dev/null; then
   xcodebuild test \
     -scheme NextCaltrain \
     -destination "$DESTINATION" \
     -enableCodeCoverage NO \
-    | xcpretty --test
+    | xcpretty --test \
+    | "$FORMAT_TREE"
 else
   xcodebuild test \
     -scheme NextCaltrain \
