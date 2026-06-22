@@ -36,6 +36,9 @@ playground.xcworkspace
 # Local schedule-endpoint override (see docs/CLAUDE.md "Schedule data pipeline")
 local.env
 
+# Python bytecode cache (tools/test_formatter.py)
+__pycache__/
+
 # CocoaPods
 #
 # We recommend against adding the Pods directory to your .gitignore. However
