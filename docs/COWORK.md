@@ -114,8 +114,9 @@ This separates each suite's announcement (`'All tests'`,
 `'NextCaltrainTests.xctest'`, each real spec, and the `passed`/`failed`
 rollup at the end) from whatever preceded it, including from each other.
 
-Graded A+ now, matching the Kotlin sibling (see its `docs/COWORK.md` "Test
-output formatting") modulo the bare-prose-comma caveat above.
+This produces the same kind of indented tree as the Kotlin sibling (see its
+`docs/COWORK.md` "Test output formatting"), modulo the bare-prose-comma
+caveat above.
 
 ## Conventions
 
