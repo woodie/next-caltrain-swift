@@ -46,6 +46,58 @@ Runs `xcodegen generate` then `xcodebuild test` against the `NextCaltrain` schem
 (Quick/Nimble specs in `Tests/`: `GoodTimesSpec`, `CaltrainScheduleSpec`,
 `CaltrainServiceSpec`, `TripViewModelSpec`, `ScheduleSpec`).
 
+### Test output formatting (known gap)
+
+`test.sh` pipes through `xcbeautify` (falling back to `xcpretty --test`, then a
+raw `grep` filter — see inline comments in `test.sh` for why xcbeautify is
+preferred). Output is flat, not a nested tree: every `it()` line repeats the
+full describe/context chain as one comma-joined string, e.g.
+
+```
+✔ TripViewModel, for a route with no service tomorrow, and all of today's
+  trips have already departed, still has today's trips available (0.001 seconds)
+```
+
+Graded C- — so much repeats per line that the actual change between adjacent
+tests is hard to spot, the opposite problem from the Kotlin sibling (graded
+A+; see its `docs/COWORK.md` "Test output formatting").
+
+This is a real limitation of XCTest/Quick, not just the formatter choice —
+confirmed by reading Quick's source (`Sources/Quick/Examples/Example.swift`,
+`ExampleGroup.swift`, `TestSelectorNameProvider.swift`): Quick flattens every
+`it()` into its own XCTestCase method on the spec class, so XCTest only ever
+sees one Suite (the class) with N flat Cases — there's no nested-suite
+structure for any XCTest-based tool (xcbeautify, xcpretty, `xcresulttool`,
+Xcode's own test navigator) to recover. `Example.name` — the comma-joined
+string — is literally promoted to the test's method-selector name by default.
+The nesting only exists as `ExampleGroup.parent` pointers inside Quick's own
+process, before being joined into one string and handed to XCTest.
+
+Options to improve this, not yet implemented, roughly in order of how
+promising/low-risk they look:
+
+1. **Post-process xcbeautify's output.** A small filter script that splits
+   each printed name on `", "`, dedupes the shared prefix against the
+   previous line (same trick the Kotlin reporter uses — see
+   `next-caltrain-kotlin/app/build.gradle.kts`), and re-renders as an
+   indented tree. Runs entirely outside the test process, in the same shell
+   pipeline slot `xcbeautify`/`xcpretty` already occupy, so no risk of
+   stdout getting captured/mangled by `xcodebuild`.
+2. **A Quick `QuickConfiguration` global `afterEach` hook.** Quick's public
+   `ExampleMetadata.example.name` gives the same comma-joined string from
+   inside the test process; same split+dedupe trick, printed via `print()`.
+   Risk: in-process stdout from the test runner may get captured/regrouped
+   by `xcodebuild` before xcbeautify ever sees it — the same issue that ruled
+   out an in-process Kotest listener on the Kotlin side in favor of a
+   Gradle-side one.
+3. **`@testable import Quick`**, to walk the real `ExampleGroup.parent` chain
+   directly instead of splitting a string. Avoids any ambiguity if a
+   describe/context/it description ever contains a literal `", "`, but
+   depends on Quick's `internal` types, which aren't part of its stable API
+   and could break on a Quick version bump.
+
+Option 1 is the most promising starting point if/when we pick this up.
+
 ## Conventions
 
 - **No bold headings/titles** unless explicitly requested. Default to
