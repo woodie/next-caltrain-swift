@@ -72,7 +72,8 @@ tree. It runs entirely outside the test process, in the same pipeline slot
 xcbeautify/xcpretty already occupy, so there's no risk of stdout getting
 captured/mangled by `xcodebuild`.
 
-This is considered done, with three known, deliberate trade-offs:
+This is considered done, with two known, deliberate trade-offs and one gap
+that's since been closed:
 
 - **Failing tests aren't folded into the tree.** xcbeautify joins the failure
   reason onto the test name with the same `", "` separator the name already
@@ -87,25 +88,31 @@ This is considered done, with three known, deliberate trade-offs:
   glyph and the elapsed-time number (never the test name itself), so the
   script matches and re-emits those tokens — ANSI codes and all — verbatim.
   Verified against both colored and uncolored synthetic fixtures.
-- **A bare prose comma inside a single `describe`/`context`/`it` string still
-  over-splits into two tree lines.** Quick joins levels with `", "` and no
-  escaping, so nothing textually distinguishes a level boundary from a comma
-  that's just part of one level's own text. Real examples from this repo's
-  specs: `it("is not a transfer, since both endpoints are South County")` and
-  `it("today is weekday, tomorrow is weekend")` both print as two stacked
-  lines instead of one. `tools/test_formatter.py`'s `split_path()` only
-  splits at paren-depth 0, which *does* correctly handle the parenthetical-
-  aside style also used in these specs (`context("on a weekday (Wednesday,
-  dotw=3)")` prints correctly as one line, comma and all) — but a bare comma
-  with no enclosing parens has no equivalent signal, and comparing against
-  neighboring tests doesn't help either, since the ambiguous span is usually
-  unique to that one test. Confirmed by diffing real `./test.sh` output
-  against the actual spec source for every comma-containing description in
-  the suite — every parenthetical case rendered correctly, every bare-prose
-  case over-split. Closing this gap for good needs Quick's real
-  `ExampleGroup.parent` structure instead of its flattened name string (the
-  `@testable import Quick` option from the options list above), which is a
-  bigger, riskier change than this gap currently justifies.
+- **A bare prose comma inside a single `describe`/`context`/`it` string used
+  to over-split into two tree lines** — fixed. Quick joins levels with `", "`
+  and no escaping, so paren-depth-0 splitting alone can't tell a level
+  boundary from a comma that's just part of one level's own text. Real
+  examples from this repo's specs: `it("is not a transfer, since both
+  endpoints are South County")` and `it("today is weekday, tomorrow is
+  weekend")` used to print as two stacked lines instead of one (the
+  parenthetical-aside style, e.g. `context("on a weekday (Wednesday,
+  dotw=3)")`, was never affected — paren-depth-0 splitting recovers that one
+  exactly). `tools/test_formatter.py`'s `split_path()` now resolves this by
+  reading every describe/context/it string literal directly out of
+  `Tests/*.swift` (`load_known_atoms()`) and using that set as a dictionary:
+  it looks for a way to break the flattened name into known-literal segments
+  joined by `", "`. Because the dictionary comes from the exact same source
+  that produced the name, the correct decomposition always exists — a bare
+  prose comma simply fails to produce any *other* valid one, so the full
+  `it()` text matches as a single segment. Falls back to the old
+  paren-depth-0 heuristic only when a name can't be uniquely resolved this
+  way (`Tests/` unreadable, or a name that's genuinely ambiguous — more than
+  one valid decomposition). See the script's module docstring for the full
+  mechanism, and why this still isn't a complete substitute for walking
+  Quick's real `ExampleGroup.parent` structure via `@testable import Quick`
+  (still the only way to close this *completely*, at the cost of depending
+  on Quick's internal API — not currently justified now that the common case
+  is handled).
 
 A blank line is also inserted before every `Test Suite '...' started at ...`
 or `Test Suite '...' passed`/`failed at ...` banner, unconditionally — no
@@ -122,8 +129,7 @@ summary) are untouched, so they stay at column 0 as the visual anchor the
 tree hangs off of.
 
 This produces the same kind of indented tree as the Kotlin sibling (see its
-`docs/COWORK.md` "Test output formatting"), modulo the bare-prose-comma
-caveat above.
+`docs/COWORK.md` "Test output formatting").
 
 ## Conventions
 

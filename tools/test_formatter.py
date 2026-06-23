@@ -42,24 +42,43 @@ Splitting a name on ", " is itself ambiguous whenever a single describe/
 context/it string contains a literal ", " of its own -- Quick joins levels
 with no escaping, so nothing distinguishes "a comma that separates two
 levels" from "a comma that's just part of one level's text". This codebase
-hits that in two distinct styles, both confirmed by reading the specs:
-parenthetical asides (context("on a weekday (Wednesday, dotw=3)")) and bare
-prose (it("is not a transfer, since both endpoints are South County")).
-split_path() below only splits at paren-depth 0, which recovers the first
-style exactly (the comma never leaves its enclosing parens). The second
-style has no such signal -- nothing about "is not a transfer, since both
+hits that in two distinct styles: parenthetical asides
+(context("on a weekday (Wednesday, dotw=3)")) and bare prose
+(it("is not a transfer, since both endpoints are South County")).
+
+_split_path_heuristic() below only splits at paren-depth 0, which recovers
+the parenthetical style exactly (the comma never leaves its enclosing
+parens) but not bare prose -- nothing about "is not a transfer, since both
 endpoints are South County" textually distinguishes it from two real
-nesting levels, and comparing against neighboring tests doesn't help either
-(the ambiguous span doesn't recur anywhere else to confirm or deny against).
-It prints as two stacked lines instead of one. This is a real, accepted
-limitation of working from xcbeautify's flattened text rather than Quick's
-actual ExampleGroup structure -- see docs/COWORK.md "Test output formatting"
-for the full writeup and the option (walking ExampleGroup.parent via
-@testable import Quick) that would close this gap completely, at the cost
-of depending on Quick's internal API.
+nesting levels.
+
+split_path() resolves the bare-prose case differently: it reads every
+describe/context/it string literal directly out of Tests/*.swift (see
+load_known_atoms()) and treats that set as a dictionary, then looks for a
+way to break the flattened name into a sequence of dictionary entries
+joined by ", ". Because the dictionary comes from the exact same source
+that produced the name, the correct decomposition always exists; a bare
+prose comma simply fails to produce any *other* valid decomposition (the
+text on either side of it isn't itself a known describe/context/it string),
+so the full it() text matches as a single atom. See
+_find_decompositions()'s docstring for why this only needs to distinguish
+"exactly one decomposition" from "zero or more than one", not enumerate
+every possibility.
+
+This still isn't a complete substitute for Quick's actual ExampleGroup
+structure (see docs/COWORK.md "Test output formatting" for that option, and
+why it's a bigger, riskier change): it depends on Tests/ being readable
+next to this script, doesn't follow `\(...)` string interpolation in a
+description (those atoms just never match anything, so they're harmless
+but useless), and -- in the genuinely ambiguous case where a name can be
+decomposed two different valid ways -- falls back to the old paren-depth-0
+heuristic rather than guessing. That fallback is the same one this script
+always used, so behavior degrades to the previous (known) limitation rather
+than to something worse.
 """
 import re
 import sys
+from pathlib import Path
 
 PASS, SKIP, FAIL = "✔", "⊘", "✖"  # ✔ ⊘ ✖ -- xcbeautify's TestStatus glyphs
 
@@ -86,15 +105,115 @@ SUITE_FINISHED_RE = re.compile(r"^Test Suite '.*' (?:passed|failed) at ")
 
 INDENT = "  "
 
+# Tests/*.swift lives one directory up from tools/test_formatter.py.
+TESTS_DIR = Path(__file__).resolve().parent.parent / "Tests"
 
-def split_path(name: str) -> list[str]:
+# Matches the literal-string argument of a describe/context/it call, e.g.
+# describe("TripViewModel") or it("is not a transfer, since both endpoints
+# are South County"). Captures the raw (still-escaped) literal text between
+# the quotes; doesn't require the call to close on the same line.
+ATOM_CALL_RE = re.compile(r'\b(?:describe|context|it)\(\s*"((?:[^"\\]|\\.)*)"')
+
+
+def _unescape_swift_literal(raw: str) -> str:
+    """Undo Swift string-literal escapes (\\", \\\\, \\n, \\t, ...) so the
+    dictionary holds the same text Quick actually renders at runtime."""
+    out: list[str] = []
+    i = 0
+    n = len(raw)
+    while i < n:
+        ch = raw[i]
+        if ch == "\\" and i + 1 < n:
+            nxt = raw[i + 1]
+            out.append({"n": "\n", "t": "\t"}.get(nxt, nxt))
+            i += 2
+        else:
+            out.append(ch)
+            i += 1
+    return "".join(out)
+
+
+def load_known_atoms(tests_dir: Path) -> frozenset[str]:
+    """Collect every describe/context/it literal string used anywhere under
+    tests_dir. Returns an empty set (never raises) if the directory isn't
+    there or isn't readable -- callers treat an empty dictionary as "can't
+    disambiguate" and fall back to the paren-depth-0 heuristic, the same
+    behavior this script always had.
+
+    Doesn't follow string interpolation (`\\(...)`) -- a description built
+    that way isn't a static literal, so it can't be precomputed here. Such
+    an atom is simply captured verbatim (backslash, parens, and all) and
+    will never match real xcbeautify output, which is harmless: it's a dead
+    dictionary entry, not a wrong one.
+    """
+    atoms: set[str] = set()
+    try:
+        paths = sorted(tests_dir.glob("*.swift"))
+    except OSError:
+        return frozenset()
+    for path in paths:
+        try:
+            text = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+        for m in ATOM_CALL_RE.finditer(text):
+            atoms.add(_unescape_swift_literal(m.group(1)))
+    return frozenset(atoms)
+
+
+KNOWN_ATOMS = load_known_atoms(TESTS_DIR)
+
+
+def _find_decompositions(name: str, atoms: frozenset[str], limit: int = 2) -> list[list[str]]:
+    """Try to split `name` into a sequence of dictionary entries joined by
+    ", ", stopping once `limit` distinct decompositions have been found.
+
+    Callers only need to tell "exactly one" apart from "zero, or more than
+    one" -- a unique decomposition is trustworthy, anything else isn't --
+    so there's no reason to enumerate every possibility once a second one
+    has shown up. Atoms are tried longest-first at each position purely as
+    a fail-fast ordering; it doesn't change which decompositions exist.
+    """
+    if not atoms:
+        return []
+    by_length_desc = sorted(atoms, key=len, reverse=True)
+    results: list[list[str]] = []
+    n = len(name)
+
+    def rec(start: int, path: list[str]) -> None:
+        if len(results) >= limit:
+            return
+        if start == n:
+            results.append(list(path))
+            return
+        for atom in by_length_desc:
+            if len(results) >= limit:
+                return
+            if not atom or not name.startswith(atom, start):
+                continue
+            end = start + len(atom)
+            if end == n:
+                path.append(atom)
+                rec(end, path)
+                path.pop()
+            elif name.startswith(", ", end):
+                path.append(atom)
+                rec(end + 2, path)
+                path.pop()
+
+    rec(0, [])
+    return results
+
+
+def _split_path_heuristic(name: str) -> list[str]:
     """Split a Quick-flattened comma-joined test name back into its
-    describe/context/it segments.
+    describe/context/it segments using parenthesis depth alone.
 
     Only splits on ", " when parenthesis depth is 0, so a parenthetical
     aside's internal comma (e.g. "on a weekday (Wednesday, dotw=3)") is
-    never mistaken for a level boundary. See the module docstring for what
-    this does and doesn't catch.
+    never mistaken for a level boundary. This is the fallback split_path()
+    uses when the Tests/*.swift dictionary can't uniquely resolve a name --
+    see the module docstring for what it does and doesn't catch.
     """
     parts = []
     current: list[str] = []
@@ -120,6 +239,20 @@ def split_path(name: str) -> list[str]:
             i += 1
     parts.append("".join(current))
     return parts
+
+
+def split_path(name: str) -> list[str]:
+    """Split a Quick-flattened comma-joined test name back into its
+    describe/context/it segments.
+
+    Tries the Tests/*.swift dictionary first (see module docstring); falls
+    back to the paren-depth-0 heuristic when that can't find exactly one
+    decomposition.
+    """
+    dict_splits = _find_decompositions(name, KNOWN_ATOMS)
+    if len(dict_splits) == 1:
+        return dict_splits[0]
+    return _split_path_heuristic(name)
 
 
 def main() -> None:
