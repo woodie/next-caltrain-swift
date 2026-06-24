@@ -50,6 +50,18 @@ Tests Passed: 0 failed, 0 skipped, 12 total (1.2 seconds)
 or `Test Failed` plus the same counts line, with each failing test's name
 and reason folded into a `Failures:` section just above it.
 
+### Running a single spec
+
+`test.sh` forwards extra args straight to `xcodebuild test` (the `"$@"` in
+the script), so XCTest's `-only-testing` flag works:
+
+```
+./test.sh -only-testing:NextCaltrainTests/GoodTimesSpec
+```
+
+Runs just that spec class. Matches the Kotlin sibling's `./test.sh --tests
+"*.GoodTimesSpec"` (see its `docs/DEVELOPMENT.md`).
+
 ## Linting
 
 ```
@@ -120,6 +132,7 @@ use `os_log` with a subsystem for logs you want to see in the terminal.
 | One-time setup | `brew install xcodegen swiftlint` + build/install `xctidy` (see above) |
 | Regenerate Xcode project | `xcodegen generate` |
 | Run unit tests | `./test.sh` |
+| Run a single spec | `./test.sh -only-testing:NextCaltrainTests/GoodTimesSpec` |
 | Lint | `swiftlint` |
 | Build + run in simulator | `./build.sh && ./run.sh` |
 | View debug logs | `./run.sh --log` |
