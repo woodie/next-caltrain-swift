@@ -52,15 +52,20 @@ and reason folded into a `Failures:` section just above it.
 
 ### Running a single spec
 
-`test.sh` forwards extra args straight to `xcodebuild test` (the `"$@"` in
-the script), so XCTest's `-only-testing` flag works:
-
 ```
-./test.sh -only-testing:NextCaltrainTests/GoodTimesSpec
+./test.sh GoodTimesSpec
 ```
 
-Runs just that spec class. Matches the Kotlin sibling's `./test.sh --tests
-"*.GoodTimesSpec"` (see its `docs/DEVELOPMENT.md`).
+A bare class name with no leading dash is translated into XCTest's
+`-only-testing` flag under the hood. A fully-qualified `Target/Class[/method]`
+name (containing a `/`) is used as-is, so you can also drop to method-level:
+
+```
+./test.sh NextCaltrainTests/GoodTimesSpec/testReturnsTheTimeAndAm
+```
+
+Anything dash-prefixed (`./test.sh -only-testing:...`, or any other
+`xcodebuild` flag) is forwarded straight through, unchanged.
 
 ## Linting
 
@@ -132,7 +137,7 @@ use `os_log` with a subsystem for logs you want to see in the terminal.
 | One-time setup | `brew install xcodegen swiftlint` + build/install `xctidy` (see above) |
 | Regenerate Xcode project | `xcodegen generate` |
 | Run unit tests | `./test.sh` |
-| Run a single spec | `./test.sh -only-testing:NextCaltrainTests/GoodTimesSpec` |
+| Run a single spec | `./test.sh GoodTimesSpec` |
 | Lint | `swiftlint` |
 | Build + run in simulator | `./build.sh && ./run.sh` |
 | View debug logs | `./run.sh --log` |

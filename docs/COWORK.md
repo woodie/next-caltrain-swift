@@ -46,14 +46,15 @@ Runs `xcodegen generate` then `xcodebuild test` against the `NextCaltrain` schem
 (Quick/Nimble specs in `Tests/`: `GoodTimesSpec`, `CaltrainScheduleSpec`,
 `CaltrainServiceSpec`, `TripViewModelSpec`, `ScheduleSpec`).
 
-To run a single spec class, pass `-only-testing` through — `test.sh` forwards
-any extra args straight to `xcodebuild test`:
+To run a single spec class:
 ```bash
-./test.sh -only-testing:NextCaltrainTests/GoodTimesSpec
+./test.sh GoodTimesSpec
 ```
-Matches the Kotlin sibling's `./test.sh --tests "*.GoodTimesSpec"` (its
-`docs/COWORK.md`/`docs/DEVELOPMENT.md`), which forwards args to `gradlew` the
-same way.
+A bare class name is translated into XCTest's `-only-testing` flag under the
+hood. A `Target/Class[/method]` name (containing a `/`) is used as-is, for
+method-level filtering; anything dash-prefixed is forwarded straight to
+`xcodebuild test` unchanged. See `docs/DEVELOPMENT.md` "Running a single
+spec".
 
 ### Test output formatting
 
