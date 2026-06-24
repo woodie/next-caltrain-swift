@@ -10,9 +10,7 @@ final class GoodTimesSpec: QuickSpec {
             describe(".partTime(_:)") {
                 context("when given a morning time") {
                     var result: (String, String)!
-                    beforeEach {
-                        result = GoodTimes.partTime(330) // 5:30am
-                    }
+                    beforeEach { result = GoodTimes.partTime(330) } // 5:30am
 
                     it("returns the time and 'am'") {
                         expect(result.0).to(equal("5:30"))
@@ -22,9 +20,7 @@ final class GoodTimesSpec: QuickSpec {
 
                 context("when given noon") {
                     var result: (String, String)!
-                    beforeEach {
-                        result = GoodTimes.partTime(720) // 12:00pm
-                    }
+                    beforeEach { result = GoodTimes.partTime(720) } // 12:00pm
 
                     it("returns 12:00 and 'pm'") {
                         expect(result.0).to(equal("12:00"))
@@ -34,9 +30,7 @@ final class GoodTimesSpec: QuickSpec {
 
                 context("when given midnight") {
                     var result: (String, String)!
-                    beforeEach {
-                        result = GoodTimes.partTime(0)
-                    }
+                    beforeEach { result = GoodTimes.partTime(0) }
 
                     it("returns 12:00 and 'am'") {
                         expect(result.0).to(equal("12:00"))
@@ -46,9 +40,7 @@ final class GoodTimesSpec: QuickSpec {
 
                 context("when given a today's-schedule post-midnight time (24:00-25:59 range)") {
                     var result: (String, String)!
-                    beforeEach {
-                        result = GoodTimes.partTime(1445) // 24:05
-                    }
+                    beforeEach { result = GoodTimes.partTime(1445) } // 24:05
 
                     it("formats 24:05 as 12:05am") {
                         expect(result.0).to(equal("12:05"))
@@ -59,9 +51,7 @@ final class GoodTimesSpec: QuickSpec {
                 context("when given a tomorrow-shifted time (>= 1440)") {
                     context("at 1740 (29:00)") {
                         var result: (String, String)!
-                        beforeEach {
-                            result = GoodTimes.partTime(1740)
-                        }
+                        beforeEach { result = GoodTimes.partTime(1740) }
 
                         it("wraps to 5:00am") {
                             expect(result.0).to(equal("5:00"))
@@ -71,9 +61,7 @@ final class GoodTimesSpec: QuickSpec {
 
                     context("at 1620 (27:00)") {
                         var result: (String, String)!
-                        beforeEach {
-                            result = GoodTimes.partTime(1620)
-                        }
+                        beforeEach { result = GoodTimes.partTime(1620) }
 
                         it("wraps to 3:00am") {
                             expect(result.0).to(equal("3:00"))
@@ -86,9 +74,7 @@ final class GoodTimesSpec: QuickSpec {
             describe(".fullTime(_:)") {
                 context("when given noon") {
                     var result: String!
-                    beforeEach {
-                        result = GoodTimes.fullTime(720)
-                    }
+                    beforeEach { result = GoodTimes.fullTime(720) }
 
                     it("returns '12:00pm'") {
                         expect(result).to(equal("12:00pm"))
@@ -99,10 +85,7 @@ final class GoodTimesSpec: QuickSpec {
             context("when 'now' is fixed via debugOverrideMinutes") {
                 var gt: GoodTimes!
 
-                beforeEach {
-                    GoodTimes.debugOverrideMinutes = 720 // noon
-                    gt = GoodTimes()
-                }
+                beforeEach { GoodTimes.debugOverrideMinutes = 720 } // noon
 
                 afterEach {
                     GoodTimes.debugOverrideMinutes = nil
@@ -110,6 +93,8 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 describe("#inThePast(_:)") {
+                    beforeEach { gt = GoodTimes() }
+
                     context("when the target is before now") {
                         it("returns true") {
                             expect(gt.inThePast(gt.minutes - 2)).to(beTrue())
@@ -160,16 +145,12 @@ final class GoodTimesSpec: QuickSpec {
             }
 
             context("when 'today' is fixed via debugOverrideDotw") {
-                afterEach {
-                    GoodTimes.debugOverrideDotw = nil
-                }
+                beforeEach { gt = GoodTimes() }
+                afterEach { GoodTimes.debugOverrideDotw = nil }
 
                 context("and today is Friday (5)") {
                     var gt: GoodTimes!
-                    beforeEach {
-                        GoodTimes.debugOverrideDotw = 5
-                        gt = GoodTimes()
-                    }
+                    beforeEach { GoodTimes.debugOverrideDotw = 5 }
 
                     it("computes tomorrow as Saturday (6)") {
                         expect(gt.dotw).to(equal(5))
@@ -179,10 +160,7 @@ final class GoodTimesSpec: QuickSpec {
 
                 context("and today is Saturday (6)") {
                     var gt: GoodTimes!
-                    beforeEach {
-                        GoodTimes.debugOverrideDotw = 6
-                        gt = GoodTimes()
-                    }
+                    beforeEach { GoodTimes.debugOverrideDotw = 6 }
 
                     it("computes tomorrow as Sunday (0), wrapping the week") {
                         expect(gt.tomorrowDotw).to(equal(0))
