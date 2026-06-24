@@ -21,7 +21,7 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 context("when given noon") {
-                    beforeEach { result = GoodTimes.partTime(720) } // 12:00pm
+                    beforeEach { result = GoodTimes.partTime(720) } // noon
 
                     it("returns 12:00 and 'pm'") {
                         expect(result.0).to(equal("12:00"))
@@ -30,7 +30,7 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 context("when given midnight") {
-                    beforeEach { result = GoodTimes.partTime(0) }
+                    beforeEach { result = GoodTimes.partTime(0) } // 12:00am
 
                     it("returns 12:00 and 'am'") {
                         expect(result.0).to(equal("12:00"))
@@ -69,9 +69,9 @@ final class GoodTimesSpec: QuickSpec {
             }
 
             describe(".fullTime(_:)") {
+                var result: String!
                 context("when given noon") {
-                    var result: String!
-                    beforeEach { result = GoodTimes.fullTime(720) }
+                    beforeEach { result = GoodTimes.fullTime(720) } // noon
 
                     it("returns '12:00pm'") {
                         expect(result).to(equal("12:00pm"))
@@ -80,12 +80,9 @@ final class GoodTimesSpec: QuickSpec {
             }
 
             context("when 'now' is fixed via debugOverrideMinutes") {
-                beforeEach { GoodTimes.debugOverrideMinutes = 720 } // noon
-                afterEach { GoodTimes.debugOverrideMinutes = nil }
+                beforeEach { GoodTimes.debugOverrideMinutes = 720; gt = GoodTimes() }
 
                 describe("#inThePast(_:)") {
-                    beforeEach { gt = GoodTimes() }
-
                     context("when the target is before now") {
                         beforeEach { minutes = gt.minutes - 2 }
 
@@ -104,8 +101,6 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 describe("#departing(_:)") {
-                    beforeEach { gt = GoodTimes() }
-
                     context("when the target equals now") {
                         beforeEach { minutes = gt.minutes }
 
@@ -124,8 +119,6 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 describe("#countdown(_:)") {
-                    beforeEach { gt = GoodTimes() }
-
                     context("when the target is in the past") {
                         beforeEach { minutes = gt.minutes - 1 }
 
