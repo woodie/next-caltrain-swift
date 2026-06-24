@@ -31,18 +31,24 @@ fi
 
 # A bare word with no leading dash (e.g. `./test.sh GoodTimesSpec`) is
 # treated as a spec filter and translated into XCTest's -only-testing flag.
-# A name containing a "/" is used as-is (already Target/Class or
-# Target/Class/method); a bare class name is wrapped as
-# NextCaltrainTests/<name>. Everything else (any dash-prefixed flag, e.g.
-# -only-testing:... directly, or none at all) is forwarded unchanged.
+# A ".swift" path (e.g. shell-completed from Tests/GoodTimesSpec.swift) has
+# its directory and extension stripped down to the bare class name first, so
+# tab-completion works. After that: a name containing a "/" is used as-is
+# (already Target/Class or Target/Class/method); a bare class name is
+# wrapped as NextCaltrainTests/<name>. Everything else (any dash-prefixed
+# flag, e.g. -only-testing:... directly, or none at all) is forwarded
+# unchanged.
 #
 #   ./test.sh GoodTimesSpec
+#   ./test.sh Tests/GoodTimesSpec.swift
 #   ./test.sh NextCaltrainTests/GoodTimesSpec/testSomeItBlock
 ARGS=("$@")
 if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
-  case "$1" in
-    */*) FILTER="-only-testing:$1" ;;
-    *)   FILTER="-only-testing:NextCaltrainTests/$1" ;;
+  ARG="$1"
+  [[ "$ARG" == *.swift ]] && ARG="$(basename "$ARG" .swift)"
+  case "$ARG" in
+    */*) FILTER="-only-testing:$ARG" ;;
+    *)   FILTER="-only-testing:NextCaltrainTests/$ARG" ;;
   esac
   ARGS=("$FILTER" "${@:2}")
 fi

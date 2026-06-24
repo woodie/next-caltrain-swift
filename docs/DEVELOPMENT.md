@@ -57,8 +57,17 @@ and reason folded into a `Failures:` section just above it.
 ```
 
 A bare class name with no leading dash is translated into XCTest's
-`-only-testing` flag under the hood. A fully-qualified `Target/Class[/method]`
-name (containing a `/`) is used as-is, so you can also drop to method-level:
+`-only-testing` flag under the hood. A `.swift` path also works, so shell
+tab-completion is fair game:
+
+```
+./test.sh Tests/GoodTimesSpec.swift
+```
+
+(the directory and `.swift` extension are stripped down to `GoodTimesSpec`
+either way — `test.sh` only looks at the basename). A fully-qualified
+`Target/Class[/method]` name (containing a `/`, no `.swift` suffix) is used
+as-is, so you can also drop to method-level:
 
 ```
 ./test.sh NextCaltrainTests/GoodTimesSpec/testReturnsTheTimeAndAm
