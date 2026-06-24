@@ -6,10 +6,12 @@ import Nimble
 final class GoodTimesSpec: QuickSpec {
     override class func spec() {
         describe("GoodTimes") {
+            var gt: GoodTimes!
+            var minutes: Int!
 
             describe(".partTime(_:)") {
+                var result: (String, String)!
                 context("when given a morning time") {
-                    var result: (String, String)!
                     beforeEach { result = GoodTimes.partTime(330) } // 5:30am
 
                     it("returns the time and 'am'") {
@@ -19,7 +21,6 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 context("when given noon") {
-                    var result: (String, String)!
                     beforeEach { result = GoodTimes.partTime(720) } // 12:00pm
 
                     it("returns 12:00 and 'pm'") {
@@ -29,7 +30,6 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 context("when given midnight") {
-                    var result: (String, String)!
                     beforeEach { result = GoodTimes.partTime(0) }
 
                     it("returns 12:00 and 'am'") {
@@ -39,7 +39,6 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 context("when given a today's-schedule post-midnight time (24:00-25:59 range)") {
-                    var result: (String, String)!
                     beforeEach { result = GoodTimes.partTime(1445) } // 24:05
 
                     it("formats 24:05 as 12:05am") {
@@ -50,7 +49,6 @@ final class GoodTimesSpec: QuickSpec {
 
                 context("when given a tomorrow-shifted time (>= 1440)") {
                     context("at 1740 (29:00)") {
-                        var result: (String, String)!
                         beforeEach { result = GoodTimes.partTime(1740) }
 
                         it("wraps to 5:00am") {
@@ -60,7 +58,6 @@ final class GoodTimesSpec: QuickSpec {
                     }
 
                     context("at 1620 (27:00)") {
-                        var result: (String, String)!
                         beforeEach { result = GoodTimes.partTime(1620) }
 
                         it("wraps to 3:00am") {
@@ -84,78 +81,78 @@ final class GoodTimesSpec: QuickSpec {
 
             context("when 'now' is fixed via debugOverrideMinutes") {
                 beforeEach { GoodTimes.debugOverrideMinutes = 720 } // noon
+                afterEach { GoodTimes.debugOverrideMinutes = nil }
 
-                afterEach {
-                    GoodTimes.debugOverrideMinutes = nil
-                    GoodTimes.debugOverrideDotw = nil
-                }
-
-                // Each describe gets its own gt + beforeEach rather than
-                // sharing one from the parent context: a `var` declared here
-                // with no beforeEach of its own would silently reuse whatever
-                // GoodTimes() instance the previous describe's last example
-                // left behind.
                 describe("#inThePast(_:)") {
-                    var gt: GoodTimes!
                     beforeEach { gt = GoodTimes() }
 
                     context("when the target is before now") {
+                        beforeEach { minutes = gt.minutes - 2 }
+
                         it("returns true") {
-                            expect(gt.inThePast(gt.minutes - 2)).to(beTrue())
+                            expect(gt.inThePast(minutes)).to(beTrue())
                         }
                     }
 
                     context("when the target is after now") {
+                        beforeEach { minutes = gt.minutes + 2 }
+
                         it("returns false") {
-                            expect(gt.inThePast(gt.minutes + 2)).to(beFalse())
+                            expect(gt.inThePast(minutes)).to(beFalse())
                         }
                     }
                 }
 
                 describe("#departing(_:)") {
-                    var gt: GoodTimes!
                     beforeEach { gt = GoodTimes() }
 
                     context("when the target equals now") {
+                        beforeEach { minutes = gt.minutes }
+
                         it("returns true") {
-                            expect(gt.departing(gt.minutes)).to(beTrue())
+                            expect(gt.departing(minutes)).to(beTrue())
                         }
                     }
 
                     context("when the target does not equal now") {
+                        beforeEach { minutes = gt.minutes + 1 }
+
                         it("returns false") {
-                            expect(gt.departing(gt.minutes + 1)).to(beFalse())
+                            expect(gt.departing(minutes)).to(beFalse())
                         }
                     }
                 }
 
                 describe("#countdown(_:)") {
-                    var gt: GoodTimes!
                     beforeEach { gt = GoodTimes() }
 
                     context("when the target is in the past") {
+                        beforeEach { minutes = gt.minutes - 1 }
+
                         it("returns an empty string") {
-                            expect(gt.countdown(gt.minutes - 1)).to(equal(""))
+                            expect(gt.countdown(minutes)).to(equal(""))
                         }
                     }
 
                     context("when the target is more than an hour away") {
+                        beforeEach { minutes = gt.minutes + 66 }
+
                         it("formats as 'in N hr M min'") {
-                            expect(gt.countdown(gt.minutes + 66)).to(equal("in 1 hr 5 min"))
+                            expect(gt.countdown(minutes)).to(equal("in 1 hr 5 min"))
                         }
                     }
 
                     context("when the target is less than an hour away") {
+                        beforeEach { minutes = gt.minutes + 5 }
+
                         it("formats as 'in N min M sec'") {
-                            let result = gt.countdown(gt.minutes + 5)
-                            expect(result).to(match("in 4 min \\d+ sec"))
+                            expect(gt.countdown(minutes)).to(match("in 4 min \\d+ sec"))
                         }
                     }
                 }
             }
 
             context("when 'today' is fixed via debugOverrideDotw") {
-                var gt: GoodTimes!
                 afterEach { GoodTimes.debugOverrideDotw = nil }
 
                 context("and today is Friday (5)") {

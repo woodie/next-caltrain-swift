@@ -21,13 +21,9 @@ fi
 # Quick flattens every describe()/context()/it() into one comma-joined
 # string per test -- XCTest only ever sees one flat Case per it(), never a
 # nested Suite (see docs/COWORK.md's "Test output formatting" for why).
-# This used to be xcbeautify (xcpretty, then a bare grep, as fallbacks)
-# piped through tools/test_formatter.py, a Python post-processor that
-# deduped each flattened name's shared prefix back into an indented tree.
-# xctidy replaces all three of those with one step: it reads xcodebuild's
-# raw output directly -- no xcbeautify/xcpretty dependency -- and does the
-# same comma-disambiguation natively, against the real describe/context/it
-# literals in Tests/*.swift. See https://github.com/woodie/xctidy.
+# xctidy reads xcodebuild's raw output directly and reconstructs the tree
+# by comma-disambiguating against the real describe/context/it literals in
+# Tests/*.swift. See https://github.com/woodie/xctidy.
 if ! command -v xctidy &> /dev/null; then
   echo "error: xctidy not found on PATH -- clone github.com/woodie/xctidy and run 'make install'" >&2
   exit 1
@@ -37,4 +33,5 @@ xcodebuild test \
   -scheme NextCaltrain \
   -destination "$DESTINATION" \
   -enableCodeCoverage NO \
+  "$@" \
   | xctidy -fs "$(dirname "$0")/Tests"
