@@ -37,4 +37,4 @@ xcodebuild test \
   -scheme NextCaltrain \
   -destination "$DESTINATION" \
   -enableCodeCoverage NO \
-  | xctidy "$(dirname "$0")/Tests"
+  | xctidy -fs "$(dirname "$0")/Tests"
