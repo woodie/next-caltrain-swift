@@ -13,23 +13,31 @@ final class CaltrainServiceSpec: QuickSpec {
 
             describe(".direction(from:to:stops:)") {
                 context("when traveling from San Francisco to Gilroy") {
-                    it("is South") {
-                        let direction = CaltrainService.direction(
+                    var direction: String!
+                    beforeEach {
+                        direction = CaltrainService.direction(
                             from: SpecFixtures.sanFrancisco,
                             to: SpecFixtures.gilroy,
                             stops: SpecFixtures.stops
                         )
+                    }
+
+                    it("is South") {
                         expect(direction).to(equal("South"))
                     }
                 }
 
                 context("when traveling from Gilroy to San Francisco") {
-                    it("is North") {
-                        let direction = CaltrainService.direction(
+                    var direction: String!
+                    beforeEach {
+                        direction = CaltrainService.direction(
                             from: SpecFixtures.gilroy,
                             to: SpecFixtures.sanFrancisco,
                             stops: SpecFixtures.stops
                         )
+                    }
+
+                    it("is North") {
                         expect(direction).to(equal("North"))
                     }
                 }
@@ -166,12 +174,16 @@ final class CaltrainServiceSpec: QuickSpec {
                 }
 
                 context("for a route with no service (weekend, empty fixture tables)") {
-                    it("returns no trips") {
-                        let trips = service.routes(
+                    var trips: [Trip]!
+                    beforeEach {
+                        trips = service.routes(
                             from: SpecFixtures.sanFrancisco,
                             to: SpecFixtures.gilroy,
                             scheduleType: .weekend
                         )
+                    }
+
+                    it("returns no trips") {
                         expect(trips).to(beEmpty())
                     }
                 }
@@ -179,32 +191,44 @@ final class CaltrainServiceSpec: QuickSpec {
 
             describe("#nextIndex(trips:minutes:)") {
                 context("when no trips have departed yet") {
-                    it("returns 0") {
-                        let trips = service.routes(
+                    var trips: [Trip]!
+                    var index: Int!
+                    beforeEach {
+                        trips = service.routes(
                             from: SpecFixtures.sanFrancisco,
                             to: SpecFixtures.sanJoseDiridon,
                             scheduleType: .weekday
                         )
-                        let index = service.nextIndex(trips: trips, minutes: 0)
+                        index = service.nextIndex(trips: trips, minutes: 0)
+                    }
+
+                    it("returns 0") {
                         expect(index).to(equal(0))
                     }
                 }
 
                 context("when all trips have already departed") {
-                    it("returns the trip count") {
-                        let trips = service.routes(
+                    var trips: [Trip]!
+                    var index: Int!
+                    beforeEach {
+                        trips = service.routes(
                             from: SpecFixtures.sanFrancisco,
                             to: SpecFixtures.sanJoseDiridon,
                             scheduleType: .weekday
                         )
-                        let index = service.nextIndex(trips: trips, minutes: 1000)
+                        index = service.nextIndex(trips: trips, minutes: 1000)
+                    }
+
+                    it("returns the trip count") {
                         expect(index).to(equal(trips.count))
                     }
                 }
 
                 context("when given an empty trip list") {
+                    var index: Int!
+                    beforeEach { index = service.nextIndex(trips: [], minutes: 500) }
+
                     it("returns 0") {
-                        let index = service.nextIndex(trips: [], minutes: 500)
                         expect(index).to(equal(0))
                     }
                 }

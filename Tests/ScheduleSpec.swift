@@ -16,24 +16,31 @@ final class ScheduleSpec: QuickSpec {
             }
 
             context("when nothing has ever been fetched") {
+                beforeEach { UserDefaults.standard.removeObject(forKey: Schedule.lastFetchKey) }
+
                 it("returns false") {
-                    UserDefaults.standard.removeObject(forKey: Schedule.lastFetchKey)
                     expect(Schedule.fetchedToday()).to(beFalse())
                 }
             }
 
             context("when the last fetch was a few minutes ago") {
-                it("returns true") {
+                beforeEach {
                     let recent = Date().addingTimeInterval(-5 * 60)
                     UserDefaults.standard.set(recent, forKey: Schedule.lastFetchKey)
+                }
+
+                it("returns true") {
                     expect(Schedule.fetchedToday()).to(beTrue())
                 }
             }
 
             context("when the last fetch was more than a day ago") {
-                it("returns false") {
+                beforeEach {
                     let stale = Date().addingTimeInterval(-26 * 3600)
                     UserDefaults.standard.set(stale, forKey: Schedule.lastFetchKey)
+                }
+
+                it("returns false") {
                     expect(Schedule.fetchedToday()).to(beFalse())
                 }
             }
