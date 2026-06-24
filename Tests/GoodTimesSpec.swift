@@ -83,8 +83,6 @@ final class GoodTimesSpec: QuickSpec {
             }
 
             context("when 'now' is fixed via debugOverrideMinutes") {
-                var gt: GoodTimes!
-
                 beforeEach { GoodTimes.debugOverrideMinutes = 720 } // noon
 
                 afterEach {
@@ -92,7 +90,13 @@ final class GoodTimesSpec: QuickSpec {
                     GoodTimes.debugOverrideDotw = nil
                 }
 
+                // Each describe gets its own gt + beforeEach rather than
+                // sharing one from the parent context: a `var` declared here
+                // with no beforeEach of its own would silently reuse whatever
+                // GoodTimes() instance the previous describe's last example
+                // left behind.
                 describe("#inThePast(_:)") {
+                    var gt: GoodTimes!
                     beforeEach { gt = GoodTimes() }
 
                     context("when the target is before now") {
@@ -109,6 +113,9 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 describe("#departing(_:)") {
+                    var gt: GoodTimes!
+                    beforeEach { gt = GoodTimes() }
+
                     context("when the target equals now") {
                         it("returns true") {
                             expect(gt.departing(gt.minutes)).to(beTrue())
@@ -123,6 +130,9 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 describe("#countdown(_:)") {
+                    var gt: GoodTimes!
+                    beforeEach { gt = GoodTimes() }
+
                     context("when the target is in the past") {
                         it("returns an empty string") {
                             expect(gt.countdown(gt.minutes - 1)).to(equal(""))
@@ -149,12 +159,7 @@ final class GoodTimesSpec: QuickSpec {
                 afterEach { GoodTimes.debugOverrideDotw = nil }
 
                 context("and today is Friday (5)") {
-                    // debugOverrideDotw must be set before GoodTimes() is
-                    // constructed -- init() snapshots it into dotw.
-                    beforeEach {
-                        GoodTimes.debugOverrideDotw = 5
-                        gt = GoodTimes()
-                    }
+                    beforeEach { GoodTimes.debugOverrideDotw = 5; gt = GoodTimes() }
 
                     it("computes tomorrow as Saturday (6)") {
                         expect(gt.dotw).to(equal(5))
@@ -163,10 +168,7 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 context("and today is Saturday (6)") {
-                    beforeEach {
-                        GoodTimes.debugOverrideDotw = 6
-                        gt = GoodTimes()
-                    }
+                    beforeEach { GoodTimes.debugOverrideDotw = 6; gt = GoodTimes() }
 
                     it("computes tomorrow as Sunday (0), wrapping the week") {
                         expect(gt.tomorrowDotw).to(equal(0))
