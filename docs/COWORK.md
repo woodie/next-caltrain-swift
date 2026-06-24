@@ -48,9 +48,10 @@ Runs `xcodegen generate` then `xcodebuild test` against the `NextCaltrain` schem
 
 ### Test output formatting
 
-`test.sh` pipes through `xcbeautify` (falling back to `xcpretty --test`, then a
-raw `grep` filter), then through `tools/test_formatter.py`, which
+`test.sh` pipes `xcodebuild test`'s raw output directly into
+[`xctidy`](https://github.com/woodie/xctidy), a standalone Swift CLI that
 re-renders the flat per-test lines as an indented describe/context/it tree.
+`test.sh` fails fast with an install hint if `xctidy` isn't on `PATH`.
 
 The flatness is a real limitation of XCTest/Quick, not just a formatter
 choice — confirmed by reading Quick's source
@@ -62,71 +63,40 @@ XCTest-based tool (xcbeautify, xcpretty, `xcresulttool`, Xcode's own test
 navigator) to recover. `Example.name` — the comma-joined describe/context/it
 chain — is literally promoted to the test's method-selector name by default.
 The nesting only exists as `ExampleGroup.parent` pointers inside Quick's own
-process, before being joined into one string and handed to XCTest. So instead
-of changing what XCTest/Quick hand to xcbeautify, `test_formatter.py`
-post-processes xcbeautify's already-flat text: split each printed name on
-`", "`, dedupe the shared prefix against the previous line — the same trick
-the Kotlin sibling's Gradle `TestListener` uses (see
-`next-caltrain-kotlin/app/build.gradle.kts`) — and re-render as an indented
-tree. It runs entirely outside the test process, in the same pipeline slot
-xcbeautify/xcpretty already occupy, so there's no risk of stdout getting
-captured/mangled by `xcodebuild`.
+process, before being joined into one string and handed to XCTest.
 
-This is considered done, with two known, deliberate trade-offs and one gap
-that's since been closed:
+`xctidy` started life as `tools/test_formatter.py`, a Python script in this
+repo that post-processed `xcbeautify`'s already-flat text: split each
+printed name on `", "`, dedupe the shared prefix against the previous line
+— the same trick the Kotlin sibling's Gradle `TestListener` uses (see
+`next-caltrain-kotlin/app/build.gradle.kts`). That worked, but had to guess
+at the describe/context/it boundary from text `xcbeautify` had already
+reshuffled. `xctidy` is a from-scratch Swift rewrite that instead reads
+`xcodebuild`'s raw output directly — the same protocol `xcbeautify`/
+`xcpretty` both parse, no dependency on either — which closes a gap
+`test_formatter.py` couldn't:
 
-- **Failing tests aren't folded into the tree.** xcbeautify joins the failure
-  reason onto the test name with the same `", "` separator the name already
-  uses internally, so there's no recoverable boundary between "name" and
-  "reason" in text alone (unlike pass/skip lines, which end in an unambiguous
-  `(N seconds)`). Rather than guess at that boundary and risk mangling a
-  failure message, a failing line prints verbatim, at the same depth as the
-  last known-good leaf, and doesn't update the dedupe state — so the next
-  passing test's tree is still computed from the last test that had a real,
-  parseable path.
-- **Colored output is preserved, not parsed.** xcbeautify only colors the
-  glyph and the elapsed-time number (never the test name itself), so the
-  script matches and re-emits those tokens — ANSI codes and all — verbatim.
-  Verified against both colored and uncolored synthetic fixtures.
-- **A bare prose comma inside a single `describe`/`context`/`it` string used
-  to over-split into two tree lines** — fixed. Quick joins levels with `", "`
-  and no escaping, so paren-depth-0 splitting alone can't tell a level
-  boundary from a comma that's just part of one level's own text. Real
-  examples from this repo's specs: `it("is not a transfer, since both
-  endpoints are South County")` and `it("today is weekday, tomorrow is
-  weekend")` used to print as two stacked lines instead of one (the
-  parenthetical-aside style, e.g. `context("on a weekday (Wednesday,
-  dotw=3)")`, was never affected — paren-depth-0 splitting recovers that one
-  exactly). `tools/test_formatter.py`'s `split_path()` now resolves this by
-  reading every describe/context/it string literal directly out of
-  `Tests/*.swift` (`load_known_atoms()`) and using that set as a dictionary:
-  it looks for a way to break the flattened name into known-literal segments
-  joined by `", "`. Because the dictionary comes from the exact same source
-  that produced the name, the correct decomposition always exists — a bare
-  prose comma simply fails to produce any *other* valid one, so the full
-  `it()` text matches as a single segment. Falls back to the old
-  paren-depth-0 heuristic only when a name can't be uniquely resolved this
-  way (`Tests/` unreadable, or a name that's genuinely ambiguous — more than
-  one valid decomposition). See the script's module docstring for the full
-  mechanism, and why this still isn't a complete substitute for walking
-  Quick's real `ExampleGroup.parent` structure via `@testable import Quick`
-  (still the only way to close this *completely*, at the cost of depending
-  on Quick's internal API — not currently justified now that the common case
-  is handled).
+- **Failing tests are now folded into the tree.** `test_formatter.py`
+  couldn't recover the boundary between a failing test's name and its
+  failure reason once `xcbeautify` had already joined them with the same
+  `", "` separator the name uses internally, so a failing line printed
+  verbatim, un-deduped, at the last known-good leaf's depth.  `xctidy`
+  reads the raw `error:` line itself, before anything else has touched it,
+  so it cleanly separates name from reason and folds the failure into a
+  `Failures:` section at the end, the way RSpec does.
+- **Colored output is preserved**, same as before — the glyph and
+  elapsed-time coloring carry through unchanged.
+- **The comma-disambiguation approach is unchanged**, just reimplemented
+  natively: `xctidy` reads every describe/context/it string literal
+  directly out of `Tests/*.swift` and uses that set as a dictionary to
+  decompose a flattened name (the same fix that closed the bare-prose-comma
+  over-split bug here, e.g. `it("is not a transfer, since both endpoints
+  are South County")`), falling back to paren-depth-0 splitting only when a
+  name can't be uniquely resolved that way.
 
-A blank line is also inserted before every `Test Suite '...' started at ...`
-or `Test Suite '...' passed`/`failed at ...` banner, unconditionally — no
-exceptions for wrapper suites vs. real specs, no counting nesting depth.
-This separates each suite's announcement (`'All tests'`,
-`'NextCaltrainTests.xctest'`, each real spec, and the `passed`/`failed`
-rollup at the end) from whatever preceded it, including from each other.
-
-The whole tree is indented one extra level beyond what the dedupe-and-render
-logic computes, so the top-level `describe()` nests visually under its
-`Test Suite '...' started` banner instead of sitting flush with it. The
-passthrough lines (the banners themselves, the `Executed N tests...`
-summary) are untouched, so they stay at column 0 as the visual anchor the
-tree hangs off of.
+See [xctidy's docs/HOW_IT_WORKS.md](https://github.com/woodie/xctidy/blob/main/docs/HOW_IT_WORKS.md)
+for the full rendering mechanism (styles, footer, known limitations).
+`tools/test_formatter.py` is retired and no longer referenced by `test.sh`.
 
 This produces the same kind of indented tree as the Kotlin sibling (see its
 `docs/COWORK.md` "Test output formatting").

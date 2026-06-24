@@ -36,7 +36,7 @@ playground.xcworkspace
 # Local schedule-endpoint override (see docs/CLAUDE.md "Schedule data pipeline")
 local.env
 
-# Python bytecode cache (tools/test_formatter.py)
+# Python bytecode cache (tools/)
 __pycache__/
 
 # CocoaPods

@@ -18,41 +18,23 @@ else
   DESTINATION="platform=iOS Simulator,name=iPhone 17 Pro"
 fi
 
-# xcpretty's --test format is labeled "RSpec style" in its own docs, but in
-# practice it silently degrades to bare dot-progress output on current Xcode
-# versions — xcpretty is unmaintained and apparently can't parse newer
-# xcodebuild test-output formats. xcbeautify is actively maintained and
-# reliably prints full per-test names, so it's preferred here even though its
-# rendering isn't a true nested tree either. xcpretty is just a fallback in
-# case xcbeautify isn't installed.
-#
-# Quick flattens every describe()/context()/it() into one comma-joined string
-# per test, so xcbeautify's (and xcpretty's) per-test line repeats the full
-# chain every time. tools/test_formatter.py turns that flat stream back
-# into an indented tree by deduping each line's shared prefix against the
-# previous one — see the script's docstring for the full rationale, including
-# why failing-test lines are deliberately left un-deduped.
-FORMAT_TREE="$(dirname "$0")/tools/test_formatter.py"
-
-if command -v xcbeautify &> /dev/null; then
-  xcodebuild test \
-    -scheme NextCaltrain \
-    -destination "$DESTINATION" \
-    -enableCodeCoverage NO \
-    | xcbeautify \
-    | "$FORMAT_TREE"
-elif command -v xcpretty &> /dev/null; then
-  xcodebuild test \
-    -scheme NextCaltrain \
-    -destination "$DESTINATION" \
-    -enableCodeCoverage NO \
-    | xcpretty --test \
-    | "$FORMAT_TREE"
-else
-  xcodebuild test \
-    -scheme NextCaltrain \
-    -destination "$DESTINATION" \
-    -enableCodeCoverage NO \
-    2>/dev/null \
-    | grep -E "Test Suite '(GoodTimes|CaltrainService|TripViewModel|All tests|NextCaltrainTests)|error:|\*\* TEST"
+# Quick flattens every describe()/context()/it() into one comma-joined
+# string per test -- XCTest only ever sees one flat Case per it(), never a
+# nested Suite (see docs/COWORK.md's "Test output formatting" for why).
+# This used to be xcbeautify (xcpretty, then a bare grep, as fallbacks)
+# piped through tools/test_formatter.py, a Python post-processor that
+# deduped each flattened name's shared prefix back into an indented tree.
+# xctidy replaces all three of those with one step: it reads xcodebuild's
+# raw output directly -- no xcbeautify/xcpretty dependency -- and does the
+# same comma-disambiguation natively, against the real describe/context/it
+# literals in Tests/*.swift. See https://github.com/woodie/xctidy.
+if ! command -v xctidy &> /dev/null; then
+  echo "error: xctidy not found on PATH -- clone github.com/woodie/xctidy and run 'make install'" >&2
+  exit 1
 fi
+
+xcodebuild test \
+  -scheme NextCaltrain \
+  -destination "$DESTINATION" \
+  -enableCodeCoverage NO \
+  | xctidy "$(dirname "$0")/Tests"

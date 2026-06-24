@@ -5,11 +5,20 @@ This project assumes macOS with Xcode installed.
 ## One-time setup
 
 ```
-brew install xcodegen xcbeautify swiftlint
+brew install xcodegen swiftlint
 ```
 
 (`brew install` can take a while the first time — these only need to be
 installed once.)
+
+`./test.sh` also needs [`xctidy`](https://github.com/woodie/xctidy) on
+`PATH` — no Homebrew tap yet, so build it from source:
+
+```
+git clone https://github.com/woodie/xctidy.git
+cd xctidy
+make install
+```
 
 ## Running tests
 
@@ -22,26 +31,24 @@ Tests are written with [Quick](https://github.com/Quick/Quick) and
 ```
 
 This runs `xcodegen generate` (so newly added spec files are picked up
-automatically) and wraps `xcodebuild test`, piped through `xcbeautify`
-(falling back to `xcpretty` or a quiet grep if `xcbeautify` isn't
-installed) for RSpec `-fd`-style, doc-formatted output: each
-`describe`/`context`/`it` shown as a nested line with a pass/fail mark.
+automatically) and pipes `xcodebuild test`'s raw output through `xctidy`,
+which re-renders each flat `describe, context, it` name back into a nested
+tree: each `describe`/`context`/`it` shown as its own indented line with a
+glyph (`✔`/`⊘`/`✖`) and per-test time.
 
 First run will resolve and download Quick/Nimble (and their transitive
 dependencies) via Swift Package Manager — this requires network access and
 may take a minute. Subsequent runs use the cached packages.
 
-The result is at the very end:
+The result is at the very end, in xcbeautify's own style:
 
 ```
-** TEST SUCCEEDED **
+Test Succeeded
+Tests Passed: 0 failed, 0 skipped, 12 total (1.2 seconds)
 ```
 
-or
-
-```
-** TEST FAILED **
-```
+or `Test Failed` plus the same counts line, with each failing test's name
+and reason folded into a `Failures:` section just above it.
 
 ## Linting
 
@@ -110,7 +117,7 @@ use `os_log` with a subsystem for logs you want to see in the terminal.
 
 | Task | Command |
 | --- | --- |
-| One-time setup | `brew install xcodegen xcbeautify swiftlint` |
+| One-time setup | `brew install xcodegen swiftlint` + build/install `xctidy` (see above) |
 | Regenerate Xcode project | `xcodegen generate` |
 | Run unit tests | `./test.sh` |
 | Lint | `swiftlint` |
