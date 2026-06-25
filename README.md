@@ -1,5 +1,9 @@
 # next-caltrain-swift
 
+![Swift](https://img.shields.io/badge/Swift-5.5-orange)
+[![License](https://img.shields.io/github/license/woodie/next-caltrain-swift.svg)](LICENSE)
+
+
 Live countdown to your next Caltrain, with automatic schedule detection.
 
 <img width="25%" 
