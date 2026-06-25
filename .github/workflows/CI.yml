@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    # Pinned (not macos-latest) so the simulator/Xcode combo here is predictable.
+    # macos-26 went GA in Feb 2026 and defaults to Xcode 26.x, matching Apple's
+    # Xcode 26+/iOS 26 SDK upload requirement (mandatory since Apr 28, 2026 —
+    # see docs/RELEASE.md).
+    runs-on: macos-26
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Install xctidy
+        # test.sh hard-requires xctidy on PATH (see its own error hint) to
+        # re-render xcodebuild's flat per-test output as a describe/context/it
+        # tree. No release binary, so build from source same as a dev would.
+        run: |
+          git clone --depth 1 https://github.com/woodie/xctidy.git /tmp/xctidy
+          cd /tmp/xctidy && make install
+
+      - name: Boot simulator
+        # test.sh reuses whatever simulator is already booted, only falling
+        # back to booting "iPhone 17 Pro" itself if none is. We boot it here
+        # explicitly (rather than hardcoding that name inside test.sh) so we
+        # can substitute an available device if a given runner image is
+        # temporarily missing that exact simulator — GitHub's runner-images
+        # repo has had a handful of point releases ship without a named
+        # device, so don't assume it's always there.
+        run: |
+          NAME="iPhone 17 Pro"
+          if ! xcrun simctl list devices available | grep -qi "$NAME"; then
+            FALLBACK=$(xcrun simctl list devices available \
+              | grep -oE 'iPhone [0-9]+( Pro( Max)?)?' | sort -V | tail -1)
+            echo "::warning::'$NAME' not on this runner image; using '$FALLBACK' instead"
+            NAME="$FALLBACK"
+          fi
+          TARGET=$(xcrun simctl list devices \
+            | grep -i "$NAME" | grep -v unavailable | head -1 \
+            | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}')
+          xcrun simctl boot "$TARGET"
+          xcrun simctl bootstatus "$TARGET" -b
+
+      - name: Run tests
+        run: ./test.sh
