@@ -9,6 +9,15 @@ large_tuple:
   warning: 4
   error: 6
 
+# northboundTransfers/southboundTransfers (CaltrainService.swift) intentionally
+# carry the full transfer-routing context (source, stops, origin, originIdx,
+# transferIdx, destIdx, +destination for southbound) as plain positional
+# params, mirroring the Kotlin sibling's CaltrainService.kt split 1:1 --
+# bundling them into a struct would break that parity for no readability gain.
+function_parameter_count:
+  warning: 7
+  error: 9
+
 disabled_rules:
   - static_over_final_class
 
