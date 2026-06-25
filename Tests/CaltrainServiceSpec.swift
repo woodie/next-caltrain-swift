@@ -11,6 +11,19 @@ final class CaltrainServiceSpec: QuickSpec {
                 service = CaltrainService(schedule: SpecFixtures.weekdayOnlySchedule())
             }
 
+            describe(".isSouthCounty(_:)") {
+                it("returns true for South County trains (801-900)") {
+                    expect(CaltrainService.isSouthCounty(801)).to(beTrue())
+                    expect(CaltrainService.isSouthCounty(814)).to(beTrue())
+                    expect(CaltrainService.isSouthCounty(900)).to(beTrue())
+                }
+
+                it("returns false for electric trains") {
+                    expect(CaltrainService.isSouthCounty(101)).to(beFalse())
+                    expect(CaltrainService.isSouthCounty(514)).to(beFalse())
+                }
+            }
+
             describe(".direction(from:to:stops:)") {
                 context("when traveling from San Francisco to Gilroy") {
                     var direction: String!
@@ -92,6 +105,21 @@ final class CaltrainServiceSpec: QuickSpec {
 
                     it("uses the diesel southbound train") {
                         expect(trips.first?.id).to(equal(SpecFixtures.dieselSouthTrainId))
+                    }
+                }
+
+                context("for an unknown station") {
+                    var trips: [Trip]!
+                    beforeEach {
+                        trips = service.routes(
+                            from: "Unknown",
+                            to: SpecFixtures.gilroy,
+                            scheduleType: .weekday
+                        )
+                    }
+
+                    it("returns no trips") {
+                        expect(trips).to(beEmpty())
                     }
                 }
 
@@ -230,6 +258,27 @@ final class CaltrainServiceSpec: QuickSpec {
 
                     it("returns 0") {
                         expect(index).to(equal(0))
+                    }
+                }
+
+                context("when the current time is exactly at the first trip's departure") {
+                    var trips: [Trip]!
+                    var firstDepart: Int!
+                    beforeEach {
+                        trips = service.routes(
+                            from: SpecFixtures.sanFrancisco,
+                            to: SpecFixtures.sanJoseDiridon,
+                            scheduleType: .weekday
+                        )
+                        firstDepart = trips.first?.depart
+                    }
+
+                    it("returns the index of that trip") {
+                        expect(service.nextIndex(trips: trips, minutes: firstDepart)).to(equal(0))
+                    }
+
+                    it("returns the next index one minute later") {
+                        expect(service.nextIndex(trips: trips, minutes: firstDepart + 1)).to(equal(1))
                     }
                 }
             }
