@@ -121,12 +121,12 @@ enum SpecFixtures {
                 // Electric southbound: SF(480) -> SJ(510), doesn't continue south.
                 southTable[String(electricSouthTrainId)] = emptyRow(setting: [
                     sanFranciscoIndex: 480,
-                    sanJoseDiridonIndex: 510,
+                    sanJoseDiridonIndex: 510
                 ])
                 // Electric northbound: SJ(520) -> SF(550).
                 northTable[String(electricNorthTrainId)] = emptyRow(north: true, setting: [
                     sanJoseDiridonIndex: 520,
-                    sanFranciscoIndex: 550,
+                    sanFranciscoIndex: 550
                 ])
             case .none:
                 break
@@ -141,13 +141,13 @@ enum SpecFixtures {
                 southTable[String(dieselSouthTrainId)] = emptyRow(setting: [
                     sanJoseDiridonIndex: 515,
                     morganHillIndex: 535,
-                    gilroyIndex: 545,
+                    gilroyIndex: 545
                 ])
                 // Diesel northbound: Gilroy(420), Morgan Hill(430), SJ(450), doesn't reach SF.
                 northTable[String(dieselNorthTrainId)] = emptyRow(north: true, setting: [
                     gilroyIndex: 420,
                     morganHillIndex: 430,
-                    sanJoseDiridonIndex: 450,
+                    sanJoseDiridonIndex: 450
                 ])
             case .none:
                 break

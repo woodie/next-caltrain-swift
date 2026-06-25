@@ -24,10 +24,8 @@ final class ScheduleSpec: QuickSpec {
             }
 
             context("when the last fetch was a few minutes ago") {
-                beforeEach {
-                    let recent = Date().addingTimeInterval(-5 * 60)
-                    UserDefaults.standard.set(recent, forKey: Schedule.lastFetchKey)
-                }
+                let recent = Date().addingTimeInterval(-5 * 60)
+                beforeEach { UserDefaults.standard.set(recent, forKey: Schedule.lastFetchKey) }
 
                 it("returns true") {
                     expect(Schedule.fetchedToday()).to(beTrue())
@@ -35,10 +33,8 @@ final class ScheduleSpec: QuickSpec {
             }
 
             context("when the last fetch was more than a day ago") {
-                beforeEach {
-                    let stale = Date().addingTimeInterval(-26 * 3600)
-                    UserDefaults.standard.set(stale, forKey: Schedule.lastFetchKey)
-                }
+                let stale = Date().addingTimeInterval(-26 * 3600)
+                beforeEach { UserDefaults.standard.set(stale, forKey: Schedule.lastFetchKey) }
 
                 it("returns false") {
                     expect(Schedule.fetchedToday()).to(beFalse())

@@ -58,7 +58,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                 context("with a special date matching today") {
                     let specialDates: [String: Int] = [
                         "2026-07-04": ScheduleType.weekend.rawValue,
-                        "2026-12-25": ScheduleType.holiday.rawValue,
+                        "2026-12-25": ScheduleType.holiday.rawValue
                     ]
 
                     context("when the special date maps to .weekend") {

@@ -6,7 +6,6 @@ final class CaltrainServiceSpec: QuickSpec {
     override class func spec() {
         describe("CaltrainService") {
             var service: CaltrainService!
-
             beforeEach {
                 service = CaltrainService(schedule: SpecFixtures.weekdayOnlySchedule())
             }

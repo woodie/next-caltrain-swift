@@ -15,10 +15,7 @@ final class TripViewModelSpec: QuickSpec {
                 // Weekday-only schedule. Friday -> Saturday, so
                 // tomorrowScheduleType is .weekend with empty tables.
                 var viewModel: TripViewModel!
-
-                beforeEach {
-                    GoodTimes.debugOverrideDotw = 5  // Friday
-                }
+                beforeEach { GoodTimes.debugOverrideDotw = 5 } // Friday
 
                 context("and all of today's trips have already departed") {
                     beforeEach {
@@ -70,10 +67,7 @@ final class TripViewModelSpec: QuickSpec {
                 // Monday -> Tuesday, both .weekday, so tomorrowTrips is
                 // non-empty and the normal rollover applies.
                 var viewModel: TripViewModel!
-
-                beforeEach {
-                    GoodTimes.debugOverrideDotw = 1  // Monday
-                }
+                beforeEach { GoodTimes.debugOverrideDotw = 1 } // Monday
 
                 context("and all of today's trips have already departed") {
                     beforeEach {
