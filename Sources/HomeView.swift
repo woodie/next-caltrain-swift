@@ -114,13 +114,19 @@ struct HomeView: View {
             circleContent
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
 
-            NavigationLink(destination: TripListView(viewModel: viewModel), isActive: $showTripList) {
+            NavigationLink(destination: TripListView(
+                    viewModel: viewModel
+                ), isActive: $showTripList) {
                 EmptyView()
             }
-            NavigationLink(destination: StationSelectionView(viewModel: viewModel), isActive: $showStationSelection) {
+            NavigationLink(destination: StationSelectionView(
+                    viewModel: viewModel
+                ), isActive: $showStationSelection) {
                 EmptyView()
             }
-            NavigationLink(destination: AboutView(scheduleDate: viewModel.schedule.scheduleDate), isActive: $showAbout) {
+            NavigationLink(destination: AboutView(
+                    scheduleDate: viewModel.schedule.scheduleDate
+                ), isActive: $showAbout) {
                 EmptyView()
             }
         }
@@ -182,18 +188,18 @@ struct HomeView: View {
 
                     // train-hero + time-hero + meridiem-hero
                     if let trip = selectedTrip {
-                        let infoColor: Color = (viewModel.swapped || isSelectedPast || isSelectedFuture) ? .calPast : .appText
+                        let clr: Color = (viewModel.swapped || isSelectedPast || isSelectedFuture) ? .calPast : .appText
                         let (timeStr, merStr) = GoodTimes.partTime(trip.depart)
                         VStack(spacing: 2) {
                             HStack(alignment: .lastTextBaseline, spacing: 3) {
                                 Text("#\(trip.legs.first!.trainId)")
-                                    .foregroundColor(infoColor)
+                                    .foregroundColor(clr)
                                     .font(.system(size: AppStyle.fontTrain, weight: .regular))
                                 Text(timeStr)
-                                    .foregroundColor(infoColor)
+                                    .foregroundColor(clr)
                                     .font(.system(size: AppStyle.fontBlurb, weight: .regular))
                                 Text(merStr)
-                                    .foregroundColor(infoColor)
+                                    .foregroundColor(clr)
                                     .font(.system(size: AppStyle.fontTrain, weight: .regular))
                             }
                             Text(CaltrainService.trainType(trip.legs.first!.trainId))

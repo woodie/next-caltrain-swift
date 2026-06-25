@@ -10,12 +10,12 @@ struct GoodTimes {
 
     // TEMPORARY DEBUG HACK: set to override "now" for testing (e.g. early morning).
     // Set to nil for normal behavior. Format: minutes since midnight, e.g. 330 = 5:30am.
-    static var debugOverrideMinutes: Int? = nil
+    static var debugOverrideMinutes: Int?
 
     // TEMPORARY DEBUG HACK: set to override the day-of-week for testing
     // (e.g. force "today" to be Friday so tomorrow is Saturday/weekend).
     // 0 = Sunday ... 6 = Saturday. Set to nil for normal behavior.
-    static var debugOverrideDotw: Int? = nil
+    static var debugOverrideDotw: Int?
 
     // TEMPORARY DEBUG HACK: prints computed values once on first init, useful
     // when testing debugOverrideMinutes/debugOverrideDotw.
@@ -87,7 +87,7 @@ struct GoodTimes {
         let mer = (hrs > 11 && hrs < 24) ? "pm" : "am"
         if hrs > 12 { hrs -= 12 }
         if hrs > 12 { hrs -= 12 }
-        if hrs < 1  { hrs = 12 }
+        if hrs < 1 { hrs = 12 }
         return (String(format: "%d:%02d", hrs, min), mer)
     }
 

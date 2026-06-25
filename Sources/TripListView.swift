@@ -7,7 +7,7 @@ struct TripListView: View {
     @State private var blinkOn: Bool = true
     @State private var dragShift: Int = 0
     @State private var suppressTap: Bool = false
-    @State private var navigateToTrip: Trip? = nil
+    @State private var navigateToTrip: Trip?
     @State private var timeColumnWidth: CGFloat = 0
     @State private var headerHeight: CGFloat = 0
     private let rowHeight: CGFloat = 44
@@ -55,9 +55,9 @@ struct TripListView: View {
 
     var statusColor: Color {
         if viewModel.trips.isEmpty { return .calPast }
-        if viewModel.swapped     { return .calSwapped }
+        if viewModel.swapped { return .calSwapped }
         if isSelectedPast || isSelectedFuture { return .calPast }
-        if isSelectedDeparting   { return .calDepart }
+        if isSelectedDeparting { return .calDepart }
         return .calArrive
     }
 

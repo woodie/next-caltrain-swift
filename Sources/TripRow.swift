@@ -18,16 +18,16 @@ struct TripRow: View {
 
     var textColor: Color {
         if isInactive { return .calPast }
-        if swapped     { return .calPast }
+        if swapped { return .calPast }
         return .appText
     }
 
     var borderColor: Color {
         if isNext && isDeparting { return .calDepart }
-        if isNext && isFuture    { return .calSwapped }
-        if isNext && isInactive  { return .calSwapped }
-        if isNext && swapped     { return .calSwapped }
-        if isNext                { return .calArrive }
+        if isNext && isFuture { return .calSwapped }
+        if isNext && isInactive { return .calSwapped }
+        if isNext && swapped { return .calSwapped }
+        if isNext { return .calArrive }
         return .clear
     }
 

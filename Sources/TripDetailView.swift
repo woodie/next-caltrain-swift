@@ -16,7 +16,7 @@ struct StopRow: View {
     let station: String
     let role: StopRole
     let isLast: Bool
-    var transferLabel: String? = nil
+    var transferLabel: String?
     var nameColumnWidth: CGFloat = 0
 
     private let dotSize: CGFloat = 14
@@ -94,7 +94,7 @@ struct TripStop {
     let time: Int
     let station: String
     let role: StopRole
-    var transferLabel: String? = nil
+    var transferLabel: String?
 }
 
 struct TripDetailView: View {

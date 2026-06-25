@@ -5,6 +5,10 @@ included:
 # use short, conventional names like `gt` for the subject under test.
 # Relax these rules globally rather than fight the testing DSL.
 
+large_tuple:
+  warning: 4
+  error: 6
+
 disabled_rules:
   - static_over_final_class
 
@@ -15,5 +19,5 @@ identifier_name:
     - id
 
 function_body_length:
-  warning: 200
+  warning: 250
   error: 400
