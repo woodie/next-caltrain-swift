@@ -126,6 +126,63 @@ final class CaltrainScheduleSpec: QuickSpec {
                     }
                 }
             }
+
+            describe(".forTomorrow()") {
+                afterEach {
+                    GoodTimes.debugOverrideDotw = nil
+                }
+
+                context("when today is Friday (5)") {
+                    var result: ScheduleType!
+                    beforeEach {
+                        GoodTimes.debugOverrideDotw = 5
+                        let goodTimes = GoodTimes()
+                        result = CaltrainSchedule.optionIndex(
+                            date: goodTimes.tomorrowDate,
+                            dotw: goodTimes.tomorrowDotw,
+                            specialDates: [:]
+                        )
+                    }
+
+                    it("returns .weekend for tomorrow (Saturday)") {
+                        expect(result).to(equal(.weekend))
+                    }
+                }
+
+                context("when today is Sunday (0)") {
+                    var result: ScheduleType!
+                    beforeEach {
+                        GoodTimes.debugOverrideDotw = 0
+                        let goodTimes = GoodTimes()
+                        result = CaltrainSchedule.optionIndex(
+                            date: goodTimes.tomorrowDate,
+                            dotw: goodTimes.tomorrowDotw,
+                            specialDates: [:]
+                        )
+                    }
+
+                    it("returns .weekday for tomorrow (Monday)") {
+                        expect(result).to(equal(.weekday))
+                    }
+                }
+
+                context("when today is Thursday (4)") {
+                    var result: ScheduleType!
+                    beforeEach {
+                        GoodTimes.debugOverrideDotw = 4
+                        let goodTimes = GoodTimes()
+                        result = CaltrainSchedule.optionIndex(
+                            date: goodTimes.tomorrowDate,
+                            dotw: goodTimes.tomorrowDotw,
+                            specialDates: [:]
+                        )
+                    }
+
+                    it("returns .weekday for tomorrow (Friday)") {
+                        expect(result).to(equal(.weekday))
+                    }
+                }
+            }
         }
     }
 }

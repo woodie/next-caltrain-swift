@@ -50,4 +50,10 @@ schemes:
         NextCaltrainTests: [test]
     test:
       targets:
-        - NextCaltrainTests
+        # Pinned explicitly (rather than relying on the implicit default) so
+        # it can't be silently flipped later -- without a Test Plan, XCTest
+        # already runs alphabetically by default, which is what made the
+        # Kotlin sibling's *undefined* Kotest spec order the harder side to
+        # fix (see next-caltrain-kotlin's ProjectConfig.kt).
+        - name: NextCaltrainTests
+          randomExecutionOrder: false
