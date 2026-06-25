@@ -164,6 +164,14 @@ final class GoodTimesSpec: QuickSpec {
                         expect(gt.tomorrowDotw).to(equal(0))
                     }
                 }
+
+                context("and today is Sunday (0)") {
+                    beforeEach { GoodTimes.debugOverrideDotw = 0; gt = GoodTimes() }
+
+                    it("computes tomorrow as Monday (1)") {
+                        expect(gt.tomorrowDotw).to(equal(1))
+                    }
+                }
             }
 
             describe(".scheduleDateFor(_:)") {
@@ -189,9 +197,9 @@ final class GoodTimesSpec: QuickSpec {
 
                 it("rolls over to the next schedule-day right at the 2am boundary") {
                     let cal = Calendar.current
-                    let beforeBoundary = cal.date(from: DateComponents(year: 2026, month: 6, day: 16, hour: 1, minute: 59))!
-                    let afterBoundary = cal.date(from: DateComponents(year: 2026, month: 6, day: 16, hour: 2, minute: 1))!
-                    expect(GoodTimes.scheduleDateFor(afterBoundary)).toNot(equal(GoodTimes.scheduleDateFor(beforeBoundary)))
+                    let before = cal.date(from: DateComponents(year: 2026, month: 6, day: 16, hour: 1, minute: 59))!
+                    let after = cal.date(from: DateComponents(year: 2026, month: 6, day: 16, hour: 2, minute: 1))!
+                    expect(GoodTimes.scheduleDateFor(after)).toNot(equal(GoodTimes.scheduleDateFor(before)))
                 }
             }
         }

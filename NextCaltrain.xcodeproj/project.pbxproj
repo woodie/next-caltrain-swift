@@ -25,6 +25,7 @@
 		B13E06C226AC4C78B867A5F3 /* AppStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F21841F39E953A017B9354 /* AppStyle.swift */; };
 		BB15CE4657EF930BB4216E22 /* TripViewModelSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = A75B4E3671CB871E62291A6E /* TripViewModelSpec.swift */; };
 		BCDBDAA9E68979F53FDFB419 /* TripListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F004781BE584AA5BC7EF6C67 /* TripListView.swift */; };
+		C2FCA34F44966ADA337904F6 /* .GoodTimesSpec.swift.swp in Resources */ = {isa = PBXBuildFile; fileRef = 9989ABCB3D1E512F4F8C1ED2 /* .GoodTimesSpec.swift.swp */; };
 		C47EC8D3CF82C4C15A6AD1E6 /* CaltrainServiceSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB6A0C8E0723AF0BB1830F6 /* CaltrainServiceSpec.swift */; };
 		CF80DACB2D09F5A40297DFCC /* TripViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 207F7AEDB53721B1D75F05B2 /* TripViewModel.swift */; };
 		E48BFFC549DC1A5660CF36B4 /* NextCaltrainApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B64043D1B2AC8C3C22F71CE /* NextCaltrainApp.swift */; };
@@ -56,6 +57,7 @@
 		75DA780AD372DFB2B8681C6D /* NextCaltrain.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NextCaltrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7CB016FFA399EBCEDDB29AB2 /* CaltrainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaltrainService.swift; sourceTree = "<group>"; };
 		819EFB2BDE4583B8A399C695 /* ScheduleSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleSpec.swift; sourceTree = "<group>"; };
+		9989ABCB3D1E512F4F8C1ED2 /* .GoodTimesSpec.swift.swp */ = {isa = PBXFileReference; path = .GoodTimesSpec.swift.swp; sourceTree = "<group>"; };
 		9B64043D1B2AC8C3C22F71CE /* NextCaltrainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextCaltrainApp.swift; sourceTree = "<group>"; };
 		A75B4E3671CB871E62291A6E /* TripViewModelSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripViewModelSpec.swift; sourceTree = "<group>"; };
 		AD1392AC7394F4E821C14D15 /* TripRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripRow.swift; sourceTree = "<group>"; };
@@ -84,6 +86,7 @@
 		29A118ACDE4F750C6E7EAD13 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				9989ABCB3D1E512F4F8C1ED2 /* .GoodTimesSpec.swift.swp */,
 				51E621237438700618E1F3D3 /* CaltrainScheduleSpec.swift */,
 				CBB6A0C8E0723AF0BB1830F6 /* CaltrainServiceSpec.swift */,
 				42408915F7FBD71231646650 /* GoodTimesSpec.swift */,
@@ -150,6 +153,7 @@
 			buildConfigurationList = 7A744B7C0B374DAADC32AF67 /* Build configuration list for PBXNativeTarget "NextCaltrainTests" */;
 			buildPhases = (
 				C77CEC6D9C69572F20C63380 /* Sources */,
+				B7363767D5EB55D362291AC0 /* Resources */,
 				1327651EE6E915B7B61D2765 /* Frameworks */,
 			);
 			buildRules = (
@@ -223,6 +227,14 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		B7363767D5EB55D362291AC0 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2FCA34F44966ADA337904F6 /* .GoodTimesSpec.swift.swp in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F76949C4513FC2681B889D4E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
