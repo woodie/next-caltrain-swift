@@ -146,10 +146,12 @@ final class GoodTimesSpec: QuickSpec {
             }
 
             context("when 'today' is fixed via debugOverrideDotw") {
+                var dotw: Int!
+                justBeforeEach { GoodTimes.debugOverrideDotw = dotw; gt = GoodTimes() }
                 afterEach { GoodTimes.debugOverrideDotw = nil }
 
                 context("and today is Friday (5)") {
-                    beforeEach { GoodTimes.debugOverrideDotw = 5; gt = GoodTimes() }
+                    beforeEach { dotw = 5 }
 
                     it("computes tomorrow as Saturday (6)") {
                         expect(gt.dotw).to(equal(5))
@@ -158,7 +160,7 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 context("and today is Saturday (6)") {
-                    beforeEach { GoodTimes.debugOverrideDotw = 6; gt = GoodTimes() }
+                    beforeEach { dotw = 6 }
 
                     it("computes tomorrow as Sunday (0), wrapping the week") {
                         expect(gt.tomorrowDotw).to(equal(0))
@@ -166,7 +168,7 @@ final class GoodTimesSpec: QuickSpec {
                 }
 
                 context("and today is Sunday (0)") {
-                    beforeEach { GoodTimes.debugOverrideDotw = 0; gt = GoodTimes() }
+                    beforeEach { dotw = 0 }
 
                     it("computes tomorrow as Monday (1)") {
                         expect(gt.tomorrowDotw).to(equal(1))

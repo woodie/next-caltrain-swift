@@ -6,26 +6,24 @@ import Quick
 final class TripViewModelSpec: QuickSpec {
     override class func spec() {
         describe("TripViewModel") {
-            afterEach {
-                GoodTimes.debugOverrideMinutes = nil
-                GoodTimes.debugOverrideDotw = nil
-            }
+            afterEach { GoodTimes.debugOverrideMinutes = nil; GoodTimes.debugOverrideDotw = nil }
 
             context("for a route with no service tomorrow") {
-                // Weekday-only schedule. Friday -> Saturday, so
-                // tomorrowScheduleType is .weekend with empty tables.
+                // Weekday-only schedule. Friday -> Saturday, so tomorrowScheduleType is .weekend.
                 var viewModel: TripViewModel!
-                beforeEach { GoodTimes.debugOverrideDotw = 5 } // Friday
+                var mins: Int!
+                justBeforeEach {
+                    GoodTimes.debugOverrideMinutes = mins
+                    GoodTimes.debugOverrideDotw = 5 // Friday
+                    viewModel = TripViewModel(schedule: SpecFixtures.weekdayOnlySchedule())
+                    viewModel.origin = SpecFixtures.sanFrancisco
+                    viewModel.destination = SpecFixtures.gilroy
+                    viewModel.refresh()
+                }
 
                 context("and all of today's trips have already departed") {
-                    beforeEach {
-                        // After the diesel southbound train's 545 arrival.
-                        GoodTimes.debugOverrideMinutes = 1000
-                        viewModel = TripViewModel(schedule: SpecFixtures.weekdayOnlySchedule())
-                        viewModel.origin = SpecFixtures.sanFrancisco
-                        viewModel.destination = SpecFixtures.gilroy
-                        viewModel.refresh()
-                    }
+                    // After the diesel southbound train's 545 arrival.
+                    beforeEach { mins = 1000 }
 
                     it("still has today's trips available") {
                         expect(viewModel.trips).notTo(beEmpty())
@@ -46,14 +44,8 @@ final class TripViewModelSpec: QuickSpec {
                 }
 
                 context("and some of today's trips are still upcoming") {
-                    beforeEach {
-                        // Before the electric southbound train departs SF at 480.
-                        GoodTimes.debugOverrideMinutes = 100
-                        viewModel = TripViewModel(schedule: SpecFixtures.weekdayOnlySchedule())
-                        viewModel.origin = SpecFixtures.sanFrancisco
-                        viewModel.destination = SpecFixtures.gilroy
-                        viewModel.refresh()
-                    }
+                    // Before the electric southbound train departs SF at 480.
+                    beforeEach { mins = 100 }
 
                     it("selects the next upcoming trip") {
                         expect(viewModel.offset).to(equal(viewModel.nextIndex))
@@ -63,9 +55,7 @@ final class TripViewModelSpec: QuickSpec {
             }
 
             context("for a route with service every day") {
-                // Both weekday and weekend tables populated.
-                // Monday -> Tuesday, both .weekday, so tomorrowTrips is
-                // non-empty and the normal rollover applies.
+                // Monday -> Tuesday, both .weekday, so normal rollover applies.
                 var viewModel: TripViewModel!
                 beforeEach { GoodTimes.debugOverrideDotw = 1 } // Monday
 

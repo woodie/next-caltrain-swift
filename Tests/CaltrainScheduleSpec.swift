@@ -6,18 +6,18 @@ final class CaltrainScheduleSpec: QuickSpec {
     override class func spec() {
         describe("CaltrainSchedule") {
             describe(".optionIndex(date:dotw:specialDates:)") {
+                var result: ScheduleType!
+                var date: String!
+                var dotw: Int!
+                var specialDates: [String: Int]!
+                justBeforeEach {
+                    result = CaltrainSchedule.optionIndex(date: date, dotw: dotw, specialDates: specialDates)
+                }
                 context("with no special dates") {
-                    let specialDates: [String: Int] = [:]
+                    beforeEach { specialDates = [:] }
 
                     context("on a weekday (Wednesday, dotw=3)") {
-                        var result: ScheduleType!
-                        beforeEach {
-                            result = CaltrainSchedule.optionIndex(
-                                date: "2026-06-17",
-                                dotw: 3,
-                                specialDates: specialDates
-                            )
-                        }
+                        beforeEach { date = "2026-06-17"; dotw = 3 }
 
                         it("returns .weekday") {
                             expect(result).to(equal(.weekday))
@@ -25,14 +25,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                     }
 
                     context("on Sunday (dotw=0)") {
-                        var result: ScheduleType!
-                        beforeEach {
-                            result = CaltrainSchedule.optionIndex(
-                                date: "2026-06-14",
-                                dotw: 0,
-                                specialDates: specialDates
-                            )
-                        }
+                        beforeEach { date = "2026-06-14"; dotw = 0 }
 
                         it("returns .weekend") {
                             expect(result).to(equal(.weekend))
@@ -40,14 +33,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                     }
 
                     context("on Saturday (dotw=6)") {
-                        var result: ScheduleType!
-                        beforeEach {
-                            result = CaltrainSchedule.optionIndex(
-                                date: "2026-06-13",
-                                dotw: 6,
-                                specialDates: specialDates
-                            )
-                        }
+                        beforeEach { date = "2026-06-13"; dotw = 6 }
 
                         it("returns .weekend") {
                             expect(result).to(equal(.weekend))
@@ -56,23 +42,13 @@ final class CaltrainScheduleSpec: QuickSpec {
                 }
 
                 context("with a special date matching today") {
-                    let specialDates: [String: Int] = [
+                    beforeEach { specialDates = [
                         "2026-07-04": ScheduleType.weekend.rawValue,
                         "2026-12-25": ScheduleType.holiday.rawValue
-                    ]
+                    ] }
 
                     context("when the special date maps to .weekend") {
-                        var result: ScheduleType!
-                        beforeEach {
-                            // July 4, 2026 is a Saturday, but pick a dotw
-                            // that would normally be .weekday to prove the
-                            // override wins.
-                            result = CaltrainSchedule.optionIndex(
-                                date: "2026-07-04",
-                                dotw: 3, // would normally be .weekday
-                                specialDates: specialDates
-                            )
-                        }
+                        beforeEach { date = "2026-07-04"; dotw = 3 }
 
                         it("overrides a weekday dotw") {
                             expect(result).to(equal(.weekend))
@@ -80,14 +56,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                     }
 
                     context("when the special date maps to .holiday") {
-                        var result: ScheduleType!
-                        beforeEach {
-                            result = CaltrainSchedule.optionIndex(
-                                date: "2026-12-25",
-                                dotw: 5, // would normally be .weekday
-                                specialDates: specialDates
-                            )
-                        }
+                        beforeEach { date = "2026-12-25"; dotw = 5 }
 
                         it("returns .holiday regardless of dotw") {
                             expect(result).to(equal(.holiday))
@@ -95,14 +64,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                     }
 
                     context("on a date not in specialDates") {
-                        var result: ScheduleType!
-                        beforeEach {
-                            result = CaltrainSchedule.optionIndex(
-                                date: "2026-06-17",
-                                dotw: 3,
-                                specialDates: specialDates
-                            )
-                        }
+                        beforeEach { date = "2026-06-17"; dotw = 3 }
 
                         it("falls back to dotw-based logic") {
                             expect(result).to(equal(.weekday))
@@ -111,15 +73,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                 }
 
                 context("with a special date containing an invalid raw value") {
-                    let specialDates: [String: Int] = ["2026-06-17": 99]
-                    var result: ScheduleType!
-                    beforeEach {
-                        result = CaltrainSchedule.optionIndex(
-                            date: "2026-06-17",
-                            dotw: 3,
-                            specialDates: specialDates
-                        )
-                    }
+                    beforeEach { date = "2026-06-17"; dotw = 3; specialDates = ["2026-06-17": 99] }
 
                     it("falls back to .weekday") {
                         expect(result).to(equal(.weekday))
@@ -128,21 +82,19 @@ final class CaltrainScheduleSpec: QuickSpec {
             }
 
             describe(".forTomorrow()") {
-                afterEach {
-                    GoodTimes.debugOverrideDotw = nil
+                var result: ScheduleType!
+                afterEach { GoodTimes.debugOverrideDotw = nil }
+                justBeforeEach {
+                    let goodTimes = GoodTimes()
+                    result = CaltrainSchedule.optionIndex(
+                        date: goodTimes.tomorrowDate,
+                        dotw: goodTimes.tomorrowDotw,
+                        specialDates: [:]
+                    )
                 }
 
                 context("when today is Friday (5)") {
-                    var result: ScheduleType!
-                    beforeEach {
-                        GoodTimes.debugOverrideDotw = 5
-                        let goodTimes = GoodTimes()
-                        result = CaltrainSchedule.optionIndex(
-                            date: goodTimes.tomorrowDate,
-                            dotw: goodTimes.tomorrowDotw,
-                            specialDates: [:]
-                        )
-                    }
+                    beforeEach { GoodTimes.debugOverrideDotw = 5 }
 
                     it("returns .weekend for tomorrow (Saturday)") {
                         expect(result).to(equal(.weekend))
@@ -150,16 +102,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                 }
 
                 context("when today is Sunday (0)") {
-                    var result: ScheduleType!
-                    beforeEach {
-                        GoodTimes.debugOverrideDotw = 0
-                        let goodTimes = GoodTimes()
-                        result = CaltrainSchedule.optionIndex(
-                            date: goodTimes.tomorrowDate,
-                            dotw: goodTimes.tomorrowDotw,
-                            specialDates: [:]
-                        )
-                    }
+                    beforeEach { GoodTimes.debugOverrideDotw = 0 }
 
                     it("returns .weekday for tomorrow (Monday)") {
                         expect(result).to(equal(.weekday))
@@ -167,16 +110,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                 }
 
                 context("when today is Thursday (4)") {
-                    var result: ScheduleType!
-                    beforeEach {
-                        GoodTimes.debugOverrideDotw = 4
-                        let goodTimes = GoodTimes()
-                        result = CaltrainSchedule.optionIndex(
-                            date: goodTimes.tomorrowDate,
-                            dotw: goodTimes.tomorrowDotw,
-                            specialDates: [:]
-                        )
-                    }
+                    beforeEach { GoodTimes.debugOverrideDotw = 4 }
 
                     it("returns .weekday for tomorrow (Friday)") {
                         expect(result).to(equal(.weekday))

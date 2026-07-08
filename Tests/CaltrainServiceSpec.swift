@@ -24,15 +24,14 @@ final class CaltrainServiceSpec: QuickSpec {
             }
 
             describe(".direction(from:to:stops:)") {
+                var origin: String!
+                var destin: String!
+                var direction: String!
+                justBeforeEach {
+                    direction = CaltrainService.direction(from: origin, to: destin, stops: SpecFixtures.stops)
+                }
                 context("when traveling from San Francisco to Gilroy") {
-                    var direction: String!
-                    beforeEach {
-                        direction = CaltrainService.direction(
-                            from: SpecFixtures.sanFrancisco,
-                            to: SpecFixtures.gilroy,
-                            stops: SpecFixtures.stops
-                        )
-                    }
+                    beforeEach { origin = SpecFixtures.sanFrancisco; destin = SpecFixtures.gilroy }
 
                     it("is South") {
                         expect(direction).to(equal("South"))
@@ -40,14 +39,7 @@ final class CaltrainServiceSpec: QuickSpec {
                 }
 
                 context("when traveling from Gilroy to San Francisco") {
-                    var direction: String!
-                    beforeEach {
-                        direction = CaltrainService.direction(
-                            from: SpecFixtures.gilroy,
-                            to: SpecFixtures.sanFrancisco,
-                            stops: SpecFixtures.stops
-                        )
-                    }
+                    beforeEach { origin = SpecFixtures.gilroy; destin = SpecFixtures.sanFrancisco }
 
                     it("is North") {
                         expect(direction).to(equal("North"))
