@@ -127,6 +127,23 @@ for the full rendering mechanism (styles, footer, known limitations).
 This produces the same kind of indented tree as the Kotlin sibling (see its
 `docs/COWORK.md` "Test output formatting").
 
+### Spec structure: `justBeforeEach` for shared act steps
+
+When the exact same action line (the thing under test) is duplicated across
+sibling `beforeEach`/`it` blocks, differing only in what a `context` set up
+beforehand, hoist that line into a `justBeforeEach` at the level where it's
+shared. Each `context`'s own `beforeEach` then sets up only what varies (the
+input values); every `it` underneath is a bare assertion. Quick guarantees
+`justBeforeEach` runs after every `beforeEach` at any nesting depth,
+immediately before the `it` — so a child `context`'s `beforeEach` always
+finishes setting up its inputs before the shared `justBeforeEach` consumes
+them. It's the closest thing Quick has to RSpec's `subject {}`.
+
+Applied in `CaltrainScheduleSpec`, `CaltrainServiceSpec`, `GoodTimesSpec`,
+and `TripViewModelSpec` (commit `7c849f4`). First established in zouk — see
+that repo's `docs/COWORK.md` ("`justBeforeEach` adopted for shared 'act'
+steps") for the original writeup.
+
 ## Conventions
 
 - **No bold headings/titles** unless explicitly requested. Default to
