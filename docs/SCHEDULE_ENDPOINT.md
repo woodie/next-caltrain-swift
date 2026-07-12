@@ -39,7 +39,7 @@ success/failure.
 
 All three are set via `SCHEDULE_URL` in `local.env` (gitignored — this is the
 per-developer test override; don't confuse it with the committed
-`schedule-endpoint.env`, which holds the real production URL. `run.sh` sources
+`schedule-endpoint.env`, which holds the real production URL. `sim.sh run` sources
 both, `local.env` taking precedence, and passes the result to the simulator as
 `SIMCTL_CHILD_SCHEDULE_URL` — see `docs/CLAUDE.md`):
 
@@ -47,7 +47,7 @@ both, `local.env` taking precedence, and passes the result to the simulator as
 SCHEDULE_URL=<ENDPOINT HERE>
 ```
 
-Switching endpoints is just an edit to `local.env` + `./run.sh` — no rebuild needed,
+Switching endpoints is just an edit to `local.env` + `./sim.sh run` — no rebuild needed,
 since it's read at runtime via `ProcessInfo`. `./build.sh` only needs to run once per
 session (or after actual source changes).
 
@@ -55,8 +55,8 @@ session (or after actual source changes).
 
 ## Cache helper commands
 
-By default `./run.sh` preserves app data across runs (just forces a cold
-relaunch via `simctl terminate`) — use `./run.sh --fresh` (or `-f`) for a full
+By default `./sim.sh run` preserves app data across runs (just forces a cold
+relaunch via `simctl terminate`) — use `./sim.sh run --fresh` (or `-f`) for a full
 wipe (uninstall) when you need to guarantee no cache at all.
 
 Delete cache only (forces "no cache" state without touching other app data):
@@ -91,26 +91,26 @@ Doing them in this order lets each step set up the next with minimal
 endpoint-switching:
 
 Only the first step needs `./build.sh`. After that, switching cases is just
-an edit to `local.env` + `./run.sh` — the value is read at runtime via
+an edit to `local.env` + `./sim.sh run` — the value is read at runtime via
 `ProcessInfo`, no rebuild needed.
 
 1. **Case 1 (no cache, fetch fails)**
    - Set `SCHEDULE_URL=http://127.0.0.1:9/schedule.json` in `local.env`
      (simplest; hanging endpoint would also work but takes longer).
-   - `./build.sh && ./run.sh --fresh` (`--fresh` guarantees no cache).
+   - `./build.sh && ./sim.sh run --fresh` (`--fresh` guarantees no cache).
    - **Expect**: loading screen stays up permanently, "Unable to load
      schedule". No transition to Home.
 
 2. **Case 2 (no cache, real endpoint, success)**
    - Comment out `SCHEDULE_URL` in `local.env` (falls back to the real
      endpoint).
-   - `./run.sh --fresh`
+   - `./sim.sh run --fresh`
    - **Expect**: brief loading screen → Home with fresh data. This also
      populates the cache (and marks today as fetched) for the next steps.
 
 3. **Case 3 (valid cache, real endpoint, success)**
    - Cache now exists from step 2. `SCHEDULE_URL` still commented out (real
-     endpoint). Plain `./run.sh` this time (no `--fresh` — we want to keep
+     endpoint). Plain `./sim.sh run` this time (no `--fresh` — we want to keep
      the cache).
    - **Expect**: near-instant Home (cache hit). Since step 2 already marked
      today as fetched, this takes the cache-only path with no network call
@@ -121,7 +121,7 @@ an edit to `local.env` + `./run.sh` — the value is read at runtime via
      (otherwise the cache-only path from step 3 wins again and the fetch
      never happens).
    - Set `SCHEDULE_URL=http://127.0.0.1:9/schedule.json` in `local.env`.
-   - `./run.sh`
+   - `./sim.sh run`
    - **Expect**: "Loading schedule data" flashes briefly, then Home using
      cached data (fetch fails fast, well under 10s).
 
@@ -130,18 +130,18 @@ an edit to `local.env` + `./run.sh` — the value is read at runtime via
    - Cache still present. Run the "reset fetched-today flag" command again
      (step 4's attempt may have marked today as fetched too).
    - Set `SCHEDULE_URL=http://127.0.0.1:8123/schedule.json` in `local.env`.
-   - `./run.sh`
+   - `./sim.sh run`
    - **Expect**: "Loading schedule data" for ~10 seconds, then Home using
      cached data. Time it — should be close to 10s, not instant and not 30s.
    - Stop the Python server (Ctrl-C) when done.
 
 6. **Case 6 (corrupted cache)**
-   - Comment out `SCHEDULE_URL` (real endpoint) and `./run.sh --fresh` once
+   - Comment out `SCHEDULE_URL` (real endpoint) and `./sim.sh run --fresh` once
      to repopulate a valid cache, then corrupt it using the "Corrupt the
      cache" command above.
    - Set `SCHEDULE_URL=http://127.0.0.1:9/schedule.json` again (to isolate
      cache-validity handling from network success masking it).
-   - `./run.sh` (no `--fresh` — that would also wipe the corrupted cache
+   - `./sim.sh run` (no `--fresh` — that would also wipe the corrupted cache
      file we just planted).
    - **Expect**: behaves like case 1 — `loadCached()` rejects the invalid
      JSON, falls through to the no-cache path, fetch fails, "Unable to load
@@ -151,7 +151,7 @@ an edit to `local.env` + `./run.sh` — the value is read at runtime via
    - Comment out (or delete) `SCHEDULE_URL` in `local.env`. It's gitignored,
      so there's nothing to check into git either way — just leave it unset
      so the next run uses the real endpoint.
-   - `./run.sh --fresh` once more (clears any garbage cache from step 6) to
+   - `./sim.sh run --fresh` once more (clears any garbage cache from step 6) to
      confirm everything's back to normal (case 2 → case 3 on next launch).
    - `git status` should show no changes to tracked files from this testing
      session.

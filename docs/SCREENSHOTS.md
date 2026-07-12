@@ -23,7 +23,7 @@ that family — you don't need a separate set per individual model.
 - Apple's minimum is 1 screenshot per device family, but App Store Connect's
   upload UI effectively wants at least 3 — plan for 3–7 per family.
 
-Our captures (via `snap.sh`, see below) come out at the simulator's native
+Our captures (via `sim.sh snap`, see below) come out at the simulator's native
 resolution for whichever device you boot — pick an iPhone 16 Pro Max simulator
 to land exactly on the canonical size above with no scaling.
 
@@ -38,8 +38,8 @@ upload. See `docs/RELEASE.md` for where this fits in the release checklist.
 From the project root:
 
 ```bash
-./snap.sh                  # saves ~/Downloads/snap-<timestamp>.png
-./snap.sh my-name.png      # saves ~/Downloads/my-name.png
+./sim.sh snap                  # saves ~/Downloads/snap-<timestamp>.png
+./sim.sh snap my-name.png      # saves ~/Downloads/my-name.png
 ```
 
 Targets a connected physical device if one's attached (via `idevicescreenshot`),
@@ -49,8 +49,8 @@ physical device is attached, the script lists them and exits rather than guessin
 ## Switching light/dark mode
 
 ```bash
-./snap.sh -dark
-./snap.sh -light
+./sim.sh dark
+./sim.sh light
 ```
 
 **Simulator only** — this runs `xcrun simctl ui booted appearance`. iOS has no
@@ -65,7 +65,7 @@ Disconnect the one you don't want to capture from, or boot a simulator instead.
 
 **Empty/failed screenshot**
 Make sure the device/simulator screen is on and unlocked before running
-`./snap.sh`.
+`./sim.sh snap`.
 
 **`idevicescreenshot: command not found`**
 `brew install libimobiledevice` (only needed for the real-device path; the

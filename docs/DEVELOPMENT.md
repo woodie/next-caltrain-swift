@@ -87,6 +87,13 @@ swiftlint
 DSL — `override class func spec()` and short names like `gt` are
 conventional in this style and not worth fighting.
 
+## Lint, test, check
+
+`make lint` and `make test` wrap the two commands above/`./test.sh` —
+verbose, same output either way. `make check` runs both back to back but
+tersely: lint's usual output, then just `PASS` on a clean test run or the
+full log if anything fails. Run `make check` before committing.
+
 ## Regenerating the Xcode project
 
 After adding/removing files or targets, or editing `project.yml`:
@@ -101,25 +108,30 @@ before `./build.sh` if you've added or removed files.
 
 ## Simulator build (debug, app target only)
 
+`sim.sh` is the one entry point for everything simulator-related — no args
+boots it, `run`/`snap`/`dark`/`light` are subcommands:
+
 ```
 ./sim.sh
 ```
 
-`sim.sh` launches the iOS simulator then just leave it running.
+Launches the iOS simulator and just leaves it running.
 
 ```
-./build.sh && ./run.sh
+./build.sh && ./sim.sh run
 ```
 
 `build.sh` wraps `xcodegen` + `xcodebuild ... | grep "error:"` + a clean
-simulator reinstall. `run.sh` installs and launches the app.
+simulator reinstall. `./sim.sh run` installs and launches the app — if no
+simulator is booted and no `-d/--device` given, it fails fast with a pointer
+back to `./sim.sh` rather than a raw `xcrun` error.
 
 ## Viewing logs
 
 To stream debug logs from the running simulator app:
 
 ```
-./run.sh --log
+./sim.sh run --log
 ```
 
 This captures `os_log` output filtered by tag. To add debug logs in Swift:
@@ -130,7 +142,7 @@ os_log("[MyTag] value=%.1f", log: OSLog(subsystem: "com.netpress.NextCaltrain", 
 ```
 
 The bracketed tag (e.g. `[MyTag]`) must also be added to the predicate in
-`run.sh` — look for the `composedMessage CONTAINS` line and add:
+`sim.sh`'s `cmd_run` — look for the `composedMessage CONTAINS` line and add:
 
 ```
 OR composedMessage CONTAINS "[MyTag]"
@@ -145,8 +157,12 @@ use `os_log` with a subsystem for logs you want to see in the terminal.
 | --- | --- |
 | One-time setup | `brew install xcodegen swiftlint` + build/install `xctidy` (see above) |
 | Regenerate Xcode project | `xcodegen generate` |
-| Run unit tests | `./test.sh` |
+| Run unit tests | `./test.sh` or `make test` |
 | Run a single spec | `./test.sh GoodTimesSpec` |
-| Lint | `swiftlint` |
-| Build + run in simulator | `./build.sh && ./run.sh` |
-| View debug logs | `./run.sh --log` |
+| Lint | `swiftlint` or `make lint` |
+| Lint + test, terse | `make check` (run before committing) |
+| Boot the simulator | `./sim.sh` |
+| Build + run in simulator | `./build.sh && ./sim.sh run` |
+| View debug logs | `./sim.sh run --log` |
+| Screenshot | `./sim.sh snap [filename]` |
+| Dark / light mode | `./sim.sh dark` / `./sim.sh light` |

@@ -5,7 +5,7 @@ xcodegen generate
 
 # Reuse whatever simulator is already booted instead of letting xcodebuild
 # resolve a destination by name. This used to target "iPhone 17" here while
-# build.sh/run.sh target "iPhone 17 Pro" — a mismatch that meant xcodebuild
+# build.sh/sim.sh run target "iPhone 17 Pro" — a mismatch that meant xcodebuild
 # always booted a second, different simulator even when one was already
 # running. If nothing is booted, fall back to booting "iPhone 17 Pro" to
 # match build.sh's default.

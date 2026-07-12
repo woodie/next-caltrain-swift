@@ -35,32 +35,28 @@ Pattern: `{type}/{issue-number}-{short-description}`
    git checkout -b bugfix/7-no-text-wrap
    ```
 
-2. **Make changes** — edit files, run `./build.sh && ./run.sh` to
+2. **Make changes** — edit files, run `./build.sh && ./sim.sh run` to
    test interactively, take screenshots for feedback.
 
-3. **Run tests** before committing:
+3. **Lint and test** before committing:
    ```bash
-   ./test.sh
+   make check
    ```
-   All tests must pass.
+   Runs `swiftlint` then the test suite; prints `PASS` or the full failure
+   log. (`make lint`/`make test` run either half verbosely on its own.)
 
-4. **Lint** to catch style issues:
-   ```bash
-   swiftlint
-   ```
-
-5. **Commit** with a message that references the issue:
+4. **Commit** with a message that references the issue:
    ```bash
    git add Sources/TripDetailView.swift
    git commit -m "Fix detail view text wrapping (fixes #7)"
    ```
 
-6. **Push** and open a pull request on GitHub:
+5. **Push** and open a pull request on GitHub:
    ```bash
    git push -u origin bugfix/7-no-text-wrap
    ```
 
-7. **Merge** via GitHub PR, then clean up:
+6. **Merge** via GitHub PR, then clean up:
    ```bash
    git checkout main && git pull
    git branch -d bugfix/7-no-text-wrap
@@ -94,7 +90,7 @@ After merging a hotfix, **re-release to the App Store** (see below).
 
 2. **Simulator**:
    ```bash
-   ./build.sh && ./run.sh
+   ./build.sh && ./sim.sh run
    ```
 
 3. **Edge cases** — if the change touches schedule logic, routing, or time
@@ -106,7 +102,7 @@ After merging a hotfix, **re-release to the App Store** (see below).
 
 4. **Logs**:
    ```bash
-   ./run.sh --log
+   ./sim.sh run --log
    ```
 
 ## Schedule updates (publish new `schedule.json`)
@@ -172,9 +168,8 @@ Before App Store review, distribute via TestFlight:
 
 Before releasing:
 
-- [ ] `./test.sh` passes.
-- [ ] `swiftlint` has no errors.
-- [ ] `./build.sh && ./run.sh` works.
+- [ ] `make check` passes (lint + tests).
+- [ ] `./build.sh && ./sim.sh run` works.
 - [ ] Tested on a real device (not just simulator).
 - [ ] Schedule loads correctly (check About view).
 - [ ] Countdown updates every second; weekday/weekend detection correct.
