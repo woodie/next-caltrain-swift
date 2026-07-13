@@ -115,16 +115,18 @@ boots it, `run`/`snap`/`dark`/`light` are subcommands:
 ./sim.sh
 ```
 
-Launches the iOS simulator and just leaves it running. Which simulator is
-read from `sim-device.env` (committed default) / `local.env` (personal
-override) — `-d/--device NAME` overrides either for one invocation:
+Launches the iOS simulator and just leaves it running. Which simulator boots
+by default is set directly in `sim.sh` (the `SIM_DEVICE=` line near the top,
+edit + commit to change it — no separate config file) — `-d/--device NAME`
+overrides it for one invocation:
 
 ```
 ./sim.sh -d "iPhone 17"
 ```
 
-`build.sh`/`test.sh` read the same `sim-device.env`/`local.env` default, so
-all three always agree on which simulator to target unless you pass `-d`.
+`build.sh`/`test.sh` carry the same `SIM_DEVICE=` default (kept in sync by
+comment convention), so all three always agree on which simulator to target
+unless you pass `-d`.
 
 ```
 ./build.sh && ./sim.sh run

@@ -3,12 +3,11 @@ set -e
 
 xcodegen generate
 
-# See sim.sh for the full SIM_DEVICE resolution order (sim-device.env, then
-# local.env). Kept in sync with sim.sh/build.sh so all three always target
-# the same simulator by default.
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-[ -f "$SCRIPT_DIR/sim-device.env" ] && source "$SCRIPT_DIR/sim-device.env"
-[ -f "$SCRIPT_DIR/local.env" ] && source "$SCRIPT_DIR/local.env"
+# Default simulator -- see sim.sh for the full explanation. Kept in sync
+# with sim.sh/build.sh so all three always target the same simulator by
+# default.
+SIM_DEVICE="${SIM_DEVICE:-iPhone 17 Pro Max}"
+# SIM_DEVICE="${SIM_DEVICE:-iPhone SE (3rd generation)}"
 
 # Reuse whatever simulator is already booted instead of letting xcodebuild
 # resolve a destination by name. This used to target a different device name

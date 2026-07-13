@@ -39,9 +39,9 @@ success/failure.
 
 All three are set via `SCHEDULE_URL` in `local.env` (gitignored — this is the
 per-developer test override; don't confuse it with the committed
-`schedule-endpoint.env`, which holds the real production URL. `sim.sh run` sources
+`config.properties`, which holds the real production URL. `sim.sh run` sources
 both, `local.env` taking precedence, and passes the result to the simulator as
-`SIMCTL_CHILD_SCHEDULE_URL` — see `docs/CLAUDE.md`):
+`SIMCTL_CHILD_SCHEDULE_URL` — see `docs/COWORK.md`):
 
 ```
 SCHEDULE_URL=<ENDPOINT HERE>

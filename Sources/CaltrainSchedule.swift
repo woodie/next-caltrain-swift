@@ -23,10 +23,10 @@ struct Schedule: Codable {
     let southHoliday: [String: [Int?]]
     let scheduleDate: Int?  // epoch ms; matches PWA's scheduleDate (stop_times.txt mtime)
     // Reads SCHEDULE_URL, which sim.sh run sets from (highest priority first):
-    // local.env (gitignored, per-developer test override) > schedule-endpoint.env
+    // local.env (gitignored, per-developer test override) > config.properties
     // (committed, real production URL — edit + commit that file to relocate it).
     // The literal below is a last-resort safety net for launches that bypass
-    // sim.sh run (e.g. running directly from Xcode). See docs/CLAUDE.md.
+    // sim.sh run (e.g. running directly from Xcode). See docs/COWORK.md.
     private static let remoteURL = URL(
         string: ProcessInfo.processInfo.environment["SCHEDULE_URL"]
             ?? "https://next-caltrain-pwa.appspot.com/feed/schedule.json"

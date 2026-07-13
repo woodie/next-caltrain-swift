@@ -2,8 +2,8 @@
 # Usage: ./sim.sh [-d DEVICE]                 boot the default simulator and leave it running
 #        ./sim.sh run [-d DEVICE] [--fresh] [--log]
 #          -d, --device DEVICE   boot/target a simulator matching DEVICE (substring match).
-#                                 Overrides SIM_DEVICE (see sim-device.env/local.env) for
-#                                 this invocation only.
+#                                 Overrides the default SIM_DEVICE (see the top of this
+#                                 file) for this invocation only.
 #          -f, --fresh           full wipe (uninstall) instead of a cold relaunch
 #          -l, --log             stream filtered log output after launch (Ctrl-C to stop)
 #        ./sim.sh snap [filename]
@@ -23,20 +23,15 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Which simulator sim.sh (and build.sh/test.sh) boot/target by default when
-# no -d/--device is given, highest priority first:
-#   1. SIM_DEVICE already set in the calling environment (e.g.
-#      `SIM_DEVICE="iPhone 17" ./sim.sh`) -- captured before the files below
-#      are sourced, and restored after, so it can't be clobbered by them.
-#   2. local.env (gitignored) -- per-developer override, e.g. to test on a
-#      smaller phone locally without affecting the committed default.
-#   3. sim-device.env (committed) -- the real default, e.g. after switching to
-#      a larger phone for App Store screenshots. Edit + commit to change it
-#      for everyone. See docs/SCREENSHOTS.md.
-_SIM_DEVICE_FROM_ENV="${SIM_DEVICE:-}"
-[ -f "$SCRIPT_DIR/sim-device.env" ] && source "$SCRIPT_DIR/sim-device.env"
-[ -f "$SCRIPT_DIR/local.env" ] && source "$SCRIPT_DIR/local.env"
-[ -n "$_SIM_DEVICE_FROM_ENV" ] && SIM_DEVICE="$_SIM_DEVICE_FROM_ENV"
+# Default simulator sim.sh (and build.sh/test.sh) boot/target when no
+# -d/--device is given and SIM_DEVICE isn't already set in the calling
+# environment (e.g. `SIM_DEVICE="iPhone 17" ./sim.sh`, which still wins over
+# the line below). Swap the active line for a commented alternative (or add
+# your own) to change it, e.g. after switching to a larger phone for App
+# Store screenshots -- see docs/SCREENSHOTS.md. Edit + commit to change it
+# for everyone. Kept in sync with build.sh/test.sh; no separate config file.
+SIM_DEVICE="${SIM_DEVICE:-iPhone 17 Pro Max}"
+# SIM_DEVICE="${SIM_DEVICE:-iPhone SE (3rd generation)}"
 
 # Boots TARGET, first shutting down any other booted simulator. `simctl
 # boot` on a second device doesn't replace an already-running one -- it
@@ -128,14 +123,13 @@ cmd_boot() {
 cmd_run() {
   # Schedule endpoint resolution, highest priority first:
   #   1. local.env (gitignored) — per-developer override, e.g. to point at a local
-  #      hang/instant-fail test server. Never committed. Already sourced above,
-  #      alongside SIM_DEVICE -- re-sourced here too since it takes precedence
-  #      over schedule-endpoint.env, which is only loaded on this path.
-  #   2. schedule-endpoint.env (committed) — the real production URL. If the schedule
+  #      hang/instant-fail test server. Never committed. Sourced after
+  #      config.properties so it takes precedence.
+  #   2. config.properties (committed) — the real production URL. If the schedule
   #      data ever moves to a new home, edit and commit this file directly.
-  # See docs/CLAUDE.md "Schedule data pipeline".
-  if [ -f "$SCRIPT_DIR/schedule-endpoint.env" ]; then
-    source "$SCRIPT_DIR/schedule-endpoint.env"
+  # See docs/COWORK.md "Schedule data pipeline".
+  if [ -f "$SCRIPT_DIR/config.properties" ]; then
+    source "$SCRIPT_DIR/config.properties"
   fi
   if [ -f "$SCRIPT_DIR/local.env" ]; then
     source "$SCRIPT_DIR/local.env"
@@ -249,7 +243,10 @@ cmd_mode() {
 }
 
 cmd_list() {
-  xcrun simctl list devices
+  # Filtered to "available iPhone" -- the unfiltered list also includes
+  # every watchOS/tvOS/visionOS pairing and unavailable runtimes, which
+  # buries the handful of iPhone simulators actually relevant here.
+  xcrun simctl list devices available iPhone
   echo
   echo "Boot one of these: ./sim.sh -d \"<name or unique substring>\""
 }

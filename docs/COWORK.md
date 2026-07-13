@@ -183,17 +183,18 @@ steps") for the original writeup.
   legacy `/schedule.json` URL solely for the iOS 1.0 App Store review build
   — see that repo's `docs/PUBLISHING.md` "Schedule JSON URLs" section.)
 - **Endpoint resolution**: `Schedule.remoteURL` reads `ProcessInfo.processInfo.environment["SCHEDULE_URL"]`,
-  which `run.sh` sets with this precedence (highest first):
+  which `sim.sh run` sets with this precedence (highest first):
   1. `local.env` (gitignored) — per-developer override, e.g. the instant-fail/hang-server
      test scenarios in `docs/SCHEDULE_ENDPOINT.md`. Never committed.
-  2. `schedule-endpoint.env` (committed, repo root) — the real production URL. If the
+  2. `config.properties` (committed, repo root) — the real production URL. If the
      schedule data ever moves to a new home, edit and commit this file directly, no
-     source edit needed.
+     source edit needed. Named generically (not `schedule-endpoint.env`) since it's the
+     general committed-app-config file, not schedule-only.
   3. The literal in `CaltrainSchedule.swift` — last-resort safety net for launches that
-     bypass `run.sh` (e.g. running directly from Xcode).
-  Switching endpoints via either `.env` file is just an edit + `./run.sh`, no rebuild.
+     bypass `sim.sh run` (e.g. running directly from Xcode).
+  Switching endpoints via either file is just an edit + `./sim.sh run`, no rebuild.
   (Kotlin sibling uses the equivalent `scheduleUrl=` layering across `local.properties` /
-  `schedule-endpoint.properties`.)
+  its own `config.properties`.)
 - At launch, `Schedule.fetchFromNetwork()` fetches the published copy and
   caches it to `Documents/schedule.json` for next launch.
   `Schedule.loadCached()` prefers the cache, validates with `Schedule.isValid`

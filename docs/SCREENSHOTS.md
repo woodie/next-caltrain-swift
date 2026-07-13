@@ -5,11 +5,11 @@ Notes on capturing and sizing screenshots for the App Store listing.
 ## Which simulator
 
 `sim.sh`, `build.sh`, and `test.sh` all boot/target whatever `SIM_DEVICE` is
-set to in `sim-device.env` (committed — edit + commit this file when the
-screenshot device changes, e.g. moving to a new "Max" model each generation)
-or `local.env` (gitignored personal override). Pass `-d/--device NAME` to
-any of them to target something else for one run without touching either
-file.
+set to at the top of each script (committed — edit + commit that line when
+the screenshot device changes, e.g. moving to a new "Max" model each
+generation; a commented alternative sits right below it). Pass
+`-d/--device NAME` to any of them to target something else for one run
+without editing anything.
 
 ## iPhone-only (decided)
 
@@ -17,7 +17,7 @@ This app ships **iPhone-only**. `project.yml` now sets
 `TARGETED_DEVICE_FAMILY: "1"` on the `NextCaltrain` target — run `./build.sh`
 (wraps `xcodegen generate`) and confirm all 4 occurrences in
 `project.pbxproj` read `"1"`, not `"1,2"`, before archiving. No iPad
-screenshots or iPad layout testing needed; the layout work in `docs/CLAUDE.md`
+screenshots or iPad layout testing needed; the layout work in `docs/COWORK.md`
 ("Lessons from layout debugging") is iPhone-specific and was never verified
 on iPad, so this also sidesteps that risk.
 
