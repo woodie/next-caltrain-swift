@@ -3,19 +3,25 @@ set -e
 
 xcodegen generate
 
+# See sim.sh for the full SIM_DEVICE resolution order (sim-device.env, then
+# local.env). Kept in sync with sim.sh/build.sh so all three always target
+# the same simulator by default.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[ -f "$SCRIPT_DIR/sim-device.env" ] && source "$SCRIPT_DIR/sim-device.env"
+[ -f "$SCRIPT_DIR/local.env" ] && source "$SCRIPT_DIR/local.env"
+
 # Reuse whatever simulator is already booted instead of letting xcodebuild
-# resolve a destination by name. This used to target "iPhone 17" here while
-# build.sh/sim.sh run target "iPhone 17 Pro" — a mismatch that meant xcodebuild
-# always booted a second, different simulator even when one was already
-# running. If nothing is booted, fall back to booting "iPhone 17 Pro" to
-# match build.sh's default.
+# resolve a destination by name. This used to target a different device name
+# here than build.sh/sim.sh used, which meant xcodebuild always booted a
+# second, different simulator even when one was already running. If nothing
+# is booted, fall back to booting $SIM_DEVICE to match build.sh/sim.sh.
 BOOTED_UDID=$(xcrun simctl list devices booted 2>/dev/null | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' | head -1)
 
 if [ -n "$BOOTED_UDID" ]; then
   DESTINATION="platform=iOS Simulator,id=$BOOTED_UDID"
 else
-  echo "No booted simulator found; booting iPhone 17 Pro."
-  DESTINATION="platform=iOS Simulator,name=iPhone 17 Pro"
+  echo "No booted simulator found; booting $SIM_DEVICE."
+  DESTINATION="platform=iOS Simulator,name=$SIM_DEVICE"
 fi
 
 # Quick flattens every describe()/context()/it() into one comma-joined

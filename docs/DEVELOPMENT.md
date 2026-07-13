@@ -115,7 +115,16 @@ boots it, `run`/`snap`/`dark`/`light` are subcommands:
 ./sim.sh
 ```
 
-Launches the iOS simulator and just leaves it running.
+Launches the iOS simulator and just leaves it running. Which simulator is
+read from `sim-device.env` (committed default) / `local.env` (personal
+override) — `-d/--device NAME` overrides either for one invocation:
+
+```
+./sim.sh -d "iPhone 17"
+```
+
+`build.sh`/`test.sh` read the same `sim-device.env`/`local.env` default, so
+all three always agree on which simulator to target unless you pass `-d`.
 
 ```
 ./build.sh && ./sim.sh run
@@ -162,6 +171,8 @@ use `os_log` with a subsystem for logs you want to see in the terminal.
 | Lint | `swiftlint` or `make lint` |
 | Lint + test, terse | `make check` (run before committing) |
 | Boot the simulator | `./sim.sh` |
+| List available simulators | `./sim.sh list` |
+| Boot a specific simulator | `./sim.sh -d "iPhone 17"` |
 | Build + run in simulator | `./build.sh && ./sim.sh run` |
 | View debug logs | `./sim.sh run --log` |
 | Screenshot | `./sim.sh snap [filename]` |

@@ -2,6 +2,15 @@
 
 Notes on capturing and sizing screenshots for the App Store listing.
 
+## Which simulator
+
+`sim.sh`, `build.sh`, and `test.sh` all boot/target whatever `SIM_DEVICE` is
+set to in `sim-device.env` (committed — edit + commit this file when the
+screenshot device changes, e.g. moving to a new "Max" model each generation)
+or `local.env` (gitignored personal override). Pass `-d/--device NAME` to
+any of them to target something else for one run without touching either
+file.
+
 ## iPhone-only (decided)
 
 This app ships **iPhone-only**. `project.yml` now sets

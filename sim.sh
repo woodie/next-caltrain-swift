@@ -1,7 +1,9 @@
 #!/bin/bash
-# Usage: ./sim.sh                             boot the default simulator and leave it running
+# Usage: ./sim.sh [-d DEVICE]                 boot the default simulator and leave it running
 #        ./sim.sh run [-d DEVICE] [--fresh] [--log]
-#          -d, --device DEVICE   boot/target a simulator matching DEVICE (substring match)
+#          -d, --device DEVICE   boot/target a simulator matching DEVICE (substring match).
+#                                 Overrides SIM_DEVICE (see sim-device.env/local.env) for
+#                                 this invocation only.
 #          -f, --fresh           full wipe (uninstall) instead of a cold relaunch
 #          -l, --log             stream filtered log output after launch (Ctrl-C to stop)
 #        ./sim.sh snap [filename]
@@ -15,6 +17,69 @@
 #          switch the Simulator to dark/light mode (Simulator only -- iOS has no
 #          public command-line API to toggle Dark Mode on a physical device,
 #          switch it manually: Settings > Display & Brightness, or Control Center)
+#        ./sim.sh list
+#          list installed simulators (name + UDID + booted state), for picking
+#          a -d/--device value
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Which simulator sim.sh (and build.sh/test.sh) boot/target by default when
+# no -d/--device is given, highest priority first:
+#   1. SIM_DEVICE already set in the calling environment (e.g.
+#      `SIM_DEVICE="iPhone 17" ./sim.sh`) -- captured before the files below
+#      are sourced, and restored after, so it can't be clobbered by them.
+#   2. local.env (gitignored) -- per-developer override, e.g. to test on a
+#      smaller phone locally without affecting the committed default.
+#   3. sim-device.env (committed) -- the real default, e.g. after switching to
+#      a larger phone for App Store screenshots. Edit + commit to change it
+#      for everyone. See docs/SCREENSHOTS.md.
+_SIM_DEVICE_FROM_ENV="${SIM_DEVICE:-}"
+[ -f "$SCRIPT_DIR/sim-device.env" ] && source "$SCRIPT_DIR/sim-device.env"
+[ -f "$SCRIPT_DIR/local.env" ] && source "$SCRIPT_DIR/local.env"
+[ -n "$_SIM_DEVICE_FROM_ENV" ] && SIM_DEVICE="$_SIM_DEVICE_FROM_ENV"
+
+# Boots TARGET, first shutting down any other booted simulator. `simctl
+# boot` on a second device doesn't replace an already-running one -- it
+# boots alongside it, and `open -a Simulator` only brings the app forward,
+# with no guarantee the just-booted device's window becomes the visible
+# one. Without this, switching to a different device via -d/--device can
+# silently no-op from where you're looking (the old window stays in front)
+# while a second simulator boots invisibly behind it. Shared by cmd_boot and
+# cmd_run's own -d/--device.
+boot_exclusive() {
+  local target="$1"
+  xcrun simctl list devices 2>/dev/null | grep "(Booted)" | grep -v "$target" \
+    | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' \
+    | while read -r other; do xcrun simctl shutdown "$other" 2>/dev/null; done
+  xcrun simctl boot "$target" 2>/dev/null
+  open -a Simulator
+}
+
+# Resolves a simulator NAME to its UDID: an exact device name always wins if
+# one exists, otherwise falls back to a substring match (case-insensitive
+# either way). The exact-match pass matters because "iPhone 17" is also a
+# substring of "iPhone 17 Pro"/"iPhone 17 Pro Max"/"iPhone 17e" -- without
+# it, asking for the bare "iPhone 17" would resolve to whichever of those
+# happens to be listed first instead. grep -F (literal, not regex) avoids
+# needing to escape $name; matching "$name (" specifically requires nothing
+# but the UDID's opening paren between the name and end of line.
+# Shared by cmd_boot and cmd_run's own -d/--device.
+resolve_device() {
+  local name="$1"
+  local list
+  list=$(xcrun simctl list devices | grep -v unavailable)
+
+  local udid
+  udid=$(echo "$list" | grep -iF "$name (" | head -1 | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}')
+  if [ -z "$udid" ]; then
+    udid=$(echo "$list" | grep -i "$name" | head -1 | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}')
+  fi
+  if [ -z "$udid" ]; then
+    echo "No simulator found matching '$name'" >&2
+    return 1
+  fi
+  echo "$udid"
+}
 
 # Shared by snap/dark/light -- sets USE_REAL_DEVICE, and enforces that exactly
 # one device/simulator combination is unambiguous: a physical device wins if
@@ -41,18 +106,34 @@ detect_target() {
 }
 
 cmd_boot() {
-  xcrun simctl boot 5B09003B-6FF1-4494-9736-20158EEF8EAD 2>/dev/null
-  open -a Simulator
+  local device="$SIM_DEVICE"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -d|--device)
+        device="$2"
+        shift 2
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
+
+  local target
+  target=$(resolve_device "$device") || exit 1
+  boot_exclusive "$target"
 }
 
 cmd_run() {
   # Schedule endpoint resolution, highest priority first:
   #   1. local.env (gitignored) — per-developer override, e.g. to point at a local
-  #      hang/instant-fail test server. Never committed.
+  #      hang/instant-fail test server. Never committed. Already sourced above,
+  #      alongside SIM_DEVICE -- re-sourced here too since it takes precedence
+  #      over schedule-endpoint.env, which is only loaded on this path.
   #   2. schedule-endpoint.env (committed) — the real production URL. If the schedule
   #      data ever moves to a new home, edit and commit this file directly.
   # See docs/CLAUDE.md "Schedule data pipeline".
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
   if [ -f "$SCRIPT_DIR/schedule-endpoint.env" ]; then
     source "$SCRIPT_DIR/schedule-endpoint.env"
   fi
@@ -90,13 +171,8 @@ cmd_run() {
 
   local TARGET
   if [ -n "$DEVICE" ]; then
-    TARGET=$(xcrun simctl list devices | grep -i "$DEVICE" | grep -v unavailable | head -1 | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}')
-    if [ -z "$TARGET" ]; then
-      echo "No simulator found matching '$DEVICE'"
-      exit 1
-    fi
-    xcrun simctl boot "$TARGET" 2>/dev/null
-    open -a Simulator
+    TARGET=$(resolve_device "$DEVICE") || exit 1
+    boot_exclusive "$TARGET"
     xcrun simctl bootstatus "$TARGET" -b
   else
     if [ "$(xcrun simctl list devices 2>/dev/null | grep -c "(Booted)")" -eq 0 ]; then
@@ -172,6 +248,12 @@ cmd_mode() {
   echo "Switched simulator to $MODE mode"
 }
 
+cmd_list() {
+  xcrun simctl list devices
+  echo
+  echo "Boot one of these: ./sim.sh -d \"<name or unique substring>\""
+}
+
 case "${1:-}" in
   run)
     shift
@@ -183,11 +265,14 @@ case "${1:-}" in
   dark|light)
     cmd_mode "$1"
     ;;
-  "")
-    cmd_boot
+  list)
+    cmd_list
+    ;;
+  ""|-d|--device)
+    cmd_boot "$@"
     ;;
   *)
-    echo "Usage: $0 [run [--fresh] [--log] [-d DEVICE] | snap [filename] | dark | light]" >&2
+    echo "Usage: $0 [[-d DEVICE] | run [--fresh] [--log] [-d DEVICE] | snap [filename] | dark | light | list]" >&2
     exit 1
     ;;
 esac
