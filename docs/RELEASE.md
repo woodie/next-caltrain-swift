@@ -63,43 +63,70 @@ submission, or a routine update to an already-live listing.
 
 ## Step-by-step release procedure (every release)
 
-1. **Bump the version** in `NextCaltrain/Info.plist` (skip the marketing
+1. **Before bumping, check what's actually been uploaded** — don't trust a
+   committed `Info.plist` version alone as evidence a build was archived and
+   uploaded. App Store Connect → app → **TestFlight** tab → **iOS** in the
+   sidebar → each version has a disclosure triangle listing its actual
+   uploaded builds. A version/build bumped in git but never archived simply
+   won't appear there. (This bit a real release: a commit had bumped to
+   `1.1`/build `2`, but TestFlight only ever showed `1.0`/build `1` — the
+   1.1 bump had never actually been built and uploaded. Trust TestFlight's
+   list over git history when they disagree.)
+2. **Bump the version** in `NextCaltrain/Info.plist` (skip the marketing
    version bump for the very first release, which starts at `1.0`/build `1`):
    - `CFBundleVersion` (build number) — **must increase on every single
-     upload**, even if the marketing version doesn't change.
+     upload**, even if the marketing version doesn't change. Must be higher
+     than the highest build number confirmed in TestFlight per step 1, not
+     just higher than whatever's currently in `Info.plist`.
    - `CFBundleShortVersionString` (marketing version, e.g. `1.0` → `1.1`) —
-     only for an actual user-facing version bump.
-2. **Confirm Xcode/SDK**: `xcodebuild -version` — must be Xcode 26+ / iOS 26
+     for a real user-facing version bump. Also worth bumping (not just the
+     build number) when resubmitting after abandoning a previous
+     build/version for good — an unambiguous version number means there's no
+     chance of confusing the new build with the abandoned one when picking
+     which one to actually release.
+3. **Confirm Xcode/SDK**: `xcodebuild -version` — must be Xcode 26+ / iOS 26
    SDK (mandatory since Apr 28, 2026, see Prerequisites).
-3. **Regenerate the project**: `./build.sh` runs `xcodegen generate` plus a
+4. **Regenerate the project**: `./build.sh` runs `xcodegen generate` plus a
    simulator build — good for a quick sanity check, but a simulator build is
    not archivable. Use Xcode for the actual archive (next step).
-4. **Archive**: in Xcode, select the **Any iOS Device (arm64)** destination
-   (not a simulator) → **Product → Archive**.
-5. **Upload**: Xcode → **Window → Organizer → Archives** → select the new
-   archive → **Distribute App → App Store Connect → Upload**. (`xcrun
-   altool` is deprecated; Organizer or the App Store Connect API are the
-   current paths — re-check Apple's tooling at submission time, as this has
-   changed before.)
-6. **Wait for processing** in App Store Connect (usually a few minutes, can
-   run longer) — the build appears under the app's TestFlight/App Store tab
-   once ready.
-7. App Store Connect → app → version → **Build** → select the uploaded
-   build.
-8. **TestFlight is optional, not required.** Confirmed: a TestFlight review
+5. **Archive**: open `NextCaltrain.xcodeproj` in Xcode. Next to the scheme
+   selector at the top, choose **Any iOS Device (arm64)** as the destination
+   — not a simulator, not a specific connected device; archiving only works
+   against "Any iOS Device." Then **Product → Archive** (menu bar). Takes a
+   minute or two; the **Organizer** window opens automatically when it's
+   done, with the new archive at the top of the Archives list — confirm its
+   Version column matches what you just bumped to.
+6. **Upload**: with the new archive selected in Organizer, click
+   **Distribute App** (bottom-right) → **App Store Connect** → Next →
+   **Upload** → Next. The signing/options screens that follow are fine on
+   their defaults (automatic signing, recommended symbols) — Next through
+   each to the final **Upload** button. (`xcrun altool` is deprecated;
+   Organizer or the App Store Connect API are the current paths — re-check
+   Apple's tooling at submission time, as this has changed before.)
+7. **Wait for processing** in App Store Connect (usually a few minutes, can
+   run longer) — the build appears under **TestFlight → iOS Builds**,
+   grouped under its version number, once ready.
+8. **Attach the build to a version and submit.** The **App Store** tab's app
+   card only reflects the *App Store version entry* (e.g. "iOS 1.0
+   Rejected"), which is separate from the build itself — a newly uploaded
+   build doesn't automatically create or update that entry. If a version
+   entry for the new marketing version doesn't already exist, create one
+   (**+ Version** on the App Store tab), then select the uploaded build
+   under it.
+9. **TestFlight is optional, not required.** Confirmed: a TestFlight review
    is only triggered if you add *external* testers; internal testing and
    direct-to-review both skip it entirely. This is a real contrast with the
    Android sibling app, which forces a 12-tester/14-day closed-testing gate
    for new developer accounts — iOS has no equivalent gate. Skip TestFlight
    unless you specifically want beta feedback first.
-9. **Release notes** ("What's New in This Version") — skip for the very
-   first submission, there's nothing prior to describe.
-10. **Submit for Review.** Typically 24–48 hours; can run longer for first
+10. **Release notes** ("What's New in This Version") — skip for the very
+    first submission, there's nothing prior to describe.
+11. **Submit for Review.** Typically 24–48 hours; can run longer for first
     submissions or policy-sensitive content.
-11. **Once approved**, choose Manual Release, Automatic Release, or **Phased
+12. **Once approved**, choose Manual Release, Automatic Release, or **Phased
     Release** (7-day staged rollout, pausable) — phased release is the
     closest iOS equivalent to a staged rollout.
-12. Confirm the listing is live and install from the real App Store on a
+13. Confirm the listing is live and install from the real App Store on a
     device as a final smoke test.
 
 ## Rollback steps
@@ -134,5 +161,5 @@ submission, or a routine update to an already-live listing.
 
 - `docs/APP_STORE_LISTING.md` — listing copy and privacy/age-rating notes
 - `docs/SCREENSHOTS.md` — screenshot capture, sizing, current pics/ status
-- `docs/CLAUDE.md` — build/run/test conventions
+- `docs/COWORK.md` — build/run/test conventions
 - `pics/*.png` — existing screenshots (need recapture, see Screenshots step)
