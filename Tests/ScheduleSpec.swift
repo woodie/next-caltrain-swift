@@ -3,11 +3,7 @@ import Quick
 import Nimble
 @testable import NextCaltrain
 
-/// Covers Schedule.fetchedToday() -- the once-per-day fetch cap that lets
-/// ContentView.loadSchedule() skip a redundant network call once we already
-/// have today's schedule. fetchedToday() itself only reads UserDefaults and
-/// delegates to GoodTimes.scheduleDateFor(); the 2am boundary math for
-/// scheduleDateFor() is covered separately in GoodTimesSpec.
+/// Covers Schedule.fetchedToday(), the once-per-day fetch cap; 2am boundary math itself is covered in GoodTimesSpec.
 final class ScheduleSpec: QuickSpec {
     override class func spec() {
         describe("Schedule.fetchedToday") {

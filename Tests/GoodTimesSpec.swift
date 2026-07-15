@@ -177,11 +177,7 @@ final class GoodTimesSpec: QuickSpec {
             }
 
             describe(".scheduleDateFor(_:)") {
-                // Used by the once-per-day schedule fetch cap to decide whether a
-                // stored "last fetched at" timestamp still counts as "today" under
-                // the same "day starts at 2am" rule GoodTimes() itself uses. Both
-                // timestamps in each test are built from the same Calendar so the
-                // comparison holds regardless of the device's default timezone.
+                // Both timestamps in each test use the same Calendar so the comparison holds regardless of device timezone.
                 let cal = Calendar.current
 
                 it("returns the same schedule-day for two instants on the same calendar day, both after 2am") {

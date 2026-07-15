@@ -112,10 +112,7 @@ final class TripViewModelSpec: QuickSpec {
                 beforeEach {
                     GoodTimes.debugOverrideDotw = 1  // Monday
                     GoodTimes.debugOverrideMinutes = 100
-                    let schedule = SpecFixtures.schedule { _ in
-                        // intentionally empty: no service configured for
-                        // any schedule type
-                    }
+                    let schedule = SpecFixtures.schedule { _ in }
                     viewModel = TripViewModel(schedule: schedule)
                     viewModel.origin = SpecFixtures.sanFrancisco
                     viewModel.destination = SpecFixtures.gilroy
@@ -137,9 +134,7 @@ final class TripViewModelSpec: QuickSpec {
             }
 
             context("for a future trip's schedule type (Friday -> Saturday)") {
-                // Friday with weekday+weekend service: today's trips all
-                // departed, tomorrow is Saturday (.weekend). Verifies that
-                // TripListView should use tomorrowScheduleType for future trips.
+                // Friday with weekday+weekend service: today's trips all departed, tomorrow is Saturday (.weekend).
                 var viewModel: TripViewModel!
 
                 beforeEach {
@@ -179,11 +174,7 @@ final class TripViewModelSpec: QuickSpec {
             }
 
             context("manual selection via setOffset") {
-                // Regression coverage for the reset-button-stuck-on bug: dragging
-                // away from the next train sets hasManualSelection, but dragging
-                // back to that same next-train offset should clear it again —
-                // otherwise the reset button stays visible even though the
-                // current selection is exactly the auto-picked "next train".
+                // Regression coverage for the reset-button-stuck-on bug: dragging back to the next-train offset should clear hasManualSelection.
                 var viewModel: TripViewModel!
 
                 beforeEach {

@@ -19,9 +19,7 @@ class TripViewModel: ObservableObject {
     private let kStopAM = "stopAM"
     private let kStopPM = "stopPM"
 
-    /// Minutes-since-midnight offset applied to "tomorrow"'s trips so their
-    /// depart/arrive times sort after today's and produce correct countdowns.
-    /// Trips from the appended block are marked via `Trip.isFuture`.
+    /// Minutes-since-midnight offset applied to "tomorrow"'s trips (see `Trip.isFuture`).
     static let dayMinutes = 1440
 
     var swapped: Bool {
@@ -33,8 +31,7 @@ class TripViewModel: ObservableObject {
         return scheduleType != today
     }
 
-    /// The schedule type for tomorrow's date (used for trips appended after
-    /// today's, identified by `Trip.depart >= TripViewModel.dayMinutes`).
+    /// Schedule type for tomorrow's date, used for trips appended after today's.
     var tomorrowScheduleType: ScheduleType {
         return CaltrainSchedule.optionIndex(
             date: goodTimes.tomorrowDate,
@@ -59,8 +56,7 @@ class TripViewModel: ObservableObject {
         return goodTimes.departing(trips[offset].depart)
     }
 
-    /// True if the currently-selected trip belongs to "tomorrow" (appended,
-    /// shifted-by-dayMinutes trips).
+    /// True if the currently-selected trip belongs to the appended "tomorrow" block.
     var isFutureSelected: Bool {
         guard offset < trips.count else { return false }
         return trips[offset].isFuture
@@ -79,8 +75,7 @@ class TripViewModel: ObservableObject {
         return direction == "South" ? schedule.southStops : schedule.southStops.reversed()
     }
 
-    /// `sched` is loaded by ContentView during the startup loading screen
-    /// (from cache or network) and injected here.
+    /// `sched` is loaded by ContentView during startup (cache or network) and injected here.
     init(schedule sched: Schedule) {
         self.schedule = sched
         self.service = CaltrainService(schedule: sched)
@@ -118,9 +113,7 @@ class TripViewModel: ObservableObject {
             }
     }
 
-    /// Returns a copy of `trip` with all leg-depart times and the final arrival
-    /// shifted forward by `TripViewModel.dayMinutes`, used to represent a
-    /// "tomorrow" trip appended after today's schedule.
+    /// Returns `trip` with legs/arrival shifted forward by `dayMinutes`, representing a "tomorrow" trip.
     private func shiftedToTomorrow(_ trip: Trip) -> Trip {
         let shiftedLegs = trip.legs.map { leg in
             Leg(trainId: leg.trainId, station: leg.station, depart: leg.depart + TripViewModel.dayMinutes)
@@ -144,9 +137,7 @@ class TripViewModel: ObservableObject {
         offset = newOffset
     }
 
-    /// Shared fallback: if there's no service tomorrow and today's trips are
-    /// all in the past, keep the first trip selected instead of clamping to
-    /// the last (already-departed) one.
+    /// Falls back to the first trip if there's no service tomorrow and today's trips are all in the past.
     private func clampedOffset(preferring desired: Int) -> Int {
         if desired < trips.count { return desired }
         let hasTomorrow = trips.contains { $0.isFuture }

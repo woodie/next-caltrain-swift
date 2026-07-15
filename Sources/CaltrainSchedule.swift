@@ -22,11 +22,7 @@ struct Schedule: Codable {
     let southWeekend: [String: [Int?]]
     let southHoliday: [String: [Int?]]
     let scheduleDate: Int?  // epoch ms; matches PWA's scheduleDate (stop_times.txt mtime)
-    // Reads SCHEDULE_URL, which sim.sh run sets from (highest priority first):
-    // local.env (gitignored, per-developer test override) > config.properties
-    // (committed, real production URL — edit + commit that file to relocate it).
-    // The literal below is a last-resort safety net for launches that bypass
-    // sim.sh run (e.g. running directly from Xcode). See docs/COWORK.md.
+    // SCHEDULE_URL precedence (local.env > config.properties > this literal fallback); see docs/COWORK.md "Endpoint resolution".
     private static let remoteURL = URL(
         string: ProcessInfo.processInfo.environment["SCHEDULE_URL"]
             ?? "https://next-caltrain-pwa.appspot.com/feed/schedule.json"
@@ -35,8 +31,7 @@ struct Schedule: Codable {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return dir.appendingPathComponent("schedule.json")
     }
-    // Not private so unit tests (@testable import) can read/write the same key
-    // directly instead of hardcoding the string.
+    // Not private: tests (@testable import) read/write this key directly instead of hardcoding the string.
     static let lastFetchKey = "lastFetchTime"
     /// Loads a valid cached schedule from disk, if one exists.
     static func loadCached() -> Schedule? {
@@ -47,9 +42,7 @@ struct Schedule: Codable {
         }
         return schedule
     }
-    /// True if the last successful network fetch landed on today's schedule-day
-    /// (2am boundary, see GoodTimes.scheduleDateFor). Used to skip redundant
-    /// network calls once we already have today's data.
+    /// True if the last successful fetch landed on today's schedule-day (2am boundary; see GoodTimes.scheduleDateFor).
     static func fetchedToday() -> Bool {
         guard let last = UserDefaults.standard.object(forKey: lastFetchKey) as? Date else {
             return false
@@ -59,8 +52,7 @@ struct Schedule: Codable {
     private static func markFetched() {
         UserDefaults.standard.set(Date(), forKey: lastFetchKey)
     }
-    /// Basic structural validation: stop lists are non-empty, and every schedule
-    /// table's train arrays match the length of their direction's stop list.
+    /// Stop lists are non-empty and every schedule table's train arrays match their direction's stop-list length.
     var isValid: Bool {
         guard !northStops.isEmpty, !southStops.isEmpty else { return false }
         let northTables = [northWeekday, northWeekend, northHoliday]
@@ -77,9 +69,7 @@ struct Schedule: Codable {
         }
         return true
     }
-    /// Fetches the latest published schedule from the network. If valid, writes
-    /// it to the local cache for use on future launches and returns it.
-    /// Throws on network/decode/validation failure.
+    /// Fetches the latest schedule, caches it to disk if valid, and returns it; throws on network/decode/validation failure.
     static func fetchFromNetwork() async throws -> Schedule {
         let (data, response) = try await URLSession.shared.data(from: remoteURL)
         guard let httpResponse = response as? HTTPURLResponse else {

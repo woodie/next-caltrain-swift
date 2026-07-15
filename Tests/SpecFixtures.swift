@@ -1,43 +1,7 @@
 import Foundation
 @testable import NextCaltrain
 
-/// Factory for building `Schedule` fixtures for specs.
-///
-/// `TripViewModel.init` defaults to `stopAM = 15` / `stopPM = 0` when no
-/// saved preferences exist (matching the real schedule's station count), so
-/// fixture stop lists must have at least 16 entries or `init` crashes with
-/// an out-of-bounds array access.
-///
-/// The four stations that matter for routing/transfer logic are placed at
-/// the ends and at meaningful interior positions; everything else is filler
-/// ("Stop N") that no spec references directly:
-///
-///     index:    0              1..6      7              8..13   14           15
-///     station:  San Francisco  Stop 1-6  San Jose Diridon  Stop 7-12  Morgan Hill  Gilroy
-///
-/// "South" means increasing index (SF -> Gilroy), matching
-/// `CaltrainService.direction`. Electric trains (IDs 100-700) only run
-/// SF <-> San Jose Diridon, since Caltrain doesn't own the electrified
-/// tracks south of there. Diesel/South County trains (IDs 800-900) only run
-/// San Jose Diridon <-> Gilroy. Any SF <-> Morgan Hill/Gilroy trip therefore
-/// requires a transfer at San Jose Diridon, while a Morgan Hill <-> Gilroy
-/// trip is direct (no transfer).
-///
-/// With the default indices (stopAM=15, stopPM=0), a freshly-initialized
-/// `TripViewModel` defaults to Gilroy <-> San Francisco -- a transfer route
-/// -- which is convenient for rollover/offset specs.
-///
-/// Building a schedule:
-///
-///     let schedule = SpecFixtures.schedule {
-///         $0.weekday(electric: .normal, diesel: .normal)
-///         $0.weekend(electric: .normal, diesel: .none)
-///         $0.holiday(electric: .normal, diesel: .none)
-///     }
-///
-/// Each leg (electric/diesel) for each schedule type can be `.normal`
-/// (the default timetable below), `.none` (no trains -- e.g. South County
-/// on weekends), or `.custom([...])` for hand-specified times.
+/// Factory for building `Schedule` fixtures for specs; see docs/COMMENTS.md for station layout and usage.
 enum SpecFixtures {
     static let sanFrancisco = "San Francisco"
     static let sanJoseDiridon = "San Jose Diridon"
@@ -51,8 +15,7 @@ enum SpecFixtures {
 
     static let stopCount = 16
 
-    /// Index order: SF=0 ... Gilroy=15 (South = increasing index), with
-    /// filler "Stop N" stations in between so the fixture has >= 16 entries.
+    /// Index order: SF=0 ... Gilroy=15 (South = increasing index), with filler stations padding to >= 16 entries.
     static let stops: [String] = {
         var result = [String](repeating: "", count: stopCount)
         result[sanFranciscoIndex] = sanFrancisco
@@ -79,17 +42,14 @@ enum SpecFixtures {
         case custom(southTimes: [Int?], northTimes: [Int?])
     }
 
-    /// Builds a `Schedule` using the given configuration closure. Any
-    /// schedule type not configured defaults to `.none` for both legs
-    /// (i.e. an empty table), matching how real "no service" days behave.
+    /// Builds a `Schedule`; any unconfigured schedule type defaults to `.none` for both legs (empty table).
     static func schedule(_ configure: (inout Builder) -> Void) -> Schedule {
         var builder = Builder()
         configure(&builder)
         return builder.build()
     }
 
-    /// Convenience: a schedule with normal weekday service and no
-    /// weekend/modified service at all (the most common fixture shape).
+    /// Convenience: normal weekday service only, no weekend/modified service (the most common fixture shape).
     static func weekdayOnlySchedule() -> Schedule {
         schedule {
             $0.weekday(electric: .normal, diesel: .normal)
@@ -160,9 +120,7 @@ enum SpecFixtures {
             north[type] = northTable
         }
 
-        /// Builds a `[Int?]` of length `stopCount`, all `nil` except at the
-        /// given south-stop indices. If `north` is true, indices are
-        /// converted to their position in `northStops` (the reverse order).
+        /// Builds a `[Int?]` of length `stopCount`; `north` converts indices into `northStops`' reverse order.
         private func emptyRow(north: Bool = false, setting values: [Int: Int]) -> [Int?] {
             var row = [Int?](repeating: nil, count: stopCount)
             for (southIndex, time) in values {

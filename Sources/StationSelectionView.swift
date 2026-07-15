@@ -100,12 +100,7 @@ struct StationSelectionView: View {
             .background(Color.appBackground)
     }
 
-    // List (UITableView-backed) enforces its own minimum row height even with
-    // defaultMinListRowHeight zeroed out, so rows stay taller than the content
-    // actually needs. ScrollView + VStack has no such floor, giving rows that
-    // are exactly insets + text height (LazyVStack was tried first but takes a
-    // generous/unbounded height proposal from ScrollView that ignores content
-    // size — not an issue here since the station list is short, ~30 rows max).
+    // ScrollView + VStack (not List/LazyVStack): avoids List's minimum-row-height floor and LazyVStack's unbounded height proposal.
     @ViewBuilder
     private func stationListBody(
         stations: [String],
@@ -115,11 +110,6 @@ struct StationSelectionView: View {
     ) -> some View {
         ScrollViewReader { proxy in
             ScrollView {
-                // LazyVStack takes an unbounded/generous height proposal from
-                // ScrollView and can hand each row more vertical space than its
-                // content needs — likely why shrinking stationRow's Text never
-                // changed row pitch. With at most ~30 stations, laziness isn't
-                // needed; plain VStack sizes each row to its actual content.
                 VStack(spacing: 0) {
                     ForEach(Array(stations.enumerated()), id: \.element) { index, station in
                         if index > 0 {
@@ -140,10 +130,7 @@ struct StationSelectionView: View {
             }
             .background(Color.appBackground)
             .onAppear {
-                // With List, scrollTo on appear "just worked." Plain VStack needs
-                // the initial layout pass to finish first, or this fires before the
-                // scroll view knows each row's offset and silently no-ops, leaving
-                // the list at the top instead of centered on the selected station.
+                // DispatchQueue.main.async: List's scrollTo "just worked" on appear, but plain VStack needs the layout pass to finish first or this silently no-ops.
                 DispatchQueue.main.async {
                     proxy.scrollTo(selected, anchor: .center)
                 }

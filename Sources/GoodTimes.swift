@@ -8,17 +8,12 @@ struct GoodTimes {
     let tomorrowDate: String
     let tomorrowDotw: Int
 
-    // TEMPORARY DEBUG HACK: set to override "now" for testing (e.g. early morning).
-    // Set to nil for normal behavior. Format: minutes since midnight, e.g. 330 = 5:30am.
+    // Debug override for "now" (minutes since midnight); nil for normal behavior.
     static var debugOverrideMinutes: Int?
 
-    // TEMPORARY DEBUG HACK: set to override the day-of-week for testing
-    // (e.g. force "today" to be Friday so tomorrow is Saturday/weekend).
-    // 0 = Sunday ... 6 = Saturday. Set to nil for normal behavior.
+    // Debug override for day-of-week (0=Sunday...6=Saturday); nil for normal behavior.
     static var debugOverrideDotw: Int?
 
-    // TEMPORARY DEBUG HACK: prints computed values once on first init, useful
-    // when testing debugOverrideMinutes/debugOverrideDotw.
     private static var didLog = false
 
     init(date: Date = Date()) {
@@ -70,10 +65,7 @@ struct GoodTimes {
 
     // MARK: - Static formatting
 
-    /// Returns the yyyy-MM-dd schedule-day string for an arbitrary instant, using
-    /// the same "day starts at 2am" rule as init(): subtract 2 hours before formatting.
-    /// Lets us compare "today" against a stored last-fetch timestamp for the
-    /// once-per-day schedule fetch policy.
+    /// Schedule-day (yyyy-MM-dd) for `date`, using the same "day starts at 2am" rule as `init()`.
     static func scheduleDateFor(_ date: Date) -> String {
         let run = date.addingTimeInterval(-2 * 3600)
         let fmt = DateFormatter()
