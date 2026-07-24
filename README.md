@@ -16,4 +16,4 @@ Live countdown to your next Caltrain, with automatic schedule detection.
 
 A port of the apps for
 [KaiOS](https://github.com/woodie/next-caltrain-pwa) and
-[J2ME](https://github.com/woodie/Caltrain-Schedule-MIDlet).
+[J2ME](https://github.com/woodie/next-caltrain-j2me).
