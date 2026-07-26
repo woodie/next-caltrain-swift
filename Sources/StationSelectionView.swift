@@ -100,7 +100,8 @@ struct StationSelectionView: View {
             .background(Color.appBackground)
     }
 
-    // ScrollView + VStack (not List/LazyVStack): avoids List's minimum-row-height floor and LazyVStack's unbounded height proposal.
+    // ScrollView + VStack (not List/LazyVStack): avoids List's minimum-row-height floor
+    // and LazyVStack's unbounded height proposal.
     @ViewBuilder
     private func stationListBody(
         stations: [String],
@@ -130,7 +131,8 @@ struct StationSelectionView: View {
             }
             .background(Color.appBackground)
             .onAppear {
-                // DispatchQueue.main.async: List's scrollTo "just worked" on appear, but plain VStack needs the layout pass to finish first or this silently no-ops.
+                // DispatchQueue.main.async: List's scrollTo "just worked" on appear,
+                // but plain VStack needs the layout pass to finish first or this silently no-ops.
                 DispatchQueue.main.async {
                     proxy.scrollTo(selected, anchor: .center)
                 }
