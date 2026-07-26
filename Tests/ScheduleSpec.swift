@@ -45,14 +45,17 @@ final class ScheduleSpec: AsyncSpec {
         // inside the throwError assertion itself, not setup that runs before it.
         describe("Schedule.fetchFromNetwork(session:)") {
             let url = URL(string: "https://example.com/schedule.json")!
+            // specialDates must be present -- Schedule's auto-synthesized Decodable conformance
+            // requires every non-Optional property's key, unlike Kotlin's fromJson which has an
+            // explicit json.has("specialDates") fallback to an empty map.
             let validJSON = Data("""
-            {"northStops":["A","B"],"southStops":["A","B"],"northWeekday":{},"northWeekend":{},\
-            "northHoliday":{},"southWeekday":{},"southWeekend":{},"southHoliday":{}}
+            {"specialDates":{},"northStops":["A","B"],"southStops":["A","B"],"northWeekday":{},\
+            "northWeekend":{},"northHoliday":{},"southWeekday":{},"southWeekend":{},"southHoliday":{}}
             """.utf8)
             // northStops is empty -- fails Schedule.isValid without needing a malformed-JSON case too.
             let invalidJSON = Data("""
-            {"northStops":[],"southStops":["A","B"],"northWeekday":{},"northWeekend":{},\
-            "northHoliday":{},"southWeekday":{},"southWeekend":{},"southHoliday":{}}
+            {"specialDates":{},"northStops":[],"southStops":["A","B"],"northWeekday":{},\
+            "northWeekend":{},"northHoliday":{},"southWeekday":{},"southWeekend":{},"southHoliday":{}}
             """.utf8)
 
             var fakeSession: FakeScheduleHTTPClient!

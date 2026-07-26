@@ -20,6 +20,7 @@
 		967645C082506F7CA8C9E23A /* CaltrainSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF306EBBF818D5A5388BBCF /* CaltrainSchedule.swift */; };
 		990DEFBD79E3AAEE1D464449 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF91C9952A33108B634F950C /* HomeView.swift */; };
 		9BA5AB894BF1037C47DFBEF9 /* Nimble in Frameworks */ = {isa = PBXBuildFile; productRef = D0A60FC694EA3BD700F9B0FC /* Nimble */; };
+		9D56F8497F1725269F2D9D0D /* FakeScheduleHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6AF6DD8EAA870834ADCCDC01 /* FakeScheduleHTTPClient.swift */; };
 		A57826919C18826C8DD6EE9F /* StationSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E911FDC405B95A5F919E6FB /* StationSelectionView.swift */; };
 		AC294BA314A83031604712C5 /* StationPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6F7DD95FCEAFD0D2923CB2E /* StationPickerView.swift */; };
 		B13E06C226AC4C78B867A5F3 /* AppStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51F21841F39E953A017B9354 /* AppStyle.swift */; };
@@ -53,6 +54,7 @@
 		51F21841F39E953A017B9354 /* AppStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStyle.swift; sourceTree = "<group>"; };
 		59CE174C68911276482173C0 /* SpecFixtures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecFixtures.swift; sourceTree = "<group>"; };
 		620056B53323F19CCA107D9E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		6AF6DD8EAA870834ADCCDC01 /* FakeScheduleHTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FakeScheduleHTTPClient.swift; sourceTree = "<group>"; };
 		75DA780AD372DFB2B8681C6D /* NextCaltrain.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = NextCaltrain.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		7CB016FFA399EBCEDDB29AB2 /* CaltrainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaltrainService.swift; sourceTree = "<group>"; };
 		819EFB2BDE4583B8A399C695 /* ScheduleSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleSpec.swift; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 			children = (
 				51E621237438700618E1F3D3 /* CaltrainScheduleSpec.swift */,
 				CBB6A0C8E0723AF0BB1830F6 /* CaltrainServiceSpec.swift */,
+				6AF6DD8EAA870834ADCCDC01 /* FakeScheduleHTTPClient.swift */,
 				42408915F7FBD71231646650 /* GoodTimesSpec.swift */,
 				819EFB2BDE4583B8A399C695 /* ScheduleSpec.swift */,
 				59CE174C68911276482173C0 /* SpecFixtures.swift */,
@@ -261,6 +264,7 @@
 			files = (
 				5C5AE1A5DEC8D34856C3C298 /* CaltrainScheduleSpec.swift in Sources */,
 				C47EC8D3CF82C4C15A6AD1E6 /* CaltrainServiceSpec.swift in Sources */,
+				9D56F8497F1725269F2D9D0D /* FakeScheduleHTTPClient.swift in Sources */,
 				5E0905E4CE8A4F298E893060 /* GoodTimesSpec.swift in Sources */,
 				7F78A615FE8372F472227F22 /* ScheduleSpec.swift in Sources */,
 				2C6735388AD096CD58E02B82 /* SpecFixtures.swift in Sources */,
