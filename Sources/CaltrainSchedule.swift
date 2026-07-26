@@ -54,7 +54,8 @@ struct Schedule: Codable {
     let southWeekend: [String: [Int?]]
     let southHoliday: [String: [Int?]]
     let scheduleDate: Int?  // epoch ms; matches PWA's scheduleDate (stop_times.txt mtime)
-    // SCHEDULE_URL precedence (local.env > config.properties > this literal fallback); see docs/COWORK.md "Endpoint resolution".
+    // SCHEDULE_URL precedence (local.env > config.properties > this literal fallback);
+    // see docs/COWORK.md "Endpoint resolution".
     private static let remoteURL = URL(
         string: ProcessInfo.processInfo.environment["SCHEDULE_URL"]
             ?? "https://next-caltrain-pwa.appspot.com/feed/schedule.json"
@@ -103,7 +104,8 @@ struct Schedule: Codable {
         }
         return true
     }
-    /// Fetches the latest schedule, caches it to disk if valid, and returns it; throws on network/decode/validation failure.
+    /// Fetches the latest schedule, caches it to disk if valid, and returns it;
+    /// throws on network/decode/validation failure.
     static func fetchFromNetwork(session: any ScheduleHTTPClient = URLSession.shared) async throws -> Schedule {
         let (data, response) = try await session.data(from: remoteURL)
         guard let httpResponse = response as? HTTPURLResponse else {
