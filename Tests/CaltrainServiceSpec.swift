@@ -48,14 +48,19 @@ final class CaltrainServiceSpec: QuickSpec {
             }
 
             describe("#routes(from:to:scheduleType:)") {
+                var from: String!
+                var to: String!
+                var scheduleType: ScheduleType!
+                var trips: [Trip]!
+                justBeforeEach {
+                    trips = service.routes(from: from, to: to, scheduleType: scheduleType)
+                }
+
                 context("for a direct electric trip (San Francisco to San Jose Diridon)") {
-                    var trips: [Trip]!
                     beforeEach {
-                        trips = service.routes(
-                            from: SpecFixtures.sanFrancisco,
-                            to: SpecFixtures.sanJoseDiridon,
-                            scheduleType: .weekday
-                        )
+                        from = SpecFixtures.sanFrancisco
+                        to = SpecFixtures.sanJoseDiridon
+                        scheduleType = .weekday
                     }
 
                     it("returns one direct trip") {
@@ -77,13 +82,10 @@ final class CaltrainServiceSpec: QuickSpec {
                 }
 
                 context("for a direct diesel trip (Morgan Hill to Gilroy)") {
-                    var trips: [Trip]!
                     beforeEach {
-                        trips = service.routes(
-                            from: SpecFixtures.morganHill,
-                            to: SpecFixtures.gilroy,
-                            scheduleType: .weekday
-                        )
+                        from = SpecFixtures.morganHill
+                        to = SpecFixtures.gilroy
+                        scheduleType = .weekday
                     }
 
                     it("returns one direct trip") {
@@ -100,13 +102,10 @@ final class CaltrainServiceSpec: QuickSpec {
                 }
 
                 context("for an unknown station") {
-                    var trips: [Trip]!
                     beforeEach {
-                        trips = service.routes(
-                            from: "Unknown",
-                            to: SpecFixtures.gilroy,
-                            scheduleType: .weekday
-                        )
+                        from = "Unknown"
+                        to = SpecFixtures.gilroy
+                        scheduleType = .weekday
                     }
 
                     it("returns no trips") {
@@ -115,13 +114,10 @@ final class CaltrainServiceSpec: QuickSpec {
                 }
 
                 context("for a transfer trip (San Francisco to Gilroy)") {
-                    var trips: [Trip]!
                     beforeEach {
-                        trips = service.routes(
-                            from: SpecFixtures.sanFrancisco,
-                            to: SpecFixtures.gilroy,
-                            scheduleType: .weekday
-                        )
+                        from = SpecFixtures.sanFrancisco
+                        to = SpecFixtures.gilroy
+                        scheduleType = .weekday
                     }
 
                     it("returns one trip") {
@@ -156,13 +152,10 @@ final class CaltrainServiceSpec: QuickSpec {
                 }
 
                 context("for a transfer trip (Gilroy to San Francisco)") {
-                    var trips: [Trip]!
                     beforeEach {
-                        trips = service.routes(
-                            from: SpecFixtures.gilroy,
-                            to: SpecFixtures.sanFrancisco,
-                            scheduleType: .weekday
-                        )
+                        from = SpecFixtures.gilroy
+                        to = SpecFixtures.sanFrancisco
+                        scheduleType = .weekday
                     }
 
                     it("returns one trip") {
@@ -193,13 +186,10 @@ final class CaltrainServiceSpec: QuickSpec {
                 }
 
                 context("for a route with no service (weekend, empty fixture tables)") {
-                    var trips: [Trip]!
                     beforeEach {
-                        trips = service.routes(
-                            from: SpecFixtures.sanFrancisco,
-                            to: SpecFixtures.gilroy,
-                            scheduleType: .weekend
-                        )
+                        from = SpecFixtures.sanFrancisco
+                        to = SpecFixtures.gilroy
+                        scheduleType = .weekend
                     }
 
                     it("returns no trips") {
