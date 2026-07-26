@@ -144,6 +144,51 @@ and `TripViewModelSpec` (commit `7c849f4`). First established in zouk — see
 that repo's `docs/COWORK.md` ("`justBeforeEach` adopted for shared 'act'
 steps") for the original writeup.
 
+## Testing approach
+
+Not every duplicated setup line is worth hoisting into `justBeforeEach` —
+reviewed every spec file here (and the Kotlin sibling) to separate real
+DRY wins from cases where it'd cost more readability than it saves.
+
+**Wired in, beyond the original adoption above:** `CaltrainServiceSpec`'s
+`#routes(from:to:scheduleType:)` — six sibling contexts, several with
+multiple `it`s sharing one hoisted `trips` result. The first real usage of
+several assertions reading one subject, closer to RSpec's actual
+`subject` than any earlier case here.
+
+**Skipped on purpose:** `ScheduleSpec`'s three `fetchedToday()` contexts
+(setup varies more than the one-line act), `GoodTimesSpec`'s
+`.partTime(_:)`/`.fullTime(_:)` (one `it` per context, self-contained
+one-liners), `CaltrainServiceSpec`'s `#nextIndex(trips:minutes:)` (what's
+under test differs enough per context that sharing the `trips` fixture
+wouldn't clarify anything). Hoisting any of these trades a readable
+one-liner for a `var` + block + `beforeEach`, for no real duplication
+savings.
+
+**`justBeforeEach` doesn't apply to real throwing calls.** Checked zouk's
+own `ScanClientSpec.swift` — the one real place in this account with
+actual network-failure test coverage — and it doesn't hoist the throwing
+call into `justBeforeEach` at all: it injects a fake HTTP client
+(`ScanHTTPClient`) and calls the throwing method directly inside each
+`it`, asserting with `throwError`. Hoisting a throwing act into setup
+fails the test as a setup error instead of a normal assertion, so testing
+a real exception just doesn't need `justBeforeEach`.
+
+`Schedule.fetchFromNetwork()` was the one real gap matching this shape in
+this repo — untested, no DI seam, `URLSession.shared` with nothing to
+fake. Fixed to match zouk's exact pattern: `ScheduleHTTPClient` protocol,
+a `URLSession` conformance, `FakeScheduleHTTPClient` (tests), a new
+`ScheduleError` enum replacing generic `URLError` throws so the real
+status code survives instead of being discarded. `ScheduleSpec.swift`'s
+new `Schedule.fetchFromNetwork(session:)` describe covers all three
+outcomes (200+valid, non-2xx, 200+invalid) the same inline-`throwError`
+way as zouk — not `justBeforeEach`. One known gap: `cachedFileURL` itself
+still isn't injectable (unlike zouk's `ScanClient`, which takes an
+explicit `cacheDirectory`), so the successful-fetch test writes to the
+real Documents directory and cleans up after itself in `afterEach` rather
+than asserting against an isolated temp directory — a real follow-up if
+this needs tightening later.
+
 ## Conventions
 
 - **No bold headings/titles** unless explicitly requested. Default to
