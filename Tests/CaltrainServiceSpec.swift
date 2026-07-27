@@ -52,9 +52,7 @@ final class CaltrainServiceSpec: QuickSpec {
                 var to: String!
                 var scheduleType: ScheduleType!
                 var trips: [Trip]!
-                justBeforeEach {
-                    trips = service.routes(from: from, to: to, scheduleType: scheduleType)
-                }
+                justBeforeEach { trips = service.routes(from: from, to: to, scheduleType: scheduleType) }
 
                 context("for a direct electric trip (San Francisco to San Jose Diridon)") {
                     beforeEach {

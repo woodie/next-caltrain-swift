@@ -40,9 +40,7 @@ final class ScheduleSpec: AsyncSpec {
             }
         }
 
-        // Matches huck's ScanClientSpec.kt: a FakeScheduleHTTPClient stands in for a real network
-        // call, exercised per it -- not hoisted into justBeforeEach, since a throwing act belongs
-        // inside the throwError assertion itself, not setup that runs before it.
+        // A FakeScheduleHTTPClient stands in for a real network call
         describe("Schedule.fetchFromNetwork(session:)") {
             let url = URL(string: "https://example.com/schedule.json")!
             // specialDates must be present -- Schedule's auto-synthesized Decodable conformance
