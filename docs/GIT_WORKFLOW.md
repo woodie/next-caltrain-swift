@@ -94,9 +94,10 @@ After merging a hotfix, **re-release to the App Store** (see below).
    ```
 
 3. **Edge cases** — if the change touches schedule logic, routing, or time
-   calculations, test with debug overrides:
-   - Set `GoodTimes.debugOverrideMinutes` / `debugOverrideDotw` to simulate
-     different times/days (see `docs/ROLLOVER_NOTES.md`).
+   calculations, test with `GoodTimes`'s test seeds:
+   - Call `GoodTimes.seeded(dotw:mins:)` (or set the `dotwSeed`/`minutesSeed`
+     statics for specs driving `TripViewModel`) to simulate different
+     times/days (see `docs/ROLLOVER_NOTES.md`).
    - Test South County no-service behavior (Friday evening → Saturday).
    - Test schedule type cycling (weekday ↔ weekend ↔ modified).
 

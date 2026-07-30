@@ -31,14 +31,19 @@ countdown), and select one as "next" if it's currently the actual next train
   formats both:
   - today's native post-midnight values (e.g. `1445` = 24:05 = "12:05am"), and
   - tomorrow's shifted values (e.g. `1740` = 29:00 → 29%24=5 → "5:00am").
-- **Debug overrides** (set directly in `GoodTimes.swift`, both default `nil`):
-  - `debugOverrideMinutes: Int?` — force "now" to a specific minutes-since-
-    midnight value (existing).
-  - `debugOverrideDotw: Int?` — force "today" to a specific day-of-week
-    (0=Sunday...6=Saturday). `tomorrowDotw` is derived from this
-    (`(dotw + 1) % 7`), so e.g. setting `debugOverrideDotw = 5` (Friday) makes
-    `tomorrowDotw = 6` (Saturday → weekend schedule for tomorrow).
-  - **Remember to set both back to `nil` after testing.**
+- **Test seeds**: prefer `GoodTimes.seeded(dotw:mins:)` wherever the caller
+  constructs `GoodTimes` directly -- resolved straight from the arguments,
+  nothing global to reset afterward.
+  - `dotw: Int?` — force "today" to a specific day-of-week (0=Sunday...
+    6=Saturday). `tomorrowDotw` is derived from this (`(dotw + 1) % 7`), so
+    e.g. `seeded(dotw: 5)` (Friday) makes `tomorrowDotw = 6` (Saturday →
+    weekend schedule for tomorrow).
+  - `mins: Int?` — force "now" to a specific minutes-since-midnight value.
+  - For specs driving `TripViewModel` (which constructs `GoodTimes()`
+    internally, with no seam to pass a seed through), set the
+    `GoodTimes.dotwSeed`/`GoodTimes.minutesSeed` statics instead, and
+    **remember to set both back to `nil` in `afterEach`** -- that path is
+    genuine global state.
 
 ### `CaltrainService.swift`
 - `Trip` gained `var isFuture: Bool = false` (default, so existing call sites
@@ -122,5 +127,7 @@ countdown), and select one as "next" if it's currently the actual next train
   if you manually view "Modified" for today, tomorrow's appended trips still
   reflect tomorrow's real calendar schedule. This is by design but can look
   inconsistent if not expected.
-- Debug overrides (`debugOverrideMinutes`, `debugOverrideDotw`) live in
-  `GoodTimes.swift` and must both be reset to `nil` before shipping/committing.
+- The `dotwSeed`/`minutesSeed` statics (for `TripViewModel`-driven specs) live
+  in `GoodTimes.swift` and must both be reset to `nil` before shipping/committing.
+  Specs that construct `GoodTimes` directly should use `seeded(dotw:mins:)`
+  instead, which has nothing to reset.

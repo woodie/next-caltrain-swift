@@ -93,35 +93,33 @@ Kept a one-line doc comment in place: "Races `operation` against a
 
 ## Sources/GoodTimes.swift
 
-### `GoodTimes.debugOverrideMinutes`
-Kept a one-line comment in place: "Debug override for "now" (minutes
-since midnight); nil for normal behavior."
+### `GoodTimes.seeded(dotw:mins:)`
+Kept a two-line comment in place explaining the split with `init()`'s
+ambient statics -- worth the extra line since it's a real gotcha: a caller
+that constructs `GoodTimes` directly should call this, not touch
+`dotwSeed`/`minutesSeed`, which exist only so `init()` has something to
+fall back to for callers (`TripViewModel`) that build `GoodTimes()`
+internally with no way to receive a seed as a parameter.
 
-Full history: a temporary debug hack for testing states like early-morning
-schedules without waiting for the real clock -- format is minutes since
-midnight, e.g. 330 = 5:30am. Used throughout `GoodTimesSpec`/
-`TripViewModelSpec` to pin "now" to a specific value; always reset to
-`nil` in `afterEach` so it doesn't leak between specs.
-
-### `GoodTimes.debugOverrideDotw`
-Kept a one-line comment in place: "Debug override for day-of-week
-(0=Sunday...6=Saturday); nil for normal behavior."
-
-Full history: same idea as `debugOverrideMinutes`, but for day-of-week --
-lets a test force "today" to be, say, Friday so "tomorrow" becomes
-Saturday/weekend, to exercise the weekday-to-weekend rollover without
-waiting for an actual Friday.
+### `GoodTimes.dotwSeed` / `GoodTimes.minutesSeed`
+Formerly `debugOverrideDotw`/`debugOverrideMinutes` -- renamed because
+"override" implied a live, continuously-checked effect, when both are
+actually read once, at `GoodTimes()` construction time; changing either
+afterward does nothing until the next `GoodTimes()` call. "Debug" dropped
+too: this is a testing seam, not a developer-debugging tool. Both `nil`
+by default; used by `TripViewModelSpec` to pin the clock/day-of-week
+`TripViewModel` reads internally, always reset in `afterEach` so neither
+leaks between specs.
 
 ### `GoodTimes.didLog`
 No comment kept in source; judged self-explanatory now given the one-liner
-already on `debugOverrideMinutes`/`debugOverrideDotw` above it establishes
-the debug-hack context.
+already on `seeded(dotw:mins:)` above it establishes the testing-seam
+context.
 
 History: gates `logOnce(_:)` so the computed `GoodTimes` values print to
-console only once per process, on the first `init()` -- useful when
-testing with `debugOverrideMinutes`/`debugOverrideDotw` set, to confirm
-the override actually took effect, without flooding the console on every
-timer tick.
+console only once per process, on the first construction -- useful when
+testing with a seed set, to confirm it actually took effect, without
+flooding the console on every timer tick.
 
 ### `GoodTimes.scheduleDateFor(_:)`
 Kept a one-line doc comment in place: "Schedule-day (yyyy-MM-dd) for
