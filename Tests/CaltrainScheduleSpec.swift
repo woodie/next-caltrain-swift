@@ -83,9 +83,9 @@ final class CaltrainScheduleSpec: QuickSpec {
 
             describe(".forTomorrow()") {
                 var result: ScheduleType!
-                afterEach { GoodTimes.debugOverrideDotw = nil }
+                var dotw: Int!
                 justBeforeEach {
-                    let goodTimes = GoodTimes()
+                    let goodTimes = GoodTimes.seeded(dotw: dotw)
                     result = CaltrainSchedule.optionIndex(
                         date: goodTimes.tomorrowDate,
                         dotw: goodTimes.tomorrowDotw,
@@ -94,7 +94,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                 }
 
                 context("when today is Friday (5)") {
-                    beforeEach { GoodTimes.debugOverrideDotw = 5 }
+                    beforeEach { dotw = 5 }
 
                     it("returns .weekend for tomorrow (Saturday)") {
                         expect(result).to(equal(.weekend))
@@ -102,7 +102,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                 }
 
                 context("when today is Sunday (0)") {
-                    beforeEach { GoodTimes.debugOverrideDotw = 0 }
+                    beforeEach { dotw = 0 }
 
                     it("returns .weekday for tomorrow (Monday)") {
                         expect(result).to(equal(.weekday))
@@ -110,7 +110,7 @@ final class CaltrainScheduleSpec: QuickSpec {
                 }
 
                 context("when today is Thursday (4)") {
-                    beforeEach { GoodTimes.debugOverrideDotw = 4 }
+                    beforeEach { dotw = 4 }
 
                     it("returns .weekday for tomorrow (Friday)") {
                         expect(result).to(equal(.weekday))

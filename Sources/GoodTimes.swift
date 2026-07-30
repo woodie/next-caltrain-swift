@@ -8,16 +8,33 @@ struct GoodTimes {
     let tomorrowDate: String
     let tomorrowDotw: Int
 
-    // Debug override for "now" (minutes since midnight); nil for normal behavior.
-    static var debugOverrideMinutes: Int?
-
-    // Debug override for day-of-week (0=Sunday...6=Saturday); nil for normal behavior.
-    static var debugOverrideDotw: Int?
+    // Ambient fallback for init() (GoodTimes()) -- exists only for callers that construct
+    // GoodTimes() internally and can't take a seed as a parameter (e.g. TripViewModel).
+    // Anything that constructs GoodTimes itself should call seeded(dotw:mins:) directly
+    // instead and leave these alone.
+    static var dotwSeed: Int?
+    static var minutesSeed: Int?
 
     private static var didLog = false
 
+    private init(date: String, minutes: Int, seconds: Int, dotw: Int, tomorrowDate: String, tomorrowDotw: Int) {
+        self.date = date
+        self.minutes = minutes
+        self.seconds = seconds
+        self.dotw = dotw
+        self.tomorrowDate = tomorrowDate
+        self.tomorrowDotw = tomorrowDotw
+    }
+
     init(date: Date = Date()) {
-        let run = date.addingTimeInterval(-2 * 3600)
+        self = GoodTimes.seeded(dotw: GoodTimes.dotwSeed, mins: GoodTimes.minutesSeed, referenceDate: date)
+    }
+
+    // dotw (0=Sunday...6=Saturday) and/or mins (minutes since midnight) pin the fields that
+    // would otherwise come from the real clock -- resolved directly from the arguments, so
+    // there's nothing global to reset afterward.
+    static func seeded(dotw: Int? = nil, mins: Int? = nil, referenceDate: Date = Date()) -> GoodTimes {
+        let run = referenceDate.addingTimeInterval(-2 * 3600)
         let cal = Calendar.current
         let tomorrow = cal.date(byAdding: .day, value: 1, to: run)!
 
@@ -25,30 +42,31 @@ struct GoodTimes {
         fmt.dateFormat = "yyyy-MM-dd"
 
         let realDotw = cal.component(.weekday, from: run) - 1
-        let dotw = GoodTimes.debugOverrideDotw ?? realDotw
-        let tomorrowDotw = (dotw + 1) % 7
+        let resolvedDotw = dotw ?? realDotw
+        let tomorrowDotw = (resolvedDotw + 1) % 7
 
-        if let overrideMinutes = GoodTimes.debugOverrideMinutes {
-            self.minutes = overrideMinutes
-            self.seconds = 0
-            self.dotw = dotw
-            self.date = fmt.string(from: run)
-            self.tomorrowDate = fmt.string(from: tomorrow)
-            self.tomorrowDotw = tomorrowDotw
-            GoodTimes.logOnce(self)
-            return
+        let resolvedMinutes: Int
+        let resolvedSeconds: Int
+        if let mins {
+            resolvedMinutes = mins
+            resolvedSeconds = 0
+        } else {
+            let h = cal.component(.hour, from: run)
+            let m = cal.component(.minute, from: run)
+            resolvedMinutes = (h + 2) * 60 + m
+            resolvedSeconds = cal.component(.second, from: run)
         }
 
-        let h = cal.component(.hour, from: run)
-        let m = cal.component(.minute, from: run)
-        let s = cal.component(.second, from: run)
-        self.minutes = (h + 2) * 60 + m
-        self.seconds = s
-        self.dotw = dotw
-        self.date = fmt.string(from: run)
-        self.tomorrowDate = fmt.string(from: tomorrow)
-        self.tomorrowDotw = tomorrowDotw
-        GoodTimes.logOnce(self)
+        let gt = GoodTimes(
+            date: fmt.string(from: run),
+            minutes: resolvedMinutes,
+            seconds: resolvedSeconds,
+            dotw: resolvedDotw,
+            tomorrowDate: fmt.string(from: tomorrow),
+            tomorrowDotw: tomorrowDotw
+        )
+        GoodTimes.logOnce(gt)
+        return gt
     }
 
     private static func logOnce(_ gt: GoodTimes) {
@@ -58,8 +76,8 @@ struct GoodTimes {
         let (t, mer) = GoodTimes.partTime(gt.minutes)
         print("[GoodTimes] minutes=\(gt.minutes) (\(t)\(mer)) seconds=\(gt.seconds) " +
               "dotw=\(gt.dotw) date=\(gt.date) tomorrowDotw=\(gt.tomorrowDotw) tomorrowDate=\(gt.tomorrowDate) " +
-              "debugOverrideMinutes=\(String(describing: debugOverrideMinutes)) " +
-              "debugOverrideDotw=\(String(describing: debugOverrideDotw))")
+              "dotwSeed=\(String(describing: dotwSeed)) " +
+              "minutesSeed=\(String(describing: minutesSeed))")
         #endif
     }
 

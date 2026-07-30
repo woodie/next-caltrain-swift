@@ -6,15 +6,15 @@ import Quick
 final class TripViewModelSpec: QuickSpec {
     override class func spec() {
         describe("TripViewModel") {
-            afterEach { GoodTimes.debugOverrideMinutes = nil; GoodTimes.debugOverrideDotw = nil }
+            afterEach { GoodTimes.minutesSeed = nil; GoodTimes.dotwSeed = nil }
 
             context("for a route with no service tomorrow") {
                 // Weekday-only schedule. Friday -> Saturday, so tomorrowScheduleType is .weekend.
                 var viewModel: TripViewModel!
                 var mins: Int!
                 justBeforeEach {
-                    GoodTimes.debugOverrideMinutes = mins
-                    GoodTimes.debugOverrideDotw = 5 // Friday
+                    GoodTimes.minutesSeed = mins
+                    GoodTimes.dotwSeed = 5 // Friday
                     viewModel = TripViewModel(schedule: SpecFixtures.weekdayOnlySchedule())
                     viewModel.origin = SpecFixtures.sanFrancisco
                     viewModel.destination = SpecFixtures.gilroy
@@ -57,11 +57,11 @@ final class TripViewModelSpec: QuickSpec {
             context("for a route with service every day") {
                 // Monday -> Tuesday, both .weekday, so normal rollover applies.
                 var viewModel: TripViewModel!
-                beforeEach { GoodTimes.debugOverrideDotw = 1 } // Monday
+                beforeEach { GoodTimes.dotwSeed = 1 } // Monday
 
                 context("and all of today's trips have already departed") {
                     beforeEach {
-                        GoodTimes.debugOverrideMinutes = 1000
+                        GoodTimes.minutesSeed = 1000
                         let schedule = SpecFixtures.schedule {
                             $0.weekday(electric: .normal, diesel: .normal)
                             $0.weekend(electric: .normal, diesel: .normal)
@@ -88,7 +88,7 @@ final class TripViewModelSpec: QuickSpec {
 
                 context("and some of today's trips are still upcoming") {
                     beforeEach {
-                        GoodTimes.debugOverrideMinutes = 100
+                        GoodTimes.minutesSeed = 100
                         let schedule = SpecFixtures.schedule {
                             $0.weekday(electric: .normal, diesel: .normal)
                             $0.weekend(electric: .normal, diesel: .normal)
@@ -110,8 +110,8 @@ final class TripViewModelSpec: QuickSpec {
                 var viewModel: TripViewModel!
 
                 beforeEach {
-                    GoodTimes.debugOverrideDotw = 1  // Monday
-                    GoodTimes.debugOverrideMinutes = 100
+                    GoodTimes.dotwSeed = 1  // Monday
+                    GoodTimes.minutesSeed = 100
                     let schedule = SpecFixtures.schedule { _ in }
                     viewModel = TripViewModel(schedule: schedule)
                     viewModel.origin = SpecFixtures.sanFrancisco
@@ -138,8 +138,8 @@ final class TripViewModelSpec: QuickSpec {
                 var viewModel: TripViewModel!
 
                 beforeEach {
-                    GoodTimes.debugOverrideDotw = 5  // Friday
-                    GoodTimes.debugOverrideMinutes = 1000  // after all today's trips
+                    GoodTimes.dotwSeed = 5  // Friday
+                    GoodTimes.minutesSeed = 1000  // after all today's trips
                     let schedule = SpecFixtures.schedule {
                         $0.weekday(electric: .normal, diesel: .normal)
                         $0.weekend(electric: .normal, diesel: .normal)
@@ -178,8 +178,8 @@ final class TripViewModelSpec: QuickSpec {
                 var viewModel: TripViewModel!
 
                 beforeEach {
-                    GoodTimes.debugOverrideDotw = 1  // Monday
-                    GoodTimes.debugOverrideMinutes = 100
+                    GoodTimes.dotwSeed = 1  // Monday
+                    GoodTimes.minutesSeed = 100
                     let schedule = SpecFixtures.schedule {
                         $0.weekday(electric: .normal, diesel: .normal)
                         $0.weekend(electric: .normal, diesel: .normal)
