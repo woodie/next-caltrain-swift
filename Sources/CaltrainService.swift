@@ -197,17 +197,19 @@ struct CaltrainService {
     }
 
     static func isSouthCounty(_ trainId: Int) -> Bool {
-        return trainId > 800 && trainId <= 900
+        return trainId / 100 == 8
     }
 
+    // Caltrain numbers trains by service: the first digit is the type
+    // (100s weekday Local, 600s weekend Local, ...), the last digit's parity the direction.
     static func trainType(_ trainId: Int) -> String {
-        switch trainId {
-        case 901...:    return "Unknown"
-        case 801...900: return "South County"
-        case 501...800: return "Express"
-        case 401...500: return "Limited"
-        case 101...400: return "Local"
-        default:        return "Unknown"
+        switch trainId / 100 {
+        case 1, 6: return "Local"
+        case 4:    return "Limited"
+        case 5:    return "Express"
+        case 8:    return "South County"
+        case 9:    return "Special"
+        default:   return "Unknown"
         }
     }
 

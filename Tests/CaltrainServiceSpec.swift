@@ -11,15 +11,62 @@ final class CaltrainServiceSpec: QuickSpec {
             }
 
             describe(".isSouthCounty(_:)") {
-                it("returns true for South County trains (801-900)") {
+                it("returns true for South County trains (the 800s)") {
                     expect(CaltrainService.isSouthCounty(801)).to(beTrue())
                     expect(CaltrainService.isSouthCounty(814)).to(beTrue())
-                    expect(CaltrainService.isSouthCounty(900)).to(beTrue())
+                    expect(CaltrainService.isSouthCounty(899)).to(beTrue())
                 }
 
                 it("returns false for electric trains") {
                     expect(CaltrainService.isSouthCounty(101)).to(beFalse())
                     expect(CaltrainService.isSouthCounty(514)).to(beFalse())
+                    expect(CaltrainService.isSouthCounty(601)).to(beFalse())
+                }
+
+                it("returns false for Special trains (the 900s)") {
+                    expect(CaltrainService.isSouthCounty(900)).to(beFalse())
+                    expect(CaltrainService.isSouthCounty(901)).to(beFalse())
+                }
+            }
+
+            describe(".trainType(_:)") {
+                var trainId = 0
+                var type: String!
+                justBeforeEach { type = CaltrainService.trainType(trainId) }
+
+                context("for a Local train (101)") {
+                    beforeEach { trainId = 101 }
+                    it("returns Local") { expect(type).to(equal("Local")) }
+                }
+
+                context("for a Limited train (401)") {
+                    beforeEach { trainId = 401 }
+                    it("returns Limited") { expect(type).to(equal("Limited")) }
+                }
+
+                context("for an Express train (501)") {
+                    beforeEach { trainId = 501 }
+                    it("returns Express") { expect(type).to(equal("Express")) }
+                }
+
+                context("for a weekend Local train (601)") {
+                    beforeEach { trainId = 601 }
+                    it("returns Local") { expect(type).to(equal("Local")) }
+                }
+
+                context("for a South County train (801)") {
+                    beforeEach { trainId = 801 }
+                    it("returns South County") { expect(type).to(equal("South County")) }
+                }
+
+                context("for a Special train (901)") {
+                    beforeEach { trainId = 901 }
+                    it("returns Special") { expect(type).to(equal("Special")) }
+                }
+
+                context("for a number outside any series (701)") {
+                    beforeEach { trainId = 701 }
+                    it("returns Unknown") { expect(type).to(equal("Unknown")) }
                 }
             }
 
