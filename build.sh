@@ -12,6 +12,6 @@ xcodebuild -project NextCaltrain.xcodeproj -scheme NextCaltrain \
   -destination "platform=iOS Simulator,name=$SIM_DEVICE" \
   build 2>&1 | grep "error:" || true
 
-# Requires a booted simulator: open -a Simulator
+# Requires a booted simulator: ./sim.sh
 xcrun simctl uninstall booted com.netpress.NextCaltrain
  

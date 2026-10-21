@@ -35,7 +35,7 @@ SIM_DEVICE="${SIM_DEVICE:-iPhone 17 Pro Max}"
 
 # Boots TARGET, first shutting down any other booted simulator. `simctl
 # boot` on a second device doesn't replace an already-running one -- it
-# boots alongside it, and `open -a Simulator` only brings the app forward,
+# boots alongside it, and opening the simulator app only brings it forward,
 # with no guarantee the just-booted device's window becomes the visible
 # one. Without this, switching to a different device via -d/--device can
 # silently no-op from where you're looking (the old window stays in front)
@@ -47,7 +47,15 @@ boot_exclusive() {
     | grep -oE '[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}' \
     | while read -r other; do xcrun simctl shutdown "$other" 2>/dev/null; done
   xcrun simctl boot "$target" 2>/dev/null
-  open -a Simulator
+  open_simulator_app
+}
+
+# Brings the simulator window forward. Xcode 27 dropped Simulator.app for
+# DeviceHub.app, which shows the booted simulators too; older Xcodes still
+# have Simulator.app. With neither, the simulator still runs, just unseen.
+open_simulator_app() {
+  open -a Simulator 2>/dev/null || open -a DeviceHub 2>/dev/null \
+    || echo "No Simulator.app or DeviceHub.app found; the simulator is running without a window."
 }
 
 # Resolves a simulator NAME to its UDID: an exact device name always wins if
