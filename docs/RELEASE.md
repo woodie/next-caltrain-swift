@@ -72,7 +72,8 @@ submission, or a routine update to an already-live listing.
    `1.1`/build `2`, but TestFlight only ever showed `1.0`/build `1` — the
    1.1 bump had never actually been built and uploaded. Trust TestFlight's
    list over git history when they disagree.)
-2. **Bump the version** in `NextCaltrain/Info.plist` (skip the marketing
+2. **Bump the version** in `project.yml`'s `info.properties`, not in
+   `NextCaltrain/Info.plist`, which xcodegen rewrites on every build (skip the marketing
    version bump for the very first release, which starts at `1.0`/build `1`):
    - `CFBundleVersion` (build number) — **must increase on every single
      upload**, even if the marketing version doesn't change. Must be higher

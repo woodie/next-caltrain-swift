@@ -30,6 +30,9 @@ targets:
       path: NextCaltrain/Info.plist
       properties:
         CFBundleDisplayName: Next Caltrain
+        # The version lives here: xcodegen rewrites Info.plist on every build.
+        CFBundleShortVersionString: "1.3"
+        CFBundleVersion: "4"
         UILaunchStoryboardName: ""
   NextCaltrainTests:
     type: bundle.unit-test
