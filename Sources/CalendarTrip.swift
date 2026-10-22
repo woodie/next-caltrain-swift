@@ -13,17 +13,12 @@ struct PlannedTrain: Equatable {
     let selected: Bool
 }
 
-/// Planning a trip for the calendar: the planned train plus the trains
-/// before and after it, and the event. Ported from next-caltrain-react's
-/// `CalendarTrip.ts`; the event goes through the phone's own calendar
-/// instead of a Google Calendar link.
+/// The calendar planner's logic, ported from next-caltrain-react's CalendarTrip.ts.
 enum CalendarTrip {
     /// Caltrain runs on Pacific time, whatever the phone's own time zone is.
     static let timeZone = TimeZone(identifier: "America/Los_Angeles")!
 
-    /// The planned train's index in `trips` (sorted by departure): the first
-    /// departing at or after `minutes` (leave), or the last arriving at or
-    /// before it (arrive); nil if no train fits.
+    /// Index of the planned train in `trips`, or nil if none fits.
     static func find(_ trips: [Trip], mode: PlanMode, minutes: Int) -> Int? {
         switch mode {
         case .leave: return trips.firstIndex { $0.depart >= minutes }
@@ -52,22 +47,18 @@ enum CalendarTrip {
         "Caltrain to \(destination)"
     }
 
-    /// The event location: the boarding station, named the way Google and
-    /// Apple Maps know it ("Palo Alto Caltrain Station"), so tapping it in the
-    /// calendar finds the station. The feed abbreviates one name.
+    /// The boarding station, as Maps names it ("Palo Alto Caltrain Station").
     static func location(station: String) -> String {
         let name = station == "So San Francisco" ? "South San Francisco" : station
         return "\(name) Caltrain Station"
     }
 
-    /// The event notes: the route, then the trains. The event's own times
-    /// already say which one is planned, so the notes don't mark it.
+    /// The route, then the trains.
     static func notes(origin: String, destination: String, trains: [PlannedTrain]) -> String {
         (["\(origin) to \(destination)"] + trains.map(line)).joined(separator: "\n")
     }
 
-    /// Minutes past midnight on an ISO date (YYYY-MM-DD), on Pacific time;
-    /// times past midnight (> 1440) roll over to the next day.
+    /// Minutes past midnight on an ISO date (YYYY-MM-DD), on Pacific time.
     static func date(_ isoDate: String, minutes: Int) -> Date? {
         let parts = isoDate.split(separator: "-").compactMap { Int($0) }
         guard parts.count == 3 else { return nil }

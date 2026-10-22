@@ -9,6 +9,77 @@ When a code location kept its own one-line comment, it's noted below so
 this stays a complete map of "why," not a duplicate of what's already
 readable in the file.
 
+## Sources/CalendarTrip.swift
+
+### `CalendarTrip`
+Kept a one-line comment in place: "The calendar planner's logic, ported
+from next-caltrain-react's CalendarTrip.ts."
+
+The planned train plus the trains before and after it, and the event made
+from them. Unlike React, which builds a Google Calendar link (its `stamp`
+and `googleUrl`), the app hands the event to the phone's own calendar, so
+`date(_:minutes:)` returns real Dates instead. The spec keeps React's text
+apart from that difference.
+
+### `CalendarTrip.find(_:mode:minutes:)`
+Kept a one-line comment in place. `trips` is sorted by departure: leave
+picks the first train departing at or after `minutes`, arrive the last one
+arriving at or before it.
+
+### `CalendarTrip.location(station:)`
+Kept a one-line comment in place. The location is the boarding station,
+named the way Google and Apple Maps know it, so tapping it in the
+calendar finds the station; both matched "San Francisco Caltrain Station"
+in testing. Street addresses were considered and dropped: about half the
+stations have none in Google Maps (only Plus Codes). The feed's "So San
+Francisco" is spelled out.
+
+### `CalendarTrip.notes(origin:destination:trains:)`
+Kept a one-line comment in place. The planned train isn't marked (React
+once bolded it, and an arrow was tried): the event's own start and end
+already say which train it is.
+
+### `CalendarTrip.date(_:minutes:)`
+Kept a one-line comment in place. Times past midnight (> 1440 minutes,
+the same day's late trains) roll over to the next day; the wall-clock
+time is built in Pacific time, whatever the phone's own zone is.
+
+## Sources/CalendarView.swift
+
+### `CalendarView`
+Kept a one-line comment in place: "The calendar planner: when to travel,
+then the event to add." Layout cues come from iOS's New Event screen:
+date before time, and the event shown as rounded groups (title and
+location, then notes) instead of labels explaining it. The green check
+matches the station screen's Save.
+
+### `CalendarView.scheduleDayStart`
+Kept a one-line comment in place. A time before 2:00 AM means late that
+night, so 12:05 AM becomes 1445 minutes, the same rule as `GoodTimes`.
+
+### `body`, the `ViewThatFits` row
+Kept a one-line comment in place. (Leave at) (Oct 21, 2026) (1:55 PM) on
+one line; when that's too wide (small phones, large text), the date
+shows as 10/21/26 instead. Checked on the iPhone 17e at extra-extra-large
+text.
+
+### `whenRow(numericDate:)`
+Kept a one-line comment in place. The Leave at menu is styled as a pill
+to match the compact pickers. The numeric date can't be a compact
+`DatePicker` (it has no format option), so it's a button opening the
+graphical picker in a popover, fixed at 320pt wide because a popover
+sizes to its content and squeezes the calendar.
+
+### `initialDate(_:)`
+Kept a one-line comment in place. Today first, or tomorrow for tomorrow's
+trips, then forward up to two weeks, so viewing Weekend on a Tuesday
+plans a Saturday.
+
+### `EventEditor`
+Kept a one-line comment in place. `EKEventEditViewController` runs out of
+process since iOS 17, so adding an event through it needs no calendar
+permission and no usage string in Info.plist. The app's minimum is iOS 17.
+
 ## Sources/CaltrainSchedule.swift
 
 ### `Schedule.remoteURL`

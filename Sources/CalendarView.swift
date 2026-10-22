@@ -2,8 +2,7 @@ import EventKit
 import EventKitUI
 import SwiftUI
 
-/// Plan a trip for the calendar, like Google Maps: Leave at / Arrive by, a
-/// time and a date, then the phone's own new-event screen, filled in.
+/// The calendar planner: when to travel, then the event to add.
 struct CalendarView: View {
     @ObservedObject var viewModel: TripViewModel
     @Environment(\.dismiss) private var dismiss
@@ -16,8 +15,7 @@ struct CalendarView: View {
 
     private let eventStore = EKEventStore()
 
-    // A schedule day starts at 2:00 AM, so a time before then means late that
-    // night (12:05 AM is 1445 minutes), the same rule as GoodTimes.
+    // Before 2:00 AM is still the previous schedule day, as in GoodTimes.
     private static let scheduleDayStart = 120
 
     init(viewModel: TripViewModel) {
@@ -85,18 +83,15 @@ struct CalendarView: View {
                         .pill()
                 }
 
-                // One line: (Leave at) (Oct 21, 2026) (1:55 PM), date then time like
-                // the calendar's Starts row, or (10/21/26) when that doesn't fit.
+                // Falls back to a numeric date (10/21/26) when the row doesn't fit.
                 ViewThatFits(in: .horizontal) {
                     whenRow(numericDate: false)
                     whenRow(numericDate: true)
                 }
 
-                // The event as it lands in the calendar, laid out like the
-                // phone's New Event screen: the title, then the notes.
+                // The event as it will be added, laid out like New Event.
                 VStack(spacing: 12) {
                     if !trains.isEmpty {
-                        // Title and location share a group, as on New Event.
                         eventSection {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text(CalendarTrip.title(destination: viewModel.destination))
@@ -133,9 +128,7 @@ struct CalendarView: View {
         }
     }
 
-    // (Leave at) (Oct 21, 2026) (1:55 PM). The menu is styled as a pill to
-    // match the compact pickers; a numeric date (10/21/26) opens the
-    // calendar in a popover, for when the long date doesn't fit.
+    // (Leave at) (date) (time); a numeric date opens its calendar in a popover.
     private func whenRow(numericDate: Bool) -> some View {
         HStack(spacing: 8) {
             Menu {
@@ -207,9 +200,7 @@ struct CalendarView: View {
         return Calendar.current.date(bySettingHour: minutes / 60, minute: minutes % 60, second: 0, of: Date()) ?? Date()
     }
 
-    // The next date (today first, or tomorrow for tomorrow's trips) whose
-    // schedule matches the one on screen, so viewing Weekend on a Tuesday
-    // plans a Saturday.
+    // The next date whose schedule matches the one on screen.
     private static func initialDate(_ viewModel: TripViewModel) -> Date {
         let trip = viewModel.trips.indices.contains(viewModel.offset) ? viewModel.trips[viewModel.offset] : nil
         let isFuture = trip?.isFuture ?? false
@@ -238,8 +229,7 @@ private extension View {
     }
 }
 
-/// The phone's own new-event screen. Since iOS 17 it runs outside the app,
-/// so adding an event this way needs no calendar permission.
+/// iOS's own new-event screen; needs no calendar permission on iOS 17+.
 private struct EventEditor: UIViewControllerRepresentable {
     let event: EKEvent
     let eventStore: EKEventStore
