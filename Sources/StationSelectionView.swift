@@ -234,7 +234,7 @@ struct StationSelectionView: View {
                 }
             }
         }
-        .alert("Stations Defaults", isPresented: $showSaveConfirm) {
+        .alert("Station Defaults", isPresented: $showSaveConfirm) {
             Button("Save") {
                 viewModel.saveStops()
                 dismiss()
