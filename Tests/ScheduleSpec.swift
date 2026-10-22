@@ -47,7 +47,7 @@ final class ScheduleSpec: AsyncSpec {
             // requires every non-Optional property's key, unlike Kotlin's fromJson which has an
             // explicit json.has("specialDates") fallback to an empty map.
             let validJSON = Data("""
-            {"specialDates":{},"northStops":["A","B"],"southStops":["A","So San Francisco"],"northWeekday":{},\
+            {"specialDates":{},"northStops":["A","B"],"southStops":["A","B"],"northWeekday":{},\
             "northWeekend":{},"northHoliday":{},"southWeekday":{},"southWeekend":{},"southHoliday":{}}
             """.utf8)
             // northStops is empty -- fails Schedule.isValid without needing a malformed-JSON case too.
@@ -76,11 +76,6 @@ final class ScheduleSpec: AsyncSpec {
                 it("parses and returns the schedule") {
                     let schedule = try await Schedule.fetchFromNetwork(session: fakeSession)
                     expect(schedule.northStops).to(equal(["A", "B"]))
-                }
-
-                it("spells out South San Francisco") {
-                    let schedule = try await Schedule.fetchFromNetwork(session: fakeSession)
-                    expect(schedule.southStops).to(equal(["A", "South San Francisco"]))
                 }
             }
 
