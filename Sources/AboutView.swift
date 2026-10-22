@@ -6,6 +6,14 @@ struct AboutView: View {
     var isLoading: Bool = false
     var loadFailed: Bool = false
 
+    // "Version 1.3 (4)", from Info.plist.
+    var versionText: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info?["CFBundleVersion"] as? String ?? "?"
+        return "Version \(version) (\(build))"
+    }
+
     var scheduleDateText: String {
         guard let ms = scheduleDate else { return "Unknown" }
         let date = Date(timeIntervalSince1970: TimeInterval(ms) / 1000)
@@ -49,6 +57,10 @@ struct AboutView: View {
                         .foregroundColor(.appText)
 
                     Text("for iOS")
+                        .font(.system(size: AppStyle.fontOrigin, weight: .regular))
+                        .foregroundColor(.appText)
+
+                    Text(versionText)
                         .font(.system(size: AppStyle.fontOrigin, weight: .regular))
                         .foregroundColor(.appText)
 

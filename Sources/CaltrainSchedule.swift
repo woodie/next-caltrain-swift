@@ -71,7 +71,7 @@ struct Schedule: Codable {
     /// Loads a valid cached schedule from disk, if one exists.
     static func loadCached() -> Schedule? {
         guard let cached = try? Data(contentsOf: cachedFileURL),
-              let schedule = try? JSONDecoder().decode(Schedule.self, from: cached),
+              let schedule = try? JSONDecoder().decode(Schedule.self, from: cached).spellingOutStations(),
               schedule.isValid else {
             return nil
         }
@@ -114,7 +114,7 @@ struct Schedule: Codable {
         guard httpResponse.statusCode == 200 else {
             throw ScheduleError.server(httpResponse.statusCode)
         }
-        let schedule = try JSONDecoder().decode(Schedule.self, from: data)
+        let schedule = try JSONDecoder().decode(Schedule.self, from: data).spellingOutStations()
         guard schedule.isValid else {
             throw ScheduleError.invalidData
         }
@@ -132,5 +132,18 @@ struct CaltrainSchedule {
         } else {
             return .weekday
         }
+    }
+}
+
+extension Schedule {
+    /// The feed abbreviates one station name; the app shows it in full.
+    func spellingOutStations() -> Schedule {
+        let spell = { (stops: [String]) in stops.map { $0 == "So San Francisco" ? "South San Francisco" : $0 } }
+        return Schedule(
+            specialDates: specialDates, northStops: spell(northStops), southStops: spell(southStops),
+            northWeekday: northWeekday, northWeekend: northWeekend, northHoliday: northHoliday,
+            southWeekday: southWeekday, southWeekend: southWeekend, southHoliday: southHoliday,
+            scheduleDate: scheduleDate
+        )
     }
 }

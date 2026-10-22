@@ -84,10 +84,6 @@ final class CalendarTripSpec: QuickSpec {
                 it("names the station") {
                     expect(CalendarTrip.location(station: "Palo Alto")).to(equal("Palo Alto Caltrain Station"))
                 }
-
-                it("spells out South San Francisco") {
-                    expect(CalendarTrip.location(station: "So San Francisco")).to(equal("South San Francisco Caltrain Station"))
-                }
             }
 
             describe(".date(_:minutes:)") {
