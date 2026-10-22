@@ -31,8 +31,8 @@ Kept a one-line comment in place. The location is the boarding station,
 named the way Google and Apple Maps know it, so tapping it in the
 calendar finds the station; both matched "San Francisco Caltrain Station"
 in testing. Street addresses were considered and dropped: about half the
-stations have none in Google Maps (only Plus Codes). The feed's "So San Francisco" is spelled out when the
-schedule loads.
+stations have none in Google Maps (only Plus Codes). The feed's "So San Francisco" is spelled out for Maps
+only; the app shows the abbreviation, which fits the Home circle.
 
 ### `CalendarTrip.notes(origin:destination:trains:)`
 Kept a one-line comment in place. The planned train isn't marked (React

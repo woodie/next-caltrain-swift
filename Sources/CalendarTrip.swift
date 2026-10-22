@@ -49,7 +49,8 @@ enum CalendarTrip {
 
     /// The boarding station, as Maps names it ("Palo Alto Caltrain Station").
     static func location(station: String) -> String {
-        "\(station) Caltrain Station"
+        let name = station == "So San Francisco" ? "South San Francisco" : station
+        return "\(name) Caltrain Station"
     }
 
     /// The route, then the trains.
