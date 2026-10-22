@@ -10,11 +10,14 @@
 		00E5F86A791A60B9A2FAA3BC /* GoodTimes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC7BECF651E4D73D421BF528 /* GoodTimes.swift */; };
 		09C6D3A2F7ADF7C3C3D9FCC6 /* Quick in Frameworks */ = {isa = PBXBuildFile; productRef = 60040C66E560D368A057B5DF /* Quick */; };
 		118E7B03D9B9F799C88527F1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 620056B53323F19CCA107D9E /* ContentView.swift */; };
+		178FC3D3543432542E084323 /* CalendarTrip.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55E9ADF0EEF7032663CBAA1 /* CalendarTrip.swift */; };
 		2C6735388AD096CD58E02B82 /* SpecFixtures.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59CE174C68911276482173C0 /* SpecFixtures.swift */; };
+		3F0D9DA029CA134E6C073430 /* CalendarTripSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8C916C72354FC2CB29EA9F /* CalendarTripSpec.swift */; };
 		5C5AE1A5DEC8D34856C3C298 /* CaltrainScheduleSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E621237438700618E1F3D3 /* CaltrainScheduleSpec.swift */; };
 		5C5C9C2CC00C51B7147D4EF6 /* TripRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1392AC7394F4E821C14D15 /* TripRow.swift */; };
 		5DB330494608AF4A74C2A45A /* TripDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 113A6C3F729D755E18221167 /* TripDetailView.swift */; };
 		5E0905E4CE8A4F298E893060 /* GoodTimesSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42408915F7FBD71231646650 /* GoodTimesSpec.swift */; };
+		768A6531DD7BBF8477A62D89 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D46E1BD02B4E8363795FD3AA /* CalendarView.swift */; };
 		7A31620A57738CF102F86629 /* CaltrainService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB016FFA399EBCEDDB29AB2 /* CaltrainService.swift */; };
 		7F78A615FE8372F472227F22 /* ScheduleSpec.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819EFB2BDE4583B8A399C695 /* ScheduleSpec.swift */; };
 		967645C082506F7CA8C9E23A /* CaltrainSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEF306EBBF818D5A5388BBCF /* CaltrainSchedule.swift */; };
@@ -59,11 +62,14 @@
 		7CB016FFA399EBCEDDB29AB2 /* CaltrainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaltrainService.swift; sourceTree = "<group>"; };
 		819EFB2BDE4583B8A399C695 /* ScheduleSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleSpec.swift; sourceTree = "<group>"; };
 		9B64043D1B2AC8C3C22F71CE /* NextCaltrainApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NextCaltrainApp.swift; sourceTree = "<group>"; };
+		A55E9ADF0EEF7032663CBAA1 /* CalendarTrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTrip.swift; sourceTree = "<group>"; };
 		A75B4E3671CB871E62291A6E /* TripViewModelSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripViewModelSpec.swift; sourceTree = "<group>"; };
+		AC8C916C72354FC2CB29EA9F /* CalendarTripSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTripSpec.swift; sourceTree = "<group>"; };
 		AD1392AC7394F4E821C14D15 /* TripRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripRow.swift; sourceTree = "<group>"; };
 		CAB9136C0B8781CDE2452A3B /* AboutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutView.swift; sourceTree = "<group>"; };
 		CBB6A0C8E0723AF0BB1830F6 /* CaltrainServiceSpec.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaltrainServiceSpec.swift; sourceTree = "<group>"; };
 		CF91C9952A33108B634F950C /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		D46E1BD02B4E8363795FD3AA /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		F004781BE584AA5BC7EF6C67 /* TripListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TripListView.swift; sourceTree = "<group>"; };
 		F6F7DD95FCEAFD0D2923CB2E /* StationPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StationPickerView.swift; sourceTree = "<group>"; };
 		FC7BECF651E4D73D421BF528 /* GoodTimes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoodTimes.swift; sourceTree = "<group>"; };
@@ -86,6 +92,7 @@
 		29A118ACDE4F750C6E7EAD13 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				AC8C916C72354FC2CB29EA9F /* CalendarTripSpec.swift */,
 				51E621237438700618E1F3D3 /* CaltrainScheduleSpec.swift */,
 				CBB6A0C8E0723AF0BB1830F6 /* CaltrainServiceSpec.swift */,
 				6AF6DD8EAA870834ADCCDC01 /* FakeScheduleHTTPClient.swift */,
@@ -111,6 +118,8 @@
 			children = (
 				CAB9136C0B8781CDE2452A3B /* AboutView.swift */,
 				51F21841F39E953A017B9354 /* AppStyle.swift */,
+				A55E9ADF0EEF7032663CBAA1 /* CalendarTrip.swift */,
+				D46E1BD02B4E8363795FD3AA /* CalendarView.swift */,
 				FEF306EBBF818D5A5388BBCF /* CaltrainSchedule.swift */,
 				7CB016FFA399EBCEDDB29AB2 /* CaltrainService.swift */,
 				620056B53323F19CCA107D9E /* ContentView.swift */,
@@ -243,6 +252,8 @@
 			files = (
 				F5D37F9AA8080ED15233BDA2 /* AboutView.swift in Sources */,
 				B13E06C226AC4C78B867A5F3 /* AppStyle.swift in Sources */,
+				178FC3D3543432542E084323 /* CalendarTrip.swift in Sources */,
+				768A6531DD7BBF8477A62D89 /* CalendarView.swift in Sources */,
 				967645C082506F7CA8C9E23A /* CaltrainSchedule.swift in Sources */,
 				7A31620A57738CF102F86629 /* CaltrainService.swift in Sources */,
 				118E7B03D9B9F799C88527F1 /* ContentView.swift in Sources */,
@@ -262,6 +273,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F0D9DA029CA134E6C073430 /* CalendarTripSpec.swift in Sources */,
 				5C5AE1A5DEC8D34856C3C298 /* CaltrainScheduleSpec.swift in Sources */,
 				C47EC8D3CF82C4C15A6AD1E6 /* CaltrainServiceSpec.swift in Sources */,
 				9D56F8497F1725269F2D9D0D /* FakeScheduleHTTPClient.swift in Sources */,

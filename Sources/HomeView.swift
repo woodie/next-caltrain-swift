@@ -6,6 +6,7 @@ struct HomeView: View {
     @State private var showTripList: Bool = false
     @State private var showStationSelection: Bool = false
     @State private var showAbout: Bool = false
+    @State private var showCalendar: Bool = false
     @State private var dragShift: Int = 0
 
     private let rowHeight: CGFloat = 44
@@ -107,6 +108,21 @@ struct HomeView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
 
+                // Below swap, where the trip list has it too.
+                HStack {
+                    Spacer()
+                    Button {
+                        showCalendar = true
+                    } label: {
+                        Image(systemName: "calendar")
+                            .foregroundColor(.appText)
+                            .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                            .background(Circle().fill(Color.iconCircleBackground))
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
+
                 Spacer()
             }
 
@@ -127,6 +143,11 @@ struct HomeView: View {
             NavigationLink(destination: AboutView(
                     scheduleDate: viewModel.schedule.scheduleDate
                 ), isActive: $showAbout) {
+                EmptyView()
+            }
+            NavigationLink(destination: CalendarView(
+                    viewModel: viewModel
+                ), isActive: $showCalendar) {
                 EmptyView()
             }
         }

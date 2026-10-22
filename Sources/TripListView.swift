@@ -4,6 +4,7 @@ struct TripListView: View {
     @ObservedObject var viewModel: TripViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var showStationSelection: Bool = false
+    @State private var showCalendar: Bool = false
     @State private var blinkOn: Bool = true
     @State private var dragShift: Int = 0
     @State private var suppressTap: Bool = false
@@ -154,6 +155,9 @@ struct TripListView: View {
             NavigationLink(destination: StationSelectionView(viewModel: viewModel), isActive: $showStationSelection) {
                 EmptyView()
             }
+            NavigationLink(destination: CalendarView(viewModel: viewModel), isActive: $showCalendar) {
+                EmptyView()
+            }
         }
         .navigationBarHidden(true)
         .onReceive(Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()) { _ in
@@ -205,8 +209,13 @@ struct TripListView: View {
                 .contentShape(Rectangle())
                 .onTapGesture { showStationSelection = true }
                 Spacer()
-                Color.clear
-                    .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                // Below swap, mirroring the back button; the same spot as on Home.
+                Button { showCalendar = true } label: {
+                    Image(systemName: "calendar")
+                        .foregroundColor(.appText)
+                        .frame(width: AppStyle.iconButtonSize, height: AppStyle.iconButtonSize)
+                        .background(Circle().fill(Color.iconCircleBackground))
+                }
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
