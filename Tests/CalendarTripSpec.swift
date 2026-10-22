@@ -80,6 +80,16 @@ final class CalendarTripSpec: QuickSpec {
                 }
             }
 
+            describe(".location(station:)") {
+                it("names the station") {
+                    expect(CalendarTrip.location(station: "Palo Alto")).to(equal("Palo Alto Caltrain Station"))
+                }
+
+                it("spells out South San Francisco") {
+                    expect(CalendarTrip.location(station: "So San Francisco")).to(equal("South San Francisco Caltrain Station"))
+                }
+            }
+
             describe(".date(_:minutes:)") {
                 it("is that time on Pacific time") {
                     expect(pacific(CalendarTrip.date("2026-05-21", minutes: 17 * 60 + 55))).to(equal("2026-05-21 17:55"))

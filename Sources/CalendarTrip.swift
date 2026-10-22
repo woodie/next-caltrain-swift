@@ -52,6 +52,14 @@ enum CalendarTrip {
         "Caltrain to \(destination)"
     }
 
+    /// The event location: the boarding station, named the way Google and
+    /// Apple Maps know it ("Palo Alto Caltrain Station"), so tapping it in the
+    /// calendar finds the station. The feed abbreviates one name.
+    static func location(station: String) -> String {
+        let name = station == "So San Francisco" ? "South San Francisco" : station
+        return "\(name) Caltrain Station"
+    }
+
     /// The event notes: the route, then the trains. The event's own times
     /// already say which one is planned, so the notes don't mark it.
     static func notes(origin: String, destination: String, trains: [PlannedTrain]) -> String {

@@ -96,8 +96,13 @@ struct CalendarView: View {
                 // phone's New Event screen: the title, then the notes.
                 VStack(spacing: 12) {
                     if !trains.isEmpty {
+                        // Title and location share a group, as on New Event.
                         eventSection {
-                            Text(CalendarTrip.title(destination: viewModel.destination))
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text(CalendarTrip.title(destination: viewModel.destination))
+                                Divider()
+                                Text(CalendarTrip.location(station: viewModel.origin))
+                            }
                         }
                         eventSection {
                             Text(CalendarTrip.notes(origin: viewModel.origin, destination: viewModel.destination, trains: trains))
@@ -187,6 +192,7 @@ struct CalendarView: View {
               let end = CalendarTrip.date(isoDate, minutes: planned.arrive) else { return nil }
         let event = EKEvent(eventStore: eventStore)
         event.title = CalendarTrip.title(destination: viewModel.destination)
+        event.location = CalendarTrip.location(station: viewModel.origin)
         event.startDate = start
         event.endDate = end
         event.timeZone = CalendarTrip.timeZone
