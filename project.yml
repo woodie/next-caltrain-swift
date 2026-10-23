@@ -33,7 +33,8 @@ targets:
         # The version lives here: xcodegen rewrites Info.plist on every build.
         CFBundleShortVersionString: "1.3"
         CFBundleVersion: "5"
-        UILaunchStoryboardName: ""
+        # Required by the iOS 27 SDK; empty means the system background.
+        UILaunchScreen: {}
   NextCaltrainTests:
     type: bundle.unit-test
     platform: iOS
