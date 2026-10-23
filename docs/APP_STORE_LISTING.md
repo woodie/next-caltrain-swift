@@ -29,6 +29,11 @@ No clutter from skipped stations, no dense spreadsheet-style tables. Just
 your route, your next train, and the full stop-by-stop schedule when you
 want it — all in large, easy-to-read type.
 
+PLAN AHEAD
+Heading somewhere next week? Pick a date and when you need to leave or
+arrive, and Next Caltrain finds the train — then adds it to your calendar,
+with the trains just before and after in the notes.
+
 WORKS OFFLINE
 Schedule data is cached on your device, so you're covered even with no
 signal underground or between stations.
