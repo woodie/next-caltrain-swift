@@ -12,7 +12,12 @@ submission, or a routine update to an already-live listing.
   days for an individual account.
 - **Xcode 26+ / iOS 26 SDK.** Mandatory for every upload since April 28,
   2026 — Apple rejects builds made with an older SDK at the upload step.
-  Check with `xcodebuild -version` before archiving.
+  Check with `xcodebuild -version` before archiving. Woodie's Mac has Xcode
+  27.1 (2026-10-23).
+- **A launch screen**, required for uploads built with the iOS 27 SDK.
+  `project.yml` declares `UILaunchScreen: {}` (the system background, which
+  matches the app's). An empty `UILaunchStoryboardName` no longer counts:
+  App Store Connect refused 1.3 (5) for it until #28.
 - **Signing** — `DEVELOPMENT_TEAM = 754T277KBJ` is already wired into
   `project.yml` (and regenerated into `project.pbxproj` by `xcodegen`), using
   Automatic Signing. Unlike the Android keystore, there's no local secret
@@ -33,8 +38,11 @@ submission, or a routine update to an already-live listing.
 
 1. **Device family — decided: iPhone-only.** `project.yml` sets
    `TARGETED_DEVICE_FAMILY: "1"` on the `NextCaltrain` target. Run
-   `./build.sh` (wraps `xcodegen generate`) and confirm all 4 occurrences in
-   `project.pbxproj` read `"1"`, not `"1,2"`, before archiving. This avoids
+   `./build.sh` (wraps `xcodegen generate`) and confirm the `NextCaltrain`
+   target's Debug and Release configurations in `project.pbxproj` read
+   `TARGETED_DEVICE_FAMILY = 1`, not `"1,2"`, before archiving. The other
+   two occurrences, `"1,2"`, belong to the `NextCaltrainTests` bundle,
+   which doesn't ship. This avoids
    the iPad-screenshot requirement and the never-verified iPad layout risk
    noted in `docs/SCREENSHOTS.md`.
 2. **Register the Bundle ID** (if not already): developer.apple.com/account →
@@ -104,6 +112,26 @@ submission, or a routine update to an already-live listing.
    each to the final **Upload** button. (`xcrun altool` is deprecated;
    Organizer or the App Store Connect API are the current paths — re-check
    Apple's tooling at submission time, as this has changed before.)
+
+   **Or from Terminal**, which is how 1.3 (5) went up on 2026-10-23. It
+   uses the Apple account signed into Xcode, so no API key or secret is
+   involved:
+
+   ```
+   xcodebuild -project NextCaltrain.xcodeproj -scheme NextCaltrain \
+     -configuration Release -destination 'generic/platform=iOS' \
+     -archivePath "$HOME/Library/Developer/Xcode/Archives/<date>/NextCaltrain <version> (<build>).xcarchive" \
+     -allowProvisioningUpdates archive
+   xcodebuild -exportArchive -archivePath "<that archive>" \
+     -exportOptionsPlist ExportOptions.plist -exportPath export \
+     -allowProvisioningUpdates
+   ```
+
+   `ExportOptions.plist` sets `method` to `app-store-connect`,
+   `destination` to `upload`, `teamID` to `754T277KBJ`, `signingStyle` to
+   `automatic` and `uploadSymbols` to true. Success ends with "Upload
+   succeeded"; a refusal (like the missing launch screen) prints Apple's
+   reason and `EXPORT FAILED`, and leaves the build number unused.
 7. **Wait for processing** in App Store Connect (usually a few minutes, can
    run longer) — the build appears under **TestFlight → iOS Builds**,
    grouped under its version number, once ready.

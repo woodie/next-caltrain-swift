@@ -5,6 +5,25 @@ Caltrain schedule app). The `next-caltrain-pwa` repo also hosts a published
 `schedule.json` that this app fetches at runtime.
 Cross-project conventions (git locks, sandbox toolchain) are in `~/workspace/woodie/docs/COWORK.md`.
 
+## Where things stand (2026-10-23)
+
+- **1.3 (build 5) is uploaded to App Store Connect** (2026-10-23), archived
+  from `main` and uploaded from Woodie's Mac with `xcodebuild` (see
+  `docs/RELEASE.md`). It adds the About version line and keeps "So San
+  Francisco". The first upload was refused for a missing launch screen
+  (fixed in #28). Tag `v1.3` marks build 4; build 5 has no tag yet.
+- **Apple's Guideline 2.1 "Information Needed" hold still needs its reply:**
+  a screen recording plus seven answers, both in `docs/script.md` (now
+  covering the calendar planner). Woodie decides whether to reply about the
+  build under review or switch the submission to build 5 and resubmit;
+  switching makes the video, notes and binary match. Paste the new
+  description from `docs/APP_STORE_LISTING.md` ("Plan Ahead") when
+  submitting.
+- **Open: #26**, give `TripViewModel` an injected clock so
+  `TripViewModelSpec` can drop `GoodTimes.dotwSeed`/`minutesSeed`. If
+  Woodie goes ahead, open minimal matching issues in next-caltrain-kotlin
+  and next-caltrain-react then, to keep the three specs in parity.
+
 ## Edit cycle
 
 Cowork has direct read/write access to this repo's working copy and edits files in place
@@ -17,6 +36,13 @@ with its file tools — no download/move step. After changes:
 `./build.sh` wraps `xcodegen` (regenerates the Xcode project — needed when
 files are added/removed) + `xcodebuild ... | grep "error:"` (build, only
 errors printed) + `xcrun simctl uninstall` (clean reinstall).
+
+`./build.sh` exits 0 even when the build fails, since `grep ... || true`
+swallows xcodebuild's status: read its output, don't trust the exit code.
+Under Xcode 27.1 its name-based destination ("iPhone 17 Pro Max") failed to
+match even with that simulator booted; building by ID worked
+(`-destination "platform=iOS Simulator,id=<udid>"`, from `xcrun simctl list
+devices booted`), as `test.sh` already does.
 
 `./run.sh` installs and launches the app in the simulator. By default it
 preserves existing app data (cache, UserDefaults) across runs, forcing only a
