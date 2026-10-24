@@ -37,10 +37,10 @@ One take of about two minutes, starting on the iPhone Home Screen, covers every 
 | 1:20 | Go back to Home and tap the calendar button below swap. The planner opens on the selected train, showing the event as it will be added: title, boarding station, and the trains before and after | Plan a trip for later |
 | 1:30 | Switch "Leave at" to "Arrive by", pick a date next week and a time; the planned train changes to match | Leave at or arrive by |
 | 1:40 | Tap the green check: iOS's own New Event screen opens, filled in. Tap Add | Added to your calendar, with no permission prompt |
-| 1:50 | Back on Home, tap the "Next Caltrain" title to open About, which names the schedule's data source | About and data source |
+| 1:50 | Back on Home, tap the "Next Caltrain" title to open About, which shows the schedule date | About and schedule date |
 | 2:00 | Swipe up to the Home Screen to end |  |
 
-Before recording, set the stations back to your usual pair so the first screen looks like a normal day. Record on a weekday so the South County transfer at 1:10 has trains to show. The event added at 1:40 is real: delete it from Calendar afterward.
+Before recording, set the stations back to your usual pair so the first screen looks like a normal day. Record on a weekday so the South County transfer at 1:10 has trains to show. Afterward, delete the event added at 1:40 from Calendar, and set the stations back to your usual pair, since the Save at 0:55 stores San Francisco and Gilroy as defaults.
 
 ## Steps to publish
 
