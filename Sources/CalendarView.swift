@@ -12,6 +12,7 @@ struct CalendarView: View {
     @State private var showStationSelection = false
     @State private var event: EKEvent?
     @State private var showDatePicker = false
+    @State private var showTimePicker = false
 
     private let eventStore = EKEventStore()
 
@@ -83,10 +84,15 @@ struct CalendarView: View {
                         .pill()
                 }
 
-                // Falls back to a numeric date (10/21/26) when the row doesn't fit.
+                // Falls back to a numeric date (10/21/26), then to two lines, when the row doesn't fit.
                 ViewThatFits(in: .horizontal) {
                     whenRow(numericDate: false)
                     whenRow(numericDate: true)
+                    VStack(spacing: 8) {
+                        modeMenu
+                        HStack(spacing: 8) { datePicker(numeric: true); timePicker(text: true) }
+                            .fixedSize()
+                    }
                 }
 
                 // The event as it will be added, laid out like New Event.
@@ -128,43 +134,76 @@ struct CalendarView: View {
         }
     }
 
-    // (Leave at) (date) (time); a numeric date opens its calendar in a popover.
+    // (Leave at) (date) (time) on one line.
     private func whenRow(numericDate: Bool) -> some View {
         HStack(spacing: 8) {
-            Menu {
-                Picker("Plan", selection: $mode) {
-                    ForEach(PlanMode.allCases, id: \.self) { Text($0.rawValue) }
-                }
-            } label: {
-                HStack(spacing: 4) {
-                    Text(mode.rawValue)
-                    Image(systemName: "chevron.up.chevron.down")
-                        .font(.caption)
-                }
-                .pill()
+            modeMenu
+            datePicker(numeric: numericDate)
+            timePicker(text: numericDate)
+        }
+        .fixedSize()
+    }
+
+    private var modeMenu: some View {
+        Menu {
+            Picker("Plan", selection: $mode) {
+                ForEach(PlanMode.allCases, id: \.self) { Text($0.rawValue) }
             }
-            if numericDate {
-                Button { showDatePicker = true } label: {
-                    Text(date, format: .dateTime.month(.defaultDigits).day().year(.twoDigits))
-                        .pill()
-                }
-                .popover(isPresented: $showDatePicker) {
-                    DatePicker("Date", selection: $date, displayedComponents: .date)
-                        .datePickerStyle(.graphical)
-                        // A popover sizes to its content, which squeezes the calendar.
-                        .frame(width: 320)
-                        .padding()
-                        .presentationCompactAdaptation(.popover)
-                }
-            } else {
+        } label: {
+            HStack(spacing: 4) {
+                Text(mode.rawValue)
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.caption)
+            }
+            .lineLimit(1)
+            .pill()
+        }
+        .fixedSize()
+    }
+
+    // A numeric date opens its calendar in a popover.
+    @ViewBuilder
+    private func datePicker(numeric: Bool) -> some View {
+        if numeric {
+            Button { showDatePicker = true } label: {
+                Text(date, format: .dateTime.month(.defaultDigits).day().year(.twoDigits))
+                    .lineLimit(1)
+                    .pill()
+            }
+            .popover(isPresented: $showDatePicker) {
                 DatePicker("Date", selection: $date, displayedComponents: .date)
-                    .labelsHidden()
+                    .datePickerStyle(.graphical)
+                    // A popover sizes to its content, which squeezes the calendar.
+                    .frame(width: 320)
+                    .padding()
+                    .presentationCompactAdaptation(.popover)
             }
+        } else {
+            DatePicker("Date", selection: $date, displayedComponents: .date)
+                .labelsHidden()
+        }
+    }
+
+    // As text, the time measures true; the compact picker under-reports its width at large text sizes.
+    @ViewBuilder
+    private func timePicker(text: Bool) -> some View {
+        if text {
+            Button { showTimePicker = true } label: {
+                Text(time, format: .dateTime.hour().minute())
+                    .lineLimit(1)
+                    .pill()
+            }
+            .popover(isPresented: $showTimePicker) {
+                DatePicker("Time", selection: $time, displayedComponents: .hourAndMinute)
+                    .datePickerStyle(.wheel)
+                    .labelsHidden()
+                    .padding()
+                    .presentationCompactAdaptation(.popover)
+            }
+        } else {
             DatePicker("Time", selection: $time, displayedComponents: .hourAndMinute)
                 .labelsHidden()
         }
-        .lineLimit(1)
-        .fixedSize()
     }
 
     // One rounded group of the New Event screen.
