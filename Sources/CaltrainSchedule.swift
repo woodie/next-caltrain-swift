@@ -58,7 +58,7 @@ struct Schedule: Codable {
     // see docs/COWORK.md "Endpoint resolution".
     private static let remoteURL = URL(
         string: ProcessInfo.processInfo.environment["SCHEDULE_URL"]
-            ?? "https://next-caltrain-pwa.appspot.com/feed/schedule.json"
+            ?? "https://next-caltrain-app.appspot.com/feed/schedule.json"
     )!
     // Not private: tests (@testable import) check/clean up the real cache file directly.
     static let cacheFileName = "schedule.json"

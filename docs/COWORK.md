@@ -245,11 +245,11 @@ this needs tightening later.
   bundle. On first launch with no cache and a failed/slow fetch, the app
   shows a loading state (see "Startup / loading flow" below) until the
   network fetch succeeds.
-- **Published copy**: `../next-caltrain-pwa/feed/schedule.json` — regenerated
-  by `update_json.py` in `next-caltrain-pwa` (the CSV→JSON conversion moved
-  there; see "Update (2026-06-18)" note in `docs/GIT_WORKFLOW.md`), then
-  `npm run deploy` (gcloud App Engine). Served at
-  `https://next-caltrain-pwa.appspot.com/feed/schedule.json`. (A separate,
+- **Published copy**: built from Caltrain's GTFS by `next-caltrain-react`'s
+  GitHub Actions and served at
+  `https://next-caltrain-app.appspot.com/feed/schedule.json`. Through 1.3 the
+  app read `https://next-caltrain-pwa.appspot.com/feed/schedule.json`, built
+  by `update_json.py` in `next-caltrain-pwa`. (A separate,
   hand-frozen `next-caltrain-pwa/webapp/schedule.json` is served at the
   legacy `/schedule.json` URL solely for the iOS 1.0 App Store review build
   — see that repo's `docs/PUBLISHING.md` "Schedule JSON URLs" section.)
