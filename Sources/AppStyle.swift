@@ -16,7 +16,7 @@ extension Color {
         dark: Color(red: 0.20, green: 0.55, blue: 1.0)   // #338CFF
     )
     static let calArrive = Color(                         // GREEN
-        light: Color(red: 0.0, green: 0.62, blue: 0.4),  // #009e0b
+        light: Color(red: 0.0, green: 0.62, blue: 0.4),  // #009E66
         dark: Color(red: 0.0, green: 1.0, blue: 0.0)   // #0F0
     )
     static let calDepart = Color(                         // YELLOW
